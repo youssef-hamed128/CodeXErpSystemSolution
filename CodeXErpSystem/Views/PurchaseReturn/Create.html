@@ -1,0 +1,178 @@
+﻿<!DOCTYPE html>
+<!-- Sales Return Create | Views/PurchaseReturn/Create.cshtml -->
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مرتجع بيع جديد | CodeX Erp System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../wwwroot/lib/fontawesome/css/all.min.css">
+  <link rel="stylesheet" href="../../wwwroot/css/variables.css"><link rel="stylesheet" href="../../wwwroot/css/main.css"><link rel="stylesheet" href="../../wwwroot/css/layout.css"><link rel="stylesheet" href="../../wwwroot/css/components.css">
+</head>
+<body class="rtl">
+<nav class="sidebar" id="sidebar"><a class="sidebar-brand" href="../Home/Index.html"><div class="sidebar-brand-icon"><i class="fas fa-chart-line"></i></div><div class="sidebar-brand-text"><span class="sidebar-brand-name">CodeX Erp System</span></div></a><div class="sidebar-nav-wrapper">      <ul class="sidebar-nav">
+  <li class="nav-section-label">الرئيسية</li>
+  <li class="nav-item"><a class="nav-link" href="../Home/Index.html"><span class="nav-icon"><i class="fas fa-home"></i></span><span class="nav-text">الصفحة الرئيسية</span></a></li>
+  
+  <li class="nav-section-label">المبيعات</li>
+  <li class="nav-item"><a class="nav-link" href="../SalesQuotation/Index.html"><span class="nav-icon"><i class="fas fa-file-signature"></i></span><span class="nav-text">عروض الأسعار</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../SalesInvoice/Index.html"><span class="nav-icon"><i class="fas fa-file-invoice-dollar"></i></span><span class="nav-text">فواتير المبيعات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../PurchaseReturn/Index.html"><span class="nav-icon"><i class="fas fa-undo"></i></span><span class="nav-text">مرتجعات المبيعات</span></a></li>
+
+  <li class="nav-section-label">المشتريات</li>
+  <li class="nav-item"><a class="nav-link" href="../PurchaseInvoice/PurchaseOrders.html"><span class="nav-icon"><i class="fas fa-file-contract"></i></span><span class="nav-text">أوامر الشراء</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../PurchaseInvoice/Index.html"><span class="nav-icon"><i class="fas fa-file-invoice"></i></span><span class="nav-text">فواتير المشتريات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../PurchaseReturn/Index.html"><span class="nav-icon"><i class="fas fa-undo-alt"></i></span><span class="nav-text">مرتجعات المشتريات</span></a></li>
+
+  <li class="nav-section-label">المخزون</li>
+  <li class="nav-item"><a class="nav-link" href="../Inventory/Products.html"><span class="nav-icon"><i class="fas fa-box"></i></span><span class="nav-text">المنتجات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Inventory/Warehouses.html"><span class="nav-icon"><i class="fas fa-warehouse"></i></span><span class="nav-text">المستودعات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Inventory/StockTransfer.html"><span class="nav-icon"><i class="fas fa-exchange-alt"></i></span><span class="nav-text">نقل المخزون</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Inventory/StockAdjustment.html"><span class="nav-icon"><i class="fas fa-sliders-h"></i></span><span class="nav-text">تسوية المخزون</span></a></li>
+
+  <li class="nav-section-label">المحاسبة</li>
+  <li class="nav-item"><a class="nav-link" href="../Accounting/ChartOfAccounts.html"><span class="nav-icon"><i class="fas fa-book"></i></span><span class="nav-text">دليل الحسابات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Accounting/JournalEntries.html"><span class="nav-icon"><i class="fas fa-balance-scale"></i></span><span class="nav-text">القيود اليومية</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Accounting/Payments.html"><span class="nav-icon"><i class="fas fa-money-check-alt"></i></span><span class="nav-text">المدفوعات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Accounting/Customers.html"><span class="nav-icon"><i class="fas fa-users"></i></span><span class="nav-text">العملاء</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Accounting/Suppliers.html"><span class="nav-icon"><i class="fas fa-truck"></i></span><span class="nav-text">الموردون</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Accounting/Expenses.html"><span class="nav-icon"><i class="fas fa-receipt"></i></span><span class="nav-text">المصروفات</span></a></li>
+
+  <li class="nav-section-label">التقارير</li>
+  <li class="nav-item"><a class="nav-link" href="../Reports/Index.html"><span class="nav-icon"><i class="fas fa-chart-line"></i></span><span class="nav-text">مركز التقارير</span></a></li>
+
+  <li class="nav-section-label">الإعدادات</li>
+  <li class="nav-item"><a class="nav-link" href="../Users/Index.html"><span class="nav-icon"><i class="fas fa-users-cog"></i></span><span class="nav-text">المستخدمين والصلاحيات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Settings/Index.html"><span class="nav-icon"><i class="fas fa-cogs"></i></span><span class="nav-text">إعدادات النظام</span></a></li>
+</ul>
+</div>
+</nav>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="main-wrapper" id="mainWrapper">
+  <header class="navbar"><div class="navbar-start"><button class="sidebar-toggle-btn" id="sidebarToggle"><i class="fas fa-bars"></i></button></div><div class="navbar-end"><div class="lang-switcher"><button class="lang-btn active" data-lang="ar">عربي</button><button class="lang-btn" data-lang="en">EN</button></div><button class="theme-toggle navbar-btn" id="themeToggle"><i class="fas fa-moon"></i></button></div></header>
+  <main class="content-wrapper">
+    <nav class="breadcrumb"><div class="breadcrumb-item"><a href="../Home/Index.html"><i class="fas fa-home"></i> الرئيسية</a></div><div class="breadcrumb-item"><a href="Index.html">مرتجعات البيع</a></div><div class="breadcrumb-item active">مرتجع جديد</div></nav>
+    <div class="page-header"><div class="page-header-left"><h1 class="page-title"><i class="fas fa-undo-alt" style="color:var(--warning);"></i> مرتجع بيع جديد</h1></div><div class="page-header-right"><a href="Index.html" class="btn btn-outline-secondary"><i class="fas fa-arrow-right"></i> رجوع</a></div></div>
+
+    <form id="returnForm" method="post" action="/PurchaseReturn/Create">
+      <!-- @Html.AntiForgeryToken() -->
+      <input type="hidden" name="ReturnType" value="PurchaseReturn">
+
+      <div class="invoice-layout">
+        <!-- Step 1: Link to Invoice -->
+        <div class="invoice-section">
+          <div class="invoice-section-header"><i class="fas fa-link"></i> الربط بالفاتورة الأصلية</div>
+          <div class="invoice-section-body">
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label required">رقم الفاتورة الأصلية</label>
+                <div style="display:flex;gap:var(--spacing-2);">
+                  <input type="text" class="form-control" name="OriginalInvoiceNumber" id="originalInvoiceNum" placeholder="مثال: INV-2024-0003" style="flex:1;">
+                  <button type="button" class="btn btn-primary" onclick="searchInvoice()"><i class="fas fa-search"></i> بحث</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">تاريخ المرتجع</label>
+                <input type="date" class="form-control" name="ReturnDate" id="returnDate">
+              </div>
+            </div>
+
+            <!-- Found Invoice Info -->
+            <div id="invoiceInfo" style="display:none;">
+              <div class="alert alert-info" style="margin-top:var(--spacing-4);">
+                <i class="fas fa-info-circle"></i>
+                <div>
+                  <strong>الفاتورة الأصلية: INV-2024-0003</strong><br>
+                  <span>المورد: شركة الرياض للمقاولات &nbsp;|&nbsp; التاريخ: 20 يناير 2024 &nbsp;|&nbsp; الإجمالي: 95,000.00 ر.س</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Returned Items -->
+        <div class="invoice-section" id="returnedItemsSection">
+          <div class="invoice-section-header"><i class="fas fa-boxes"></i> البنود المُرجَعة</div>
+          <div class="invoice-section-body" style="padding:0;">
+            <div class="table-responsive">
+              <table class="invoice-items-table">
+                <thead><tr><th style="width:5%;" class="center"><input type="checkbox" title="تحديد الكل"></th><th style="width:25%;">المنتج</th><th style="width:10%;">الكمية المباعة</th><th style="width:10%;">الكمية المُرجَعة</th><th style="width:10%;">سعر الوحدة</th><th style="width:15%;">سبب الإرجاع</th><th style="width:10%;">الإجمالي</th></tr></thead>
+                <tbody id="returnItemsBody">
+                  <tr><td class="center"><input type="checkbox" name="Items[0].Selected"></td><td>لاب توب Dell XPS 15</td><td class="numeric">5</td><td><input type="number" class="form-control item-qty" name="Items[0].ReturnQuantity" value="0" min="0" max="5" style="padding:0.3rem 0.5rem;"></td><td class="numeric">4,500.00</td><td><select class="form-select" name="Items[0].ReturnReason" style="font-size:var(--fs-xs);padding:0.3rem;"><option value="">-- السبب --</option><option>تالف</option><option>منتج خاطئ</option><option>المورد غيّر رأيه</option><option>عيب في الصنع</option><option>لا يطابق الوصف</option></select></td><td class="line-total numeric">0.00</td></tr>
+                  <tr><td class="center"><input type="checkbox" name="Items[1].Selected"></td><td>ماوس لاسلكي Logitech</td><td class="numeric">10</td><td><input type="number" class="form-control item-qty" name="Items[1].ReturnQuantity" value="0" min="0" max="10" style="padding:0.3rem 0.5rem;"></td><td class="numeric">150.00</td><td><select class="form-select" name="Items[1].ReturnReason" style="font-size:var(--fs-xs);padding:0.3rem;"><option value="">-- السبب --</option><option>تالف</option><option>منتج خاطئ</option><option>المورد غيّر رأيه</option><option>عيب في الصنع</option></select></td><td class="line-total numeric">0.00</td></tr>
+                </tbody>
+                <tfoot><tr><td colspan="6" style="padding:var(--spacing-3) var(--spacing-4);font-weight:700;text-align:right;">إجمالي المرتجع:</td><td class="numeric" id="returnTotal" style="padding:var(--spacing-3) var(--spacing-4);font-weight:700;font-size:var(--fs-lg);color:var(--danger);">0.00</td></tr></tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Refund Method -->
+        <div class="invoice-section">
+          <div class="invoice-section-header"><i class="fas fa-money-bill-wave"></i> طريقة الاسترداد والملاحظات</div>
+          <div class="invoice-section-body">
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label required">طريقة الاسترداد</label>
+                <select class="form-select" name="RefundMethod" required>
+                  <option value="">-- اختر طريقة الاسترداد --</option>
+                  <option value="cash">استرداد نقدي</option>
+                  <option value="credit_note">إشعار دائن (خصم من المديونية)</option>
+                  <option value="exchange">استبدال بمنتج آخر</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">تحديث المخزون تلقائياً</label>
+                <div class="form-check" style="margin-top:var(--spacing-2);">
+                  <input type="checkbox" class="toggle-slider" name="UpdateStock" id="updateStock" checked>
+                  <label for="updateStock">نعم، أضِف البضاعة المُرجَعة إلى المخزون</label>
+                </div>
+              </div>
+              <div class="form-group" style="grid-column:span 2;">
+                <label class="form-label">ملاحظات إضافية</label>
+                <textarea class="form-control" name="Notes" rows="3" placeholder="ملاحظات على المرتجع..."></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="invoice-action-bar no-print">
+        <button type="button" class="btn btn-warning" onclick="showToast('تم تسجيل المرتجع بنجاح','success'); setTimeout(()=>window.location.href='Index.html',1500);">
+          <i class="fas fa-undo"></i> تأكيد المرتجع
+        </button>
+        <button type="button" class="btn btn-outline-secondary" onclick="printPage()"><i class="fas fa-print"></i> طباعة</button>
+        <a href="Index.html" class="btn btn-ghost" style="margin-right:auto;"><i class="fas fa-times"></i> إلغاء</a>
+      </div>
+    </form>
+  </main>
+</div>
+<div class="modal-overlay" id="confirmModal"><div class="modal modal-sm"><div class="modal-header"><h5 class="modal-title" id="confirmModalTitle"></h5><button class="modal-close" data-modal-close="confirmModal"><i class="fas fa-times"></i></button></div><div class="modal-body" style="text-align:center;padding:var(--spacing-8);"><div class="confirm-icon danger" id="confirmIcon"><i class="fas fa-trash"></i></div><p id="confirmMessage"></p></div><div class="modal-footer" style="justify-content:center;"><button class="btn btn-secondary" data-modal-close="confirmModal" id="confirmCancelBtn">إلغاء</button><button class="btn btn-danger" id="confirmOkBtn">تأكيد</button></div></div></div>
+<div class="toast-container"></div>
+<script src="../../wwwroot/js/app.js"></script><script src="../../wwwroot/js/datatable.js"></script>
+<script>
+const today = new Date();
+document.getElementById('returnDate').value = today.toISOString().split('T')[0];
+
+function searchInvoice() {
+  const num = document.getElementById('originalInvoiceNum').value;
+  if (!num) { showToast('أدخل رقم الفاتورة', 'warning'); return; }
+  document.getElementById('invoiceInfo').style.display = 'block';
+  showToast('تم العثور على الفاتورة', 'success');
+}
+
+// Return qty calculation
+document.querySelectorAll('#returnItemsBody .item-qty').forEach(input => {
+  input.addEventListener('input', () => {
+    const row = input.closest('tr');
+    const price = parseFloat(row.cells[4].textContent.replace(/,/g, '')) || 0;
+    const qty = parseFloat(input.value) || 0;
+    row.querySelector('.line-total').textContent = (price * qty).toLocaleString('ar-SA', {minimumFractionDigits:2});
+    let total = 0;
+    document.querySelectorAll('#returnItemsBody .line-total').forEach(td => {
+      total += parseFloat(td.textContent.replace(/,/g,'')) || 0;
+    });
+    document.getElementById('returnTotal').textContent = total.toLocaleString('ar-SA', {minimumFractionDigits:2});
+  });
+});
+</script>
+</body></html>

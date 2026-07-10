@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<!-- Sales Quotation Index | Views/SalesQuotation/Index.cshtml -->
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>عروض الأسعار | CodeX Erp System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../wwwroot/lib/fontawesome/css/all.min.css">
+  <link rel="stylesheet" href="../../wwwroot/css/variables.css"><link rel="stylesheet" href="../../wwwroot/css/main.css"><link rel="stylesheet" href="../../wwwroot/css/layout.css"><link rel="stylesheet" href="../../wwwroot/css/components.css"><link rel="stylesheet" href="../../wwwroot/css/additions.css">
+</head>
+<body class="rtl">
+<nav class="sidebar" id="sidebar"><a class="sidebar-brand" href="../Home/Index.html"><div class="sidebar-brand-icon"><i class="fas fa-chart-line"></i></div><div class="sidebar-brand-text"><span class="sidebar-brand-name">CodeX Erp System</span><span class="sidebar-brand-subtitle">نظام المحاسبة المتكامل</span></div></a><div class="sidebar-nav-wrapper">      <ul class="sidebar-nav">
+  <li class="nav-section-label">الرئيسية</li>
+  <li class="nav-item"><a class="nav-link" href="../Home/Index.html"><span class="nav-icon"><i class="fas fa-home"></i></span><span class="nav-text">الصفحة الرئيسية</span></a></li>
+  
+  <li class="nav-section-label">المبيعات</li>
+  <li class="nav-item"><a class="nav-link" href="../SalesQuotation/Index.html"><span class="nav-icon"><i class="fas fa-file-signature"></i></span><span class="nav-text">عروض الأسعار</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../SalesInvoice/Index.html"><span class="nav-icon"><i class="fas fa-file-invoice-dollar"></i></span><span class="nav-text">فواتير المبيعات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../SalesReturn/Index.html"><span class="nav-icon"><i class="fas fa-undo"></i></span><span class="nav-text">مرتجعات المبيعات</span></a></li>
+
+  <li class="nav-section-label">المشتريات</li>
+  <li class="nav-item"><a class="nav-link" href="../PurchaseInvoice/PurchaseOrders.html"><span class="nav-icon"><i class="fas fa-file-contract"></i></span><span class="nav-text">أوامر الشراء</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../PurchaseInvoice/Index.html"><span class="nav-icon"><i class="fas fa-file-invoice"></i></span><span class="nav-text">فواتير المشتريات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../PurchaseReturn/Index.html"><span class="nav-icon"><i class="fas fa-undo-alt"></i></span><span class="nav-text">مرتجعات المشتريات</span></a></li>
+
+  <li class="nav-section-label">المخزون</li>
+  <li class="nav-item"><a class="nav-link" href="../Inventory/Products.html"><span class="nav-icon"><i class="fas fa-box"></i></span><span class="nav-text">المنتجات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Inventory/Warehouses.html"><span class="nav-icon"><i class="fas fa-warehouse"></i></span><span class="nav-text">المستودعات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Inventory/StockTransfer.html"><span class="nav-icon"><i class="fas fa-exchange-alt"></i></span><span class="nav-text">نقل المخزون</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Inventory/StockAdjustment.html"><span class="nav-icon"><i class="fas fa-sliders-h"></i></span><span class="nav-text">تسوية المخزون</span></a></li>
+
+  <li class="nav-section-label">المحاسبة</li>
+  <li class="nav-item"><a class="nav-link" href="../Accounting/ChartOfAccounts.html"><span class="nav-icon"><i class="fas fa-book"></i></span><span class="nav-text">دليل الحسابات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Accounting/JournalEntries.html"><span class="nav-icon"><i class="fas fa-balance-scale"></i></span><span class="nav-text">القيود اليومية</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Accounting/Payments.html"><span class="nav-icon"><i class="fas fa-money-check-alt"></i></span><span class="nav-text">المدفوعات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Accounting/Customers.html"><span class="nav-icon"><i class="fas fa-users"></i></span><span class="nav-text">العملاء</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Accounting/Suppliers.html"><span class="nav-icon"><i class="fas fa-truck"></i></span><span class="nav-text">الموردون</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Accounting/Expenses.html"><span class="nav-icon"><i class="fas fa-receipt"></i></span><span class="nav-text">المصروفات</span></a></li>
+
+  <li class="nav-section-label">التقارير</li>
+  <li class="nav-item"><a class="nav-link" href="../Reports/Index.html"><span class="nav-icon"><i class="fas fa-chart-line"></i></span><span class="nav-text">مركز التقارير</span></a></li>
+
+  <li class="nav-section-label">الإعدادات</li>
+  <li class="nav-item"><a class="nav-link" href="../Users/Index.html"><span class="nav-icon"><i class="fas fa-users-cog"></i></span><span class="nav-text">المستخدمين والصلاحيات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Settings/Index.html"><span class="nav-icon"><i class="fas fa-cogs"></i></span><span class="nav-text">إعدادات النظام</span></a></li>
+</ul>
+</div>
+</nav>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="main-wrapper" id="mainWrapper">
+  <header class="navbar"><div class="navbar-start"><button class="sidebar-toggle-btn" id="sidebarToggle"><i class="fas fa-bars"></i></button><div class="navbar-search"><i class="fas fa-search navbar-search-icon"></i><input type="text" class="navbar-search-input" id="globalSearch" placeholder="بحث سريع..."></div></div><div class="navbar-end"><div class="lang-switcher"><button class="lang-btn active" data-lang="ar">عربي</button><button class="lang-btn" data-lang="en">EN</button></div><button class="theme-toggle navbar-btn" id="themeToggle"><i class="fas fa-moon"></i></button></div></header>
+  <main class="content-wrapper">
+    <nav class="breadcrumb"><div class="breadcrumb-item"><a href="../Home/Index.html"><i class="fas fa-home"></i> الرئيسية</a></div><div class="breadcrumb-item active">عروض الأسعار</div></nav>
+    <div class="page-header">
+      <div class="page-header-left"><h1 class="page-title"><i class="fas fa-file-alt" style="color:var(--info);"></i> عروض الأسعار</h1><p style="color:var(--text-muted);font-size:var(--fs-sm);margin-top:4px;">إنشاء وإدارة عروض الأسعار للعملاء وتحويلها إلى فواتير</p></div>
+      <div class="page-header-right">
+        <button class="btn btn-outline-secondary btn-sm" onclick="exportToExcel('quotTable')"><i class="fas fa-file-excel"></i> Excel</button>
+        <a href="../SalesInvoice/Create.html" class="btn btn-info"><i class="fas fa-plus"></i> عرض سعر جديد</a>
+      </div>
+    </div>
+    <div class="data-table-wrapper">
+      <div class="filter-bar">
+        <input type="text" class="form-control" placeholder="بحث برقم العرض أو العميل..." data-table-search-simple="quotTable" style="max-width:280px;">
+        <input type="date" class="form-control"><input type="date" class="form-control">
+        <select class="form-select"><option value="">جميع الحالات</option><option>مسودة</option><option>مرسل</option><option>مقبول</option><option>مرفوض</option><option>منتهي</option></select>
+      </div>
+      <div class="table-responsive">
+        <!-- @foreach(var q in Model.Quotations) -->
+        <table class="data-table" id="quotTable">
+          <thead><tr><th class="table-checkbox"><input type="checkbox"></th><th>رقم العرض</th><th>العميل</th><th>تاريخ الإصدار</th><th>تاريخ الانتهاء</th><th>القيمة الإجمالية</th><th>الحالة</th><th class="center">الإجراءات</th></tr></thead>
+          <tbody>
+            <tr><td class="table-checkbox"><input type="checkbox"></td><td><a href="../SalesInvoice/View.html" style="color:var(--primary);font-weight:600;">QUO-2024-0001</a></td><td>شركة الأمل للتجارة</td><td>1 يناير 2024</td><td>1 فبراير 2024</td><td class="numeric">45,000.00</td><td><span class="badge badge-success">مقبول</span></td><td class="table-actions"><a href="../SalesInvoice/View.html" class="action-btn view" title="عرض"><i class="fas fa-eye"></i></a><a href="../SalesInvoice/Create.html" class="action-btn edit" title="تعديل"><i class="fas fa-edit"></i></a><button class="action-btn delete" onclick="deleteRow(this, 'العرض')" title="حذف"><i class="fas fa-trash"></i></button></td></tr>
+            <tr><td class="table-checkbox"><input type="checkbox"></td><td><a href="../SalesInvoice/View.html" style="color:var(--primary);font-weight:600;">QUO-2024-0002</a></td><td>مجموعة الخليج الصناعية</td><td>8 يناير 2024</td><td>8 فبراير 2024</td><td class="numeric">128,500.00</td><td><span class="badge badge-info">مرسل</span></td><td class="table-actions"><a href="../SalesInvoice/View.html" class="action-btn view" title="عرض"><i class="fas fa-eye"></i></a><a href="../SalesInvoice/Create.html" class="action-btn edit" title="تعديل"><i class="fas fa-edit"></i></a><button class="action-btn delete" onclick="deleteRow(this, 'العرض')" title="حذف"><i class="fas fa-trash"></i></button></td></tr>
+            <tr><td class="table-checkbox"><input type="checkbox"></td><td><a href="../SalesInvoice/View.html" style="color:var(--primary);font-weight:600;">QUO-2024-0003</a></td><td>شركة الرياض للمقاولات</td><td>15 يناير 2024</td><td>15 فبراير 2024</td><td class="numeric">67,200.00</td><td><span class="badge badge-warning">مسودة</span></td><td class="table-actions"><a href="../SalesInvoice/View.html" class="action-btn view" title="عرض"><i class="fas fa-eye"></i></a><a href="../SalesInvoice/Create.html" class="action-btn edit" title="تعديل"><i class="fas fa-edit"></i></a><button class="action-btn delete" onclick="deleteRow(this, 'العرض')" title="حذف"><i class="fas fa-trash"></i></button></td></tr>
+            <tr><td class="table-checkbox"><input type="checkbox"></td><td><a href="../SalesInvoice/View.html" style="color:var(--primary);font-weight:600;">QUO-2024-0004</a></td><td>شركة بترو تك</td><td>20 يناير 2024</td><td>20 فبراير 2024</td><td class="numeric">235,000.00</td><td><span class="badge badge-danger">مرفوض</span></td><td class="table-actions"><a href="../SalesInvoice/View.html" class="action-btn view" title="عرض"><i class="fas fa-eye"></i></a><a href="../SalesInvoice/Create.html" class="action-btn edit" title="تعديل"><i class="fas fa-edit"></i></a><button class="action-btn delete" onclick="deleteRow(this, 'العرض')" title="حذف"><i class="fas fa-trash"></i></button></td></tr>
+            <tr><td class="table-checkbox"><input type="checkbox"></td><td><a href="../SalesInvoice/View.html" style="color:var(--primary);font-weight:600;">QUO-2024-0005</a></td><td>مؤسسة النور التجارية</td><td>25 يناير 2024</td><td>25 يناير 2024</td><td class="numeric">18,900.00</td><td><span class="badge badge-secondary">منتهي</span></td><td class="table-actions"><a href="../SalesInvoice/View.html" class="action-btn view" title="عرض"><i class="fas fa-eye"></i></a><a href="../SalesInvoice/Create.html" class="action-btn edit" title="تعديل"><i class="fas fa-edit"></i></a><button class="action-btn delete" onclick="deleteRow(this, 'العرض')" title="حذف"><i class="fas fa-trash"></i></button></td></tr>
+          </tbody>
+        </table>
+        <!-- @endforeach -->
+      </div>
+      <div class="pagination"><div class="pagination-info">عرض 1 - 5 من 18 سجل</div><div class="pagination-controls"><button class="page-btn" disabled><i class="fas fa-chevron-right"></i></button><button class="page-btn active">1</button><button class="page-btn">2</button><button class="page-btn">3</button><button class="page-btn"><i class="fas fa-chevron-left"></i></button></div></div>
+    </div>
+  </main>
+</div>
+<div class="modal-overlay" id="confirmModal"><div class="modal modal-sm"><div class="modal-header"><h5 class="modal-title" id="confirmModalTitle"></h5><button class="modal-close" data-modal-close="confirmModal"><i class="fas fa-times"></i></button></div><div class="modal-body" style="text-align:center;padding:var(--spacing-8);"><div class="confirm-icon danger" id="confirmIcon"><i class="fas fa-trash"></i></div><p id="confirmMessage"></p></div><div class="modal-footer" style="justify-content:center;"><button class="btn btn-secondary" data-modal-close="confirmModal" id="confirmCancelBtn">إلغاء</button><button class="btn btn-danger" id="confirmOkBtn">تأكيد الحذف</button></div></div></div>
+<div class="toast-container"></div>
+<script src="../../wwwroot/js/app.js"></script><script src="../../wwwroot/js/datatable.js"></script>
+</body></html>

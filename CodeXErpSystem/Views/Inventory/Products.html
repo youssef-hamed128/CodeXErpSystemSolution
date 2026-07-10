@@ -1,0 +1,213 @@
+﻿<!DOCTYPE html>
+<!-- Inventory - Products | Views/Inventory/Products.cshtml -->
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>المنتجات والمخزون | CodeX Erp System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../wwwroot/lib/fontawesome/css/all.min.css">
+  <link rel="stylesheet" href="../../wwwroot/css/variables.css"><link rel="stylesheet" href="../../wwwroot/css/main.css"><link rel="stylesheet" href="../../wwwroot/css/layout.css"><link rel="stylesheet" href="../../wwwroot/css/components.css">
+</head>
+<body class="rtl">
+<nav class="sidebar" id="sidebar"><a class="sidebar-brand" href="../Home/Index.html"><div class="sidebar-brand-icon"><i class="fas fa-chart-line"></i></div><div class="sidebar-brand-text"><span class="sidebar-brand-name">CodeX Erp System</span></div></a><div class="sidebar-nav-wrapper">      <ul class="sidebar-nav">
+  <li class="nav-section-label">الرئيسية</li>
+  <li class="nav-item"><a class="nav-link" href="../Home/Index.html"><span class="nav-icon"><i class="fas fa-home"></i></span><span class="nav-text">الصفحة الرئيسية</span></a></li>
+  
+  <li class="nav-section-label">المبيعات</li>
+  <li class="nav-item"><a class="nav-link" href="../SalesQuotation/Index.html"><span class="nav-icon"><i class="fas fa-file-signature"></i></span><span class="nav-text">عروض الأسعار</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../SalesInvoice/Index.html"><span class="nav-icon"><i class="fas fa-file-invoice-dollar"></i></span><span class="nav-text">فواتير المبيعات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../SalesReturn/Index.html"><span class="nav-icon"><i class="fas fa-undo"></i></span><span class="nav-text">مرتجعات المبيعات</span></a></li>
+
+  <li class="nav-section-label">المشتريات</li>
+  <li class="nav-item"><a class="nav-link" href="../PurchaseInvoice/PurchaseOrders.html"><span class="nav-icon"><i class="fas fa-file-contract"></i></span><span class="nav-text">أوامر الشراء</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../PurchaseInvoice/Index.html"><span class="nav-icon"><i class="fas fa-file-invoice"></i></span><span class="nav-text">فواتير المشتريات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../PurchaseReturn/Index.html"><span class="nav-icon"><i class="fas fa-undo-alt"></i></span><span class="nav-text">مرتجعات المشتريات</span></a></li>
+
+  <li class="nav-section-label">المخزون</li>
+  <li class="nav-item"><a class="nav-link" href="../Inventory/Products.html"><span class="nav-icon"><i class="fas fa-box"></i></span><span class="nav-text">المنتجات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Inventory/Warehouses.html"><span class="nav-icon"><i class="fas fa-warehouse"></i></span><span class="nav-text">المستودعات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Inventory/StockTransfer.html"><span class="nav-icon"><i class="fas fa-exchange-alt"></i></span><span class="nav-text">نقل المخزون</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Inventory/StockAdjustment.html"><span class="nav-icon"><i class="fas fa-sliders-h"></i></span><span class="nav-text">تسوية المخزون</span></a></li>
+
+  <li class="nav-section-label">المحاسبة</li>
+  <li class="nav-item"><a class="nav-link" href="../Accounting/ChartOfAccounts.html"><span class="nav-icon"><i class="fas fa-book"></i></span><span class="nav-text">دليل الحسابات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Accounting/JournalEntries.html"><span class="nav-icon"><i class="fas fa-balance-scale"></i></span><span class="nav-text">القيود اليومية</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Accounting/Payments.html"><span class="nav-icon"><i class="fas fa-money-check-alt"></i></span><span class="nav-text">المدفوعات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Accounting/Customers.html"><span class="nav-icon"><i class="fas fa-users"></i></span><span class="nav-text">العملاء</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Accounting/Suppliers.html"><span class="nav-icon"><i class="fas fa-truck"></i></span><span class="nav-text">الموردون</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Accounting/Expenses.html"><span class="nav-icon"><i class="fas fa-receipt"></i></span><span class="nav-text">المصروفات</span></a></li>
+
+  <li class="nav-section-label">التقارير</li>
+  <li class="nav-item"><a class="nav-link" href="../Reports/Index.html"><span class="nav-icon"><i class="fas fa-chart-line"></i></span><span class="nav-text">مركز التقارير</span></a></li>
+
+  <li class="nav-section-label">الإعدادات</li>
+  <li class="nav-item"><a class="nav-link" href="../Users/Index.html"><span class="nav-icon"><i class="fas fa-users-cog"></i></span><span class="nav-text">المستخدمين والصلاحيات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Settings/Index.html"><span class="nav-icon"><i class="fas fa-cogs"></i></span><span class="nav-text">إعدادات النظام</span></a></li>
+</ul>
+</div>
+</nav>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="main-wrapper" id="mainWrapper">
+  <header class="navbar"><div class="navbar-start"><button class="sidebar-toggle-btn" id="sidebarToggle"><i class="fas fa-bars"></i></button><div class="navbar-search"><i class="fas fa-search navbar-search-icon"></i><input type="text" class="navbar-search-input" id="globalSearch" placeholder="بحث سريع..."></div></div><div class="navbar-end"><div class="lang-switcher"><button class="lang-btn active" data-lang="ar">عربي</button><button class="lang-btn" data-lang="en">EN</button></div><button class="theme-toggle navbar-btn" id="themeToggle"><i class="fas fa-moon"></i></button></div></header>
+
+  <main class="content-wrapper">
+    <nav class="breadcrumb"><div class="breadcrumb-item"><a href="../Home/Index.html"><i class="fas fa-home"></i> الرئيسية</a></div><div class="breadcrumb-item active">المنتجات</div></nav>
+    <div class="page-header">
+      <div class="page-header-left"><h1 class="page-title"><i class="fas fa-boxes" style="color:var(--info);"></i> المنتجات وإدارة المخزون</h1><p style="color:var(--text-muted);font-size:var(--fs-sm);margin-top:4px;">إدارة المنتجات والأصناف ومستويات المخزون</p></div>
+      <div class="page-header-right">
+        <a href="StockTransfer.html" class="btn btn-outline-secondary btn-sm"><i class="fas fa-exchange-alt"></i> تحويل مخزون</a>
+        <a href="StockAdjustment.html" class="btn btn-outline-secondary btn-sm"><i class="fas fa-sliders-h"></i> تسوية المخزون</a>
+        <button class="btn btn-outline-secondary btn-sm" onclick="exportToExcel('productsTable')"><i class="fas fa-file-excel"></i> Excel</button>
+        <button class="btn btn-primary" onclick="openModal('addCategoryModal')"><i class="fas fa-tags"></i> تصنيف جديد</button>`n        <button class="btn btn-info" onclick="openModal('addProductModal')"><i class="fas fa-plus"></i> منتج جديد</button>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: var(--spacing-5);">
+      <div class="stat-card info"><div class="stat-card-header"><div class="stat-icon info"><i class="fas fa-boxes"></i></div></div><div class="stat-value" style="direction:ltr;">10</div><div class="stat-label">إجمالي المنتجات</div></div>
+      <div class="stat-card success"><div class="stat-card-header"><div class="stat-icon success"><i class="fas fa-check-circle"></i></div></div><div class="stat-value" style="direction:ltr;">7</div><div class="stat-label">منتجات متاحة</div></div>
+      <div class="stat-card warning"><div class="stat-card-header"><div class="stat-icon warning"><i class="fas fa-exclamation-triangle"></i></div></div><div class="stat-value" style="direction:ltr;">2</div><div class="stat-label">مخزون منخفض</div></div>
+      <div class="stat-card danger"><div class="stat-card-header"><div class="stat-icon danger"><i class="fas fa-times-circle"></i></div></div><div class="stat-value" style="direction:ltr;">1</div><div class="stat-label">نفد المخزون</div></div>
+    </div>
+
+    <div class="data-table-wrapper">
+      <div class="filter-bar">
+        <input type="text" class="form-control" placeholder="بحث بالاسم أو الكود (SKU)..." data-table-search-simple="productsTable" style="max-width:280px;">
+        <select class="form-select"><option value="">جميع الفئات</option><option>حواسيب محمولة</option><option>طابعات</option><option>شاشات</option><option>ملحقات</option><option>أثاث مكتبي</option><option>مستلزمات طباعة</option></select>
+        <select class="form-select" data-filter-status><option value="">جميع حالات المخزون</option><option value="active">متاح</option><option value="low">مخزون منخفض</option><option value="out">نفد المخزون</option></select>
+        <button class="btn btn-outline-secondary btn-sm" onclick="showToast('جارٍ فتح الفلتر المتقدم...', 'info')"><i class="fas fa-filter"></i> فلتر متقدم</button>
+      </div>
+      <div class="table-responsive">
+        <!-- @foreach(var product in Model.Products) -->
+        <table class="data-table" id="productsTable">
+          <thead>
+            <tr>
+              <th class="table-checkbox"><input type="checkbox"></th>
+              <th>الكود (SKU)</th><th>اسم المنتج</th><th>الفئة</th><th>الوحدة</th>
+              <th>تكلفة الوحدة</th><th>سعر البيع</th><th>الكمية المتاحة</th><th>الحد الأدنى</th>
+              <th>الحالة</th><th class="center">الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="table-checkbox"><input type="checkbox"></td><td style="font-family:monospace;font-weight:600;color:var(--text-muted);">LAP-001</td><td style="font-weight:500;">لاب توب Dell XPS 15</td><td>حواسيب محمولة</td><td>قطعة</td><td class="numeric">3,500.00</td><td class="numeric" style="color:var(--success);font-weight:600;">4,500.00</td><td class="numeric" style="color:var(--success);font-weight:600;">25</td><td class="numeric">5</td><td><span class="badge badge-success">نشط</span></td><td class="table-actions"><button class="action-btn view" onclick="showPreview('معاينة السجل')"><i class="fas fa-eye"></i></button><button class="action-btn edit" onclick="openModal('addProductModal')"><i class="fas fa-edit"></i></button><button class="action-btn delete" onclick="deleteRow(this, 'المنتج')"><i class="fas fa-trash"></i></button></td></tr>
+            <tr><td class="table-checkbox"><input type="checkbox"></td><td style="font-family:monospace;font-weight:600;color:var(--text-muted);">PRN-002</td><td style="font-weight:500;">طابعة HP LaserJet</td><td>طابعات</td><td>قطعة</td><td class="numeric">850.00</td><td class="numeric" style="color:var(--success);font-weight:600;">1,200.00</td><td class="numeric" style="color:var(--success);">12</td><td class="numeric">3</td><td><span class="badge badge-success">نشط</span></td><td class="table-actions"><button class="action-btn view" onclick="showPreview('معاينة السجل')"><i class="fas fa-eye"></i></button><button class="action-btn edit" onclick="openModal('addProductModal')"><i class="fas fa-edit"></i></button><button class="action-btn delete" onclick="deleteRow(this, 'المنتج')"><i class="fas fa-trash"></i></button></td></tr>
+            <tr style="background:rgba(194,120,3,0.04);"><td class="table-checkbox"><input type="checkbox"></td><td style="font-family:monospace;font-weight:600;color:var(--text-muted);">MOU-003</td><td style="font-weight:500;">ماوس لاسلكي Logitech</td><td>ملحقات</td><td>قطعة</td><td class="numeric">90.00</td><td class="numeric" style="color:var(--success);font-weight:600;">150.00</td><td class="numeric" style="color:var(--warning);font-weight:700;">3</td><td class="numeric">10</td><td><span class="badge badge-warning">مخزون منخفض</span></td><td class="table-actions"><button class="action-btn view" onclick="showPreview('معاينة السجل')"><i class="fas fa-eye"></i></button><button class="action-btn edit" onclick="openModal('addProductModal')"><i class="fas fa-edit"></i></button><button class="action-btn delete" onclick="deleteRow(this, 'المنتج')"><i class="fas fa-trash"></i></button></td></tr>
+            <tr><td class="table-checkbox"><input type="checkbox"></td><td style="font-family:monospace;font-weight:600;color:var(--text-muted);">MON-004</td><td style="font-weight:500;">شاشة Samsung 27"</td><td>شاشات</td><td>قطعة</td><td class="numeric">1,600.00</td><td class="numeric" style="color:var(--success);font-weight:600;">2,200.00</td><td class="numeric" style="color:var(--success);">8</td><td class="numeric">4</td><td><span class="badge badge-success">نشط</span></td><td class="table-actions"><button class="action-btn view" onclick="showPreview('معاينة السجل')"><i class="fas fa-eye"></i></button><button class="action-btn edit" onclick="openModal('addProductModal')"><i class="fas fa-edit"></i></button><button class="action-btn delete" onclick="deleteRow(this, 'المنتج')"><i class="fas fa-trash"></i></button></td></tr>
+            <tr style="background:rgba(200,30,30,0.04);"><td class="table-checkbox"><input type="checkbox"></td><td style="font-family:monospace;font-weight:600;color:var(--text-muted);">KEY-005</td><td style="font-weight:500;">كيبورد Mechanical</td><td>ملحقات</td><td>قطعة</td><td class="numeric">250.00</td><td class="numeric" style="color:var(--success);font-weight:600;">380.00</td><td class="numeric" style="color:var(--danger);font-weight:700;">0</td><td class="numeric">5</td><td><span class="badge badge-danger">نفد المخزون</span></td><td class="table-actions"><button class="action-btn view" onclick="showPreview('معاينة السجل')"><i class="fas fa-eye"></i></button><button class="action-btn edit" onclick="openModal('addProductModal')"><i class="fas fa-edit"></i></button><button class="action-btn delete" onclick="deleteRow(this, 'المنتج')"><i class="fas fa-trash"></i></button></td></tr>
+            <tr><td class="table-checkbox"><input type="checkbox"></td><td style="font-family:monospace;font-weight:600;color:var(--text-muted);">CHR-006</td><td style="font-weight:500;">كرسي مكتب Premium</td><td>أثاث مكتبي</td><td>قطعة</td><td class="numeric">600.00</td><td class="numeric" style="color:var(--success);font-weight:600;">850.00</td><td class="numeric" style="color:var(--success);">18</td><td class="numeric">3</td><td><span class="badge badge-success">نشط</span></td><td class="table-actions"><button class="action-btn view" onclick="showPreview('معاينة السجل')"><i class="fas fa-eye"></i></button><button class="action-btn edit" onclick="openModal('addProductModal')"><i class="fas fa-edit"></i></button><button class="action-btn delete" onclick="deleteRow(this, 'المنتج')"><i class="fas fa-trash"></i></button></td></tr>
+            <tr><td class="table-checkbox"><input type="checkbox"></td><td style="font-family:monospace;font-weight:600;color:var(--text-muted);">INK-007</td><td style="font-weight:500;">حبر طابعة أسود</td><td>مستلزمات طباعة</td><td>علبة</td><td class="numeric">55.00</td><td class="numeric" style="color:var(--success);font-weight:600;">85.00</td><td class="numeric" style="color:var(--success);">45</td><td class="numeric">20</td><td><span class="badge badge-success">نشط</span></td><td class="table-actions"><button class="action-btn view" onclick="showPreview('معاينة السجل')"><i class="fas fa-eye"></i></button><button class="action-btn edit" onclick="openModal('addProductModal')"><i class="fas fa-edit"></i></button><button class="action-btn delete" onclick="deleteRow(this, 'المنتج')"><i class="fas fa-trash"></i></button></td></tr>
+            <tr style="background:rgba(194,120,3,0.04);"><td class="table-checkbox"><input type="checkbox"></td><td style="font-family:monospace;font-weight:600;color:var(--text-muted);">PAP-008</td><td style="font-weight:500;">ورق طباعة A4</td><td>مستلزمات طباعة</td><td>رزمة</td><td class="numeric">15.00</td><td class="numeric" style="color:var(--success);font-weight:600;">25.00</td><td class="numeric" style="color:var(--warning);font-weight:700;">2</td><td class="numeric">15</td><td><span class="badge badge-warning">مخزون منخفض</span></td><td class="table-actions"><button class="action-btn view" onclick="showPreview('معاينة السجل')"><i class="fas fa-eye"></i></button><button class="action-btn edit" onclick="openModal('addProductModal')"><i class="fas fa-edit"></i></button><button class="action-btn delete" onclick="deleteRow(this, 'المنتج')"><i class="fas fa-trash"></i></button></td></tr>
+            <tr><td class="table-checkbox"><input type="checkbox"></td><td style="font-family:monospace;font-weight:600;color:var(--text-muted);">USB-009</td><td style="font-weight:500;">مبدل USB Hub</td><td>ملحقات</td><td>قطعة</td><td class="numeric">60.00</td><td class="numeric" style="color:var(--success);font-weight:600;">95.00</td><td class="numeric" style="color:var(--success);">30</td><td class="numeric">8</td><td><span class="badge badge-success">نشط</span></td><td class="table-actions"><button class="action-btn view" onclick="showPreview('معاينة السجل')"><i class="fas fa-eye"></i></button><button class="action-btn edit" onclick="openModal('addProductModal')"><i class="fas fa-edit"></i></button><button class="action-btn delete" onclick="deleteRow(this, 'المنتج')"><i class="fas fa-trash"></i></button></td></tr>
+            <tr><td class="table-checkbox"><input type="checkbox"></td><td style="font-family:monospace;font-weight:600;color:var(--text-muted);">AUD-010</td><td style="font-weight:500;">سماعات Headset</td><td>صوتيات</td><td>قطعة</td><td class="numeric">220.00</td><td class="numeric" style="color:var(--success);font-weight:600;">320.00</td><td class="numeric" style="color:var(--success);">15</td><td class="numeric">5</td><td><span class="badge badge-success">نشط</span></td><td class="table-actions"><button class="action-btn view" onclick="showPreview('معاينة السجل')"><i class="fas fa-eye"></i></button><button class="action-btn edit" onclick="openModal('addProductModal')"><i class="fas fa-edit"></i></button><button class="action-btn delete" onclick="deleteRow(this, 'المنتج')"><i class="fas fa-trash"></i></button></td></tr>
+          </tbody>
+        </table>
+        <!-- @endforeach -->
+      </div>
+      <div class="pagination"><div class="pagination-info">عرض 1 - 10 من 10 سجل</div><div class="pagination-controls"><button class="page-btn" disabled><i class="fas fa-chevron-right"></i></button><button class="page-btn active">1</button><button class="page-btn"><i class="fas fa-chevron-left"></i></button></div></div>
+    </div>
+  </main>
+</div>
+
+<!-- Add / Edit Product Modal -->
+<div class="modal-overlay" id="addProductModal">
+  <div class="modal modal-lg">
+    <div class="modal-header"><h5 class="modal-title"><i class="fas fa-box"></i> إضافة / تعديل منتج</h5><button class="modal-close" data-modal-close="addProductModal"><i class="fas fa-times"></i></button></div>
+    <div class="modal-body">
+      <!-- Tabs -->
+      <div class="tabs" data-tab-group="productTabs">
+        <button class="tab active" data-tab="basicTab">البيانات الأساسية</button>
+        <button class="tab" data-tab="pricingTab">التسعير والمخزون</button>
+        <button class="tab" data-tab="supplierTab">المورد والمشتريات</button>
+      </div>
+
+      <div class="tab-panel active" id="basicTab">
+        <div class="form-grid-2" style="margin-top:var(--spacing-4);">
+          <div class="form-group"><label class="form-label required">اسم المنتج (عربي)</label><input type="text" class="form-control" name="ProductNameAr" data-val="true" data-val-required="الاسم مطلوب"></div>
+          <div class="form-group"><label class="form-label">اسم المنتج (إنجليزي)</label><input type="text" class="form-control" name="ProductNameEn" dir="ltr"></div>
+          <div class="form-group"><label class="form-label required">كود المنتج (SKU)</label><input type="text" class="form-control" name="SKU" placeholder="LAP-001" dir="ltr"></div>
+          <div class="form-group"><label class="form-label">الباركود</label><input type="text" class="form-control" name="Barcode" dir="ltr"></div>
+          <div class="form-group"><label class="form-label required">الفئة</label><select class="form-select" name="CategoryId"><option value="">-- اختر الفئة --</option><option value="1">حواسيب محمولة</option><option value="2">طابعات</option><option value="3">شاشات</option><option value="4">ملحقات</option><option value="5">أثاث مكتبي</option></select></div>
+          <div class="form-group"><label class="form-label">وحدة القياس</label><select class="form-select" name="UnitId"><option value="piece">قطعة</option><option value="box">علبة</option><option value="ream">رزمة</option><option value="meter">متر</option><option value="kg">كيلوجرام</option></select></div>
+          <div class="form-group" style="grid-column:span 2;"><label class="form-label">الوصف</label><textarea class="form-control" name="Description" rows="2" placeholder="وصف تفصيلي للمنتج..."></textarea></div>
+          <div class="form-group"><label class="form-label">الحالة</label><select class="form-select" name="IsActive"><option value="true" selected>نشط</option><option value="false">غير نشط</option></select></div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="pricingTab">
+        <div class="form-grid-2" style="margin-top:var(--spacing-4);">
+          <div class="form-group"><label class="form-label required">تكلفة الوحدة</label><div class="input-group"><input type="number" class="form-control" name="CostPrice" value="0" min="0" step="0.01"><span class="input-group-text">ر.س</span></div></div>
+          <div class="form-group"><label class="form-label required">سعر البيع</label><div class="input-group"><input type="number" class="form-control" name="SalePrice" value="0" min="0" step="0.01"><span class="input-group-text">ر.س</span></div></div>
+          <div class="form-group"><label class="form-label">سعر البيع بالجملة</label><div class="input-group"><input type="number" class="form-control" name="WholesalePrice" value="0" min="0" step="0.01"><span class="input-group-text">ر.س</span></div></div>
+          <div class="form-group"><label class="form-label">نسبة الضريبة (%)</label><input type="number" class="form-control" name="TaxRate" value="15" min="0" max="100" step="0.01"></div>
+          <div class="form-group"><label class="form-label">الكمية الابتدائية</label><input type="number" class="form-control" name="InitialStock" value="0" min="0"></div>
+          <div class="form-group"><label class="form-label">الحد الأدنى للتنبيه</label><input type="number" class="form-control" name="ReorderLevel" value="5" min="0"></div>
+          <div class="form-group"><label class="form-label">كمية إعادة الطلب</label><input type="number" class="form-control" name="ReorderQuantity" value="10" min="0"></div>
+          <div class="form-group"><label class="form-label">المستودع الافتراضي</label><select class="form-select" name="DefaultWarehouseId"><option value="1">مستودع الرياض الرئيسي</option><option value="2">مستودع جدة</option></select></div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="supplierTab">
+        <div class="form-grid-2" style="margin-top:var(--spacing-4);">
+          <div class="form-group"><label class="form-label">المورد الرئيسي</label><select class="form-select" name="PrimarySupplierId"><option value="">-- اختر المورد --</option><option value="1">شركة التقنية المتقدمة</option><option value="2">مورد اللوازم المكتبية</option><option value="3">مجموعة الإلكترونيات</option></select></div>
+          <div class="form-group"><label class="form-label">رمز المنتج عند المورد</label><input type="text" class="form-control" name="SupplierSKU" dir="ltr" placeholder="كود المورد"></div>
+          <div class="form-group"><label class="form-label">زمن التوصيل (أيام)</label><input type="number" class="form-control" name="LeadTimeDays" value="7" min="0"></div>
+          <div class="form-group"><label class="form-label">الحد الأدنى للطلب</label><input type="number" class="form-control" name="MinOrderQuantity" value="1" min="1"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-info" onclick="showToast('تم حفظ المنتج بنجاح','success');closeModal('addProductModal');"><i class="fas fa-save"></i> حفظ المنتج</button>
+      <button class="btn btn-secondary" data-modal-close="addProductModal">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- View Product Modal (quick view) -->
+<div class="modal-overlay" id="viewProductModal">
+  <div class="modal modal-lg">
+    <div class="modal-header"><h5 class="modal-title"><i class="fas fa-box"></i> تفاصيل المنتج: لاب توب Dell XPS 15</h5><button class="modal-close" data-modal-close="viewProductModal"><i class="fas fa-times"></i></button></div>
+    <div class="modal-body">
+      <div class="grid-2" style="margin-bottom:var(--spacing-5);">
+        <div><div class="form-group"><label class="form-label" style="color:var(--text-muted);">كود المنتج (SKU)</label><div style="font-weight:700;font-family:monospace;">LAP-001</div></div><div class="form-group"><label class="form-label" style="color:var(--text-muted);">الفئة</label><div>حواسيب محمولة</div></div><div class="form-group"><label class="form-label" style="color:var(--text-muted);">الحالة</label><div><span class="badge badge-success">نشط</span></div></div></div>
+        <div><div class="form-group"><label class="form-label" style="color:var(--text-muted);">تكلفة الوحدة</label><div style="font-weight:700;">3,500.00 ر.س</div></div><div class="form-group"><label class="form-label" style="color:var(--text-muted);">سعر البيع</label><div style="font-weight:700;color:var(--success);">4,500.00 ر.س</div></div><div class="form-group"><label class="form-label" style="color:var(--text-muted);">الكمية المتاحة</label><div style="font-weight:700;font-size:1.5rem;color:var(--success);">25</div></div></div>
+      </div>
+      <h5 style="font-weight:600;margin-bottom:var(--spacing-3);font-size:var(--fs-sm);">حركات المخزون الأخيرة</h5>
+      <table class="data-table" style="font-size:var(--fs-xs);">
+        <thead><tr><th>التاريخ</th><th>النوع</th><th>المرجع</th><th>كمية الدخول</th><th>كمية الخروج</th><th>الرصيد</th></tr></thead>
+        <tbody>
+          <tr><td>10 فبراير 2024</td><td><span class="badge badge-danger">خروج</span></td><td>INV-2024-0010</td><td class="numeric">—</td><td class="numeric" style="color:var(--danger);">10</td><td class="numeric">25</td></tr>
+          <tr><td>5 فبراير 2024</td><td><span class="badge badge-success">دخول</span></td><td>PUR-2024-0005</td><td class="numeric" style="color:var(--success);">20</td><td class="numeric">—</td><td class="numeric">35</td></tr>
+          <tr><td>28 يناير 2024</td><td><span class="badge badge-danger">خروج</span></td><td>INV-2024-0006</td><td class="numeric">—</td><td class="numeric" style="color:var(--danger);">15</td><td class="numeric">15</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-footer"><button class="btn btn-info" onclick="closeModal('viewProductModal');openModal('addProductModal');"><i class="fas fa-edit"></i> تعديل</button><button class="btn btn-secondary" data-modal-close="viewProductModal">إغلاق</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="confirmModal"><div class="modal modal-sm"><div class="modal-header"><h5 class="modal-title" id="confirmModalTitle"></h5><button class="modal-close" data-modal-close="confirmModal"><i class="fas fa-times"></i></button></div><div class="modal-body" style="text-align:center;padding:var(--spacing-8);"><div class="confirm-icon danger" id="confirmIcon"><i class="fas fa-trash"></i></div><p id="confirmMessage"></p></div><div class="modal-footer" style="justify-content:center;"><button class="btn btn-secondary" data-modal-close="confirmModal" id="confirmCancelBtn">إلغاء</button><button class="btn btn-danger" id="confirmOkBtn">تأكيد الحذف</button></div></div></div>
+<div class="modal-overlay" id="addCategoryModal">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h5 class="modal-title"><i class="fas fa-tags"></i> إضافة تصنيف جديد</h5>
+      <button class="modal-close" data-modal-close="addCategoryModal"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label required">اسم التصنيف</label>
+        <input type="text" class="form-control" placeholder="أدخل اسم التصنيف...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">الوصف</label>
+        <textarea class="form-control" rows="3" placeholder="وصف التصنيف (اختياري)"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-success" onclick="showToast('تمت إضافة التصنيف بنجاح','success');closeModal('addCategoryModal');"><i class="fas fa-save"></i> حفظ التصنيف</button>
+      <button class="btn btn-secondary" data-modal-close="addCategoryModal">إلغاء</button>
+    </div>
+  </div>
+</div>
+<div class="toast-container"></div>
+<script src="../../wwwroot/js/app.js"></script><script src="../../wwwroot/js/datatable.js"></script>
+</body></html>

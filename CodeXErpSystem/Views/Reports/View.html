@@ -1,0 +1,145 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>عرض التقرير | CodeX Erp System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../wwwroot/lib/fontawesome/css/all.min.css">
+  <link rel="stylesheet" href="../../wwwroot/css/variables.css"><link rel="stylesheet" href="../../wwwroot/css/main.css"><link rel="stylesheet" href="../../wwwroot/css/layout.css"><link rel="stylesheet" href="../../wwwroot/css/components.css"><link rel="stylesheet" href="../../wwwroot/css/additions.css">
+  <script src="../../wwwroot/lib/chartjs/chart.umd.min.js"></script>
+</head>
+<body class="rtl">
+<nav class="sidebar" id="sidebar">
+  <a class="sidebar-brand" href="../Home/Index.html"><div class="sidebar-brand-icon"><i class="fas fa-chart-line"></i></div><div class="sidebar-brand-text"><span class="sidebar-brand-name">CodeX Erp System</span></div></a>
+  <div class="sidebar-nav-wrapper">      <ul class="sidebar-nav">
+  <li class="nav-section-label">الرئيسية</li>
+  <li class="nav-item"><a class="nav-link" href="../Home/Index.html"><span class="nav-icon"><i class="fas fa-home"></i></span><span class="nav-text">الصفحة الرئيسية</span></a></li>
+  
+  <li class="nav-section-label">المبيعات</li>
+  <li class="nav-item"><a class="nav-link" href="../SalesQuotation/Index.html"><span class="nav-icon"><i class="fas fa-file-signature"></i></span><span class="nav-text">عروض الأسعار</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../SalesInvoice/Index.html"><span class="nav-icon"><i class="fas fa-file-invoice-dollar"></i></span><span class="nav-text">فواتير المبيعات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../SalesReturn/Index.html"><span class="nav-icon"><i class="fas fa-undo"></i></span><span class="nav-text">مرتجعات المبيعات</span></a></li>
+
+  <li class="nav-section-label">المشتريات</li>
+  <li class="nav-item"><a class="nav-link" href="../PurchaseInvoice/PurchaseOrders.html"><span class="nav-icon"><i class="fas fa-file-contract"></i></span><span class="nav-text">أوامر الشراء</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../PurchaseInvoice/Index.html"><span class="nav-icon"><i class="fas fa-file-invoice"></i></span><span class="nav-text">فواتير المشتريات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../PurchaseReturn/Index.html"><span class="nav-icon"><i class="fas fa-undo-alt"></i></span><span class="nav-text">مرتجعات المشتريات</span></a></li>
+
+  <li class="nav-section-label">المخزون</li>
+  <li class="nav-item"><a class="nav-link" href="../Inventory/Products.html"><span class="nav-icon"><i class="fas fa-box"></i></span><span class="nav-text">المنتجات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Inventory/Warehouses.html"><span class="nav-icon"><i class="fas fa-warehouse"></i></span><span class="nav-text">المستودعات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Inventory/StockTransfer.html"><span class="nav-icon"><i class="fas fa-exchange-alt"></i></span><span class="nav-text">نقل المخزون</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Inventory/StockAdjustment.html"><span class="nav-icon"><i class="fas fa-sliders-h"></i></span><span class="nav-text">تسوية المخزون</span></a></li>
+
+  <li class="nav-section-label">المحاسبة</li>
+  <li class="nav-item"><a class="nav-link" href="../Accounting/ChartOfAccounts.html"><span class="nav-icon"><i class="fas fa-book"></i></span><span class="nav-text">دليل الحسابات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Accounting/JournalEntries.html"><span class="nav-icon"><i class="fas fa-balance-scale"></i></span><span class="nav-text">القيود اليومية</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Accounting/Payments.html"><span class="nav-icon"><i class="fas fa-money-check-alt"></i></span><span class="nav-text">المدفوعات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Accounting/Customers.html"><span class="nav-icon"><i class="fas fa-users"></i></span><span class="nav-text">العملاء</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Accounting/Suppliers.html"><span class="nav-icon"><i class="fas fa-truck"></i></span><span class="nav-text">الموردون</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Accounting/Expenses.html"><span class="nav-icon"><i class="fas fa-receipt"></i></span><span class="nav-text">المصروفات</span></a></li>
+
+  <li class="nav-section-label">التقارير</li>
+  <li class="nav-item"><a class="nav-link" href="../Reports/Index.html"><span class="nav-icon"><i class="fas fa-chart-line"></i></span><span class="nav-text">مركز التقارير</span></a></li>
+
+  <li class="nav-section-label">الإعدادات</li>
+  <li class="nav-item"><a class="nav-link" href="../Users/Index.html"><span class="nav-icon"><i class="fas fa-users-cog"></i></span><span class="nav-text">المستخدمين والصلاحيات</span></a></li>
+  <li class="nav-item"><a class="nav-link" href="../Settings/Index.html"><span class="nav-icon"><i class="fas fa-cogs"></i></span><span class="nav-text">إعدادات النظام</span></a></li>
+</ul>
+</div>
+</nav>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="main-wrapper" id="mainWrapper">
+  <header class="navbar"><div class="navbar-start"><button class="sidebar-toggle-btn" id="sidebarToggle"><i class="fas fa-bars"></i></button></div><div class="navbar-end"><button class="theme-toggle navbar-btn" id="themeToggle"><i class="fas fa-moon"></i></button></div></header>
+
+  <main class="content-wrapper">
+    <nav class="breadcrumb"><div class="breadcrumb-item"><a href="../Home/Index.html"><i class="fas fa-home"></i> الرئيسية</a></div><div class="breadcrumb-item"><a href="Index.html">التقارير</a></div><div class="breadcrumb-item active">تفاصيل التقرير</div></nav>
+    <div class="page-header">
+      <div class="page-header-left"><h1 class="page-title"><i class="fas fa-file-alt" style="color:var(--primary);"></i> تقرير المبيعات والأرباح</h1></div>
+      <div class="page-header-right">
+        <button class="btn btn-outline-secondary btn-sm" onclick="exportToExcel('reportTable')"><i class="fas fa-file-excel"></i> تصدير Excel</button>
+        <button class="btn btn-outline-secondary btn-sm" onclick="exportToPDF('reportTable')"><i class="fas fa-file-pdf"></i> تصدير PDF</button>
+        <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-print"></i> طباعة التقرير</button>
+      </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="card" style="padding:var(--spacing-4); margin-bottom:var(--spacing-5);">
+      <div class="form-grid-3">
+        <div class="form-group"><label class="form-label">من تاريخ</label><input type="date" class="form-control" value="2024-01-01"></div>
+        <div class="form-group"><label class="form-label">إلى تاريخ</label><input type="date" class="form-control" value="2024-12-31"></div>
+        <div class="form-group" style="display:flex;align-items:flex-end;"><button class="btn btn-primary" style="width:100%;" onclick="showToast('تم تحديث التقرير', 'success')"><i class="fas fa-filter"></i> تحديث التقرير</button></div>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="card" style="margin-bottom:var(--spacing-5);">
+      <div class="chart-header"><h3 class="chart-title">الرسم البياني (شهري)</h3></div>
+      <div class="chart-container"><canvas id="reportChart"></canvas></div>
+    </div>
+
+    <!-- Table -->
+    <div class="data-table-wrapper">
+      <div class="table-responsive">
+        <table class="data-table" id="reportTable">
+          <thead><tr><th>الشهر</th><th>المبيعات (ر.س)</th><th>التكلفة (ر.س)</th><th>الربح الصافي (ر.س)</th><th>نسبة الربح</th></tr></thead>
+          <tbody>
+            <tr><td>يناير 2024</td><td class="numeric">120,000.00</td><td class="numeric">80,000.00</td><td class="numeric" style="color:var(--success);font-weight:700;">40,000.00</td><td>33.3%</td></tr>
+            <tr><td>فبراير 2024</td><td class="numeric">150,000.00</td><td class="numeric">100,000.00</td><td class="numeric" style="color:var(--success);font-weight:700;">50,000.00</td><td>33.3%</td></tr>
+            <tr><td>مارس 2024</td><td class="numeric">110,000.00</td><td class="numeric">85,000.00</td><td class="numeric" style="color:var(--success);font-weight:700;">25,000.00</td><td>22.7%</td></tr>
+            <tr style="background:var(--bg-hover);font-weight:700;"><td>الإجمالي</td><td class="numeric">380,000.00</td><td class="numeric">265,000.00</td><td class="numeric" style="color:var(--success);">115,000.00</td><td>30.2%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="../../wwwroot/js/app.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const reportId = urlParams.get('id') || 'sales_by_product';
+
+    const reports = {
+      'balance_sheet': { title: 'الميزانية العمومية', icon: 'fa-balance-scale' },
+      'income_statement': { title: 'قائمة الدخل', icon: 'fa-file-invoice-dollar' },
+      'trial_balance': { title: 'ميزان المراجعة', icon: 'fa-list-alt' },
+      'sales_by_customer': { title: 'المبيعات حسب العميل', icon: 'fa-chart-line' },
+      'sales_by_product': { title: 'تقرير المبيعات والأرباح', icon: 'fa-file-alt' },
+      'inventory_value': { title: 'قيمة المخزون', icon: 'fa-boxes' },
+      'low_stock': { title: 'نواقص المخزون', icon: 'fa-exclamation-triangle' },
+      'zatca_tax': { title: 'إقرار ضريبة القيمة المضافة (ZATCA)', icon: 'fa-file-invoice' }
+    };
+
+    if (reports[reportId]) {
+      const r = reports[reportId];
+      document.querySelector('.page-title').innerHTML = `<i class="fas ${r.icon}" style="color:var(--primary);"></i> ${r.title}`;
+      document.title = r.title + ' | CodeX Erp System';
+    }
+
+    const ctx = document.getElementById('reportChart');
+    if(ctx) {
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['يناير', 'فبراير', 'مارس'],
+          datasets: [
+            { label: 'المبيعات', data: [120000, 150000, 110000], borderColor: '#1a56db', backgroundColor: 'rgba(26,86,219,0.1)', fill: true, tension: 0.4 },
+            { label: 'الربح', data: [40000, 50000, 25000], borderColor: '#059669', backgroundColor: 'transparent', tension: 0.4 }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'top', rtl: true, labels: { font: { family: 'Cairo' } } } },
+          scales: {
+            y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+  });
+</script>
+</body>
+</html>
