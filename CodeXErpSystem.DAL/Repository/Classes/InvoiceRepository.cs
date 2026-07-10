@@ -20,7 +20,6 @@ namespace CodeXErpSystem.DAL.Repository.Classes
         {
             this.dbContext = dbContext;
         }
-
         public async Task<string> GenerateInvoiceNumberAsync(InvoiceType type, CancellationToken ct = default)
         {
             var year = DateTime.UtcNow.Year;
