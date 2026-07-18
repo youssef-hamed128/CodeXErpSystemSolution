@@ -1,0 +1,46 @@
+﻿@{ Layout = "_Layout"; }
+
+    <nav class="breadcrumb"><div class="breadcrumb-item"><a href="~/Home/Index"><i class="fas fa-home"></i> الرئيسية</a></div><div class="breadcrumb-item"><a href="~/Reports/Index">التقارير</a></div><div class="breadcrumb-item active">تفاصيل التقرير</div></nav>
+    <div class="page-header">
+      <div class="page-header-left"><h1 class="page-title"><i class="fas fa-file-alt" style="color:var(--primary);"></i> تقرير المبيعات والأرباح</h1></div>
+      <div class="page-header-right">
+        <button class="btn btn-outline-secondary btn-sm" onclick="exportToExcel('reportTable')"><i class="fas fa-file-excel"></i> تصدير Excel</button>
+        <button class="btn btn-outline-secondary btn-sm" onclick="exportToPDF('reportTable')"><i class="fas fa-file-pdf"></i> تصدير PDF</button>
+        <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-print"></i> طباعة التقرير</button>
+      </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="card" style="padding:var(--spacing-4); margin-bottom:var(--spacing-5);">
+      <div class="form-grid-3">
+        <div class="form-group"><label class="form-label">من تاريخ</label><input type="date" class="form-control" value="2024-01-01"></div>
+        <div class="form-group"><label class="form-label">إلى تاريخ</label><input type="date" class="form-control" value="2024-12-31"></div>
+        <div class="form-group" style="display:flex;align-items:flex-end;"><button class="btn btn-primary" style="width:100%;" onclick="showToast('تم تحديث التقرير', 'success')"><i class="fas fa-filter"></i> تحديث التقرير</button></div>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="card" style="margin-bottom:var(--spacing-5);">
+      <div class="chart-header"><h3 class="chart-title">الرسم البياني (شهري)</h3></div>
+      <div class="chart-container"><canvas id="reportChart"></canvas></div>
+    </div>
+
+    <!-- Table -->
+    <div class="data-table-wrapper">
+      <div class="table-responsive">
+        <table class="data-table" id="reportTable">
+          <thead><tr><th>الشهر</th><th>المبيعات (ر.س)</th><th>التكلفة (ر.س)</th><th>الربح الصافي (ر.س)</th><th>نسبة الربح</th></tr></thead>
+          <tbody>
+            <tr><td>يناير 2024</td><td class="numeric">120,000.00</td><td class="numeric">80,000.00</td><td class="numeric" style="color:var(--success);font-weight:700;">40,000.00</td><td>33.3%</td></tr>
+            <tr><td>فبراير 2024</td><td class="numeric">150,000.00</td><td class="numeric">100,000.00</td><td class="numeric" style="color:var(--success);font-weight:700;">50,000.00</td><td>33.3%</td></tr>
+            <tr><td>مارس 2024</td><td class="numeric">110,000.00</td><td class="numeric">85,000.00</td><td class="numeric" style="color:var(--success);font-weight:700;">25,000.00</td><td>22.7%</td></tr>
+            <tr style="background:var(--bg-hover);font-weight:700;"><td>الإجمالي</td><td class="numeric">380,000.00</td><td class="numeric">265,000.00</td><td class="numeric" style="color:var(--success);">115,000.00</td><td>30.2%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  
+
+
+
+

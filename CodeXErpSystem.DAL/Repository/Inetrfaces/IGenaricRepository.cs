@@ -18,6 +18,7 @@ namespace CodeXErpSystem.DAL.Repository.Inetrfaces
         Task<int> CompleteAsync();
         Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate, bool isTracked = false, CancellationToken ct = default);
         Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken ct = default);
+        Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> filter = null , string includeProperties = null , Func<IQueryable<TEntity> ,IOrderedQueryable<TEntity>> orderBy = null , bool isTracked = true , CancellationToken ct = default);
 
 
 

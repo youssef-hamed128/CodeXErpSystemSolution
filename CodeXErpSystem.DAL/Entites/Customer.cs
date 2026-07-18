@@ -15,6 +15,7 @@ namespace CodeXErpSystem.DAL.Entites
         public string? Address { get; set; }
         public decimal? CreditLimit { get; set; }
         public decimal? Balance { get; set; }
+        public decimal OpeningBalance { get; set; }
         public ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
         public ICollection<Payment> Payments { get; set; } = new List<Payment>();
 

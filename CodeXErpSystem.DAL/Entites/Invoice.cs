@@ -14,11 +14,13 @@ namespace CodeXErpSystem.DAL.Entites
         public InvoiceType Type { get; set; }
         public DateTime Date { get; set; }
         public DateTime DueDate { get; set; }
-        public decimal Subtotal { get; set; }
-        public decimal TaxAmount { get; set; }
+        public decimal SubTotal { get; set; }
+        public decimal TaxAmount { get; set; } = 0;
         public decimal TotalAmount { get; set; }
         public InvoiceStatus Status { get; set; }
         public string? Note { get; set; }
+        public decimal DiscountAmount { get; set; } = 0;
+        public decimal DiscountPercentage { get; set; } = 0;
         public Customer Customer { get; set; } = null!;
         [ForeignKey("CustomerId")]
         public int CustomerId { get; set; }

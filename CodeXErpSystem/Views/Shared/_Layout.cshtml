@@ -1,9 +1,10 @@
+@using System.Web
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>@ViewBag.Title |CodeX ERP System</title>
+  <title>@ViewBag.Title | كوديكس ERP</title>
   
   <link href="~/lib/cairo/cairo.css" rel="stylesheet">
   <link rel="stylesheet" href="~/lib/fontawesome/css/all.min.css">
@@ -22,8 +23,8 @@
   <a class="sidebar-brand" href="~/Home/Index">
     <div class="sidebar-brand-icon"><i class="fas fa-chart-line"></i></div>
     <div class="sidebar-brand-text">
-                <span class="sidebar-brand-name"><meta charset="utf-8" />CodeX</span>
-        <span class="sidebar-brand-subtitle">ERP SYSTEM</span>
+        <span class="sidebar-brand-name">كوديكس ERP</span>
+        <span class="sidebar-brand-subtitle">نظام المحاسبة المتكامل</span>
     </div>
   </a>
   <div class="sidebar-nav-wrapper">
@@ -39,7 +40,7 @@
           <span class="nav-arrow"><i class="fas fa-chevron-left"></i></span>
         </div>
         <ul class="nav-submenu" id="s1">
-          <li class="nav-item"><a class="nav-link" href="~/SalesQuotation/Index"><span class="nav-text">عروض الأسعار</span></a></li>
+          
           <li class="nav-item"><a class="nav-link" href="~/SalesInvoice/Index"><span class="nav-text">فواتير المبيعات</span></a></li>
         </ul>
       </li>
@@ -50,7 +51,7 @@
           <span class="nav-arrow"><i class="fas fa-chevron-left"></i></span>
         </div>
         <ul class="nav-submenu" id="s2">
-          <li class="nav-item"><a class="nav-link" href="~/PurchaseInvoice/PurchaseOrders"><span class="nav-text">أوامر الشراء</span></a></li>
+          
           <li class="nav-item"><a class="nav-link" href="~/PurchaseInvoice/Index"><span class="nav-text">فواتير المشتريات</span></a></li>
         </ul>
       </li>
@@ -74,10 +75,10 @@
           <span class="nav-arrow"><i class="fas fa-chevron-left"></i></span>
         </div>
         <ul class="nav-submenu" id="s4">
-          <li class="nav-item"><a class="nav-link" href="~/Inventory/Products"><span class="nav-text">المنتجات</span></a></li>
-          <li class="nav-item"><a class="nav-link" href="~/Inventory/Warehouses"><span class="nav-text">المستودعات</span></a></li>
-          <li class="nav-item"><a class="nav-link" href="~/Inventory/StockTransfer"><span class="nav-text">تحويل المخزون</span></a></li>
-          <li class="nav-item"><a class="nav-link" href="~/Inventory/StockAdjustment"><span class="nav-text">تسوية المخزون</span></a></li>
+          <li class="nav-item"><a class="nav-link" href="~/Product/Index"><span class="nav-text">المنتجات</span></a></li>
+          <li class="nav-item"><a class="nav-link" href="~/Warehouse/Index"><span class="nav-text">المستودعات</span></a></li>
+          <li class="nav-item"><a class="nav-link" href="~/StockTransfer/Index"><span class="nav-text">تحويل المخزون</span></a></li>
+          <li class="nav-item"><a class="nav-link" href="~/StockAdjustment/Index"><span class="nav-text">تسوية المخزون</span></a></li>
         </ul>
       </li>
 
@@ -89,12 +90,12 @@
           <span class="nav-arrow"><i class="fas fa-chevron-left"></i></span>
         </div>
         <ul class="nav-submenu" id="s5">
-          <li class="nav-item"><a class="nav-link" href="~/Accounting/ChartOfAccounts"><span class="nav-text">دليل الحسابات</span></a></li>
-          <li class="nav-item"><a class="nav-link" href="~/Accounting/JournalEntries"><span class="nav-text">القيود اليومية</span></a></li>
-          <li class="nav-item"><a class="nav-link" href="~/Accounting/Payments"><span class="nav-text">المدفوعات</span></a></li>
-          <li class="nav-item"><a class="nav-link" href="~/Accounting/Customers"><span class="nav-text">العملاء</span></a></li>
-          <li class="nav-item"><a class="nav-link" href="~/Accounting/Suppliers"><span class="nav-text">الموردون</span></a></li>
-          <li class="nav-item"><a class="nav-link" href="~/Accounting/Expenses"><span class="nav-text">المصروفات</span></a></li>
+          <li class="nav-item"><a class="nav-link" href="~/ChartOfAccounts/Index"><span class="nav-text">دليل الحسابات</span></a></li>
+          <li class="nav-item"><a class="nav-link" href="~/JournalEntry/Index"><span class="nav-text">القيود اليومية</span></a></li>
+          <li class="nav-item"><a class="nav-link" href="~/Payment/Index"><span class="nav-text">المدفوعات</span></a></li>
+          <li class="nav-item"><a class="nav-link" href="~/Customer/Index"><span class="nav-text">العملاء</span></a></li>
+          <li class="nav-item"><a class="nav-link" href="~/Supplier/Index"><span class="nav-text">الموردون</span></a></li>
+          <li class="nav-item"><a class="nav-link" href="~/Expense/Index"><span class="nav-text">المصروفات</span></a></li>
         </ul>
       </li>
 
@@ -191,9 +192,12 @@
 <div class="toast-container"></div>
 
 <!-- Global Scripts -->
-<script src="~/js/app.js"></script>
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/js/app.js"></script>
 <script src="~/js/datatable.js"></script>
 @RenderSection("Scripts", required: false)
 
 </body>
 </html>
+
+

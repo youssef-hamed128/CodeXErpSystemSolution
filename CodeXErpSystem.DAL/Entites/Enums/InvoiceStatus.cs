@@ -8,8 +8,8 @@ namespace CodeXErpSystem.DAL.Entites.Enums
 {
     public enum InvoiceStatus
     {
-        paid =1,
-        unpaid,
+        Paid =1,
+        Unpaid,
         Partial
 
     }

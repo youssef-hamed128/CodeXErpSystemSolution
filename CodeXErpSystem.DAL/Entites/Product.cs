@@ -19,6 +19,8 @@ namespace CodeXErpSystem.DAL.Entites
         public decimal? TaxRate { get; set; }
         public bool HasStockTracking { get; set; } = false;
         public string? UnitOfMeasure { get; set; }
+        public decimal MinStockLevel { get; set; } = 1;
+        public string? Barcode { get; set; }  
         public ICollection<StockQuantity> StockQuantities { get; set; } = new List<StockQuantity>();
         public ICollection<StockTransaction> StockTransactions { get; set; } = new List<StockTransaction>();
         public ICollection<InvoiceItem> InvoiceItems { get; set; } = new List<InvoiceItem>();

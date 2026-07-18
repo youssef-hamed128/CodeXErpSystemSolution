@@ -20,10 +20,10 @@ namespace CodeXErpSystem.DAL.Entites
         public int ProductId { get; set; }
         public Warehouse? SourceWarehouse { get; set; } = null!;
         [ForeignKey("SourceWarehouseId")]
-        public int SourceWarehouseId { get; set; }
+        public int? SourceWarehouseId { get; set; }
         public Warehouse? DestWarehouse { get; set; } = null!;
         [ForeignKey("DestWarehouseId")]
-        public int DestWarehouseId { get; set; }
+        public int? DestWarehouseId { get; set; }
 
 
     }

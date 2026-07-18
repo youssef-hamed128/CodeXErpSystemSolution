@@ -24,6 +24,8 @@ namespace CodeXErpSystem.DAL.Contexts
             modelBuilder.ApplyConfiguration<JournalEntryLine>(new JournalEntryLineConfiguration());
             modelBuilder.ApplyConfiguration<Warehouse>(new WarehouseConfiguration());
             modelBuilder.ApplyConfiguration<StockTransaction>(new StockTransactionConfiguration());
+            modelBuilder.ApplyConfiguration<CompanySettings>(new CompanySettingsConfiguration());
+            modelBuilder.ApplyConfiguration<Expense>(new ExpenseConfiguration());
         }
         public DbSet<Product> Products { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
@@ -38,6 +40,9 @@ namespace CodeXErpSystem.DAL.Contexts
         public DbSet<Warehouse> Warehouses { get; set; }
         public DbSet<StockQuantity> StockQuantities { get; set; }
         public DbSet<StockTransaction> StockTransactions { get; set; }
+        public DbSet<CompanySettings> CompanySettings { get; set; }
+        public DbSet<Expense> Expenses { get; set; }
+
 
 
 

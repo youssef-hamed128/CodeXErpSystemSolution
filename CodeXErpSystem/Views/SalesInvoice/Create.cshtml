@@ -1,0 +1,276 @@
+@model CodeXErpSystem.BLL.ViewModels.Invoice.InvoiceCreateViewModel
+@{ Layout = "_Layout"; }
+
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1 class="page-title"><i class="fas fa-file-invoice-dollar" style="color:var(--primary);"></i> فاتورة مبيعات جديدة</h1>
+      </div>
+    </div>
+
+    <form id="invoiceForm" method="post" asp-controller="SalesInvoice" asp-action="Create">
+      @Html.AntiForgeryToken()
+      <div asp-validation-summary="All" class="text-danger" style="background:#ffebee; padding:15px; border-radius:8px; margin-bottom:15px; color:#c62828;"></div>
+
+      <div class="invoice-layout">
+        <!-- بيانات الفاتورة -->
+        <div class="invoice-section">
+          <div class="invoice-section-header">
+            <i class="fas fa-file-alt"></i> بيانات الفاتورة
+          </div>
+          <div class="invoice-section-body">
+            <div class="invoice-header-grid" style="grid-template-columns: repeat(4, 1fr);">
+              <div class="form-group">
+                <label class="form-label">رقم الفاتورة</label>
+                <input type="text" class="form-control" asp-for="InvoiceNumber" readonly  style="background:#e9ecef; font-weight:bold; color:var(--primary);">
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label required">تاريخ الفاتورة</label>
+                <input type="date" class="form-control" asp-for="Date" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label required">تاريخ الاستحقاق</label>
+                <input type="date" class="form-control" asp-for="DueDate" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label required">طريقة الدفع</label>
+                <select class="form-control" asp-for="PaymentMethod" asp-items="Html.GetEnumSelectList<CodeXErpSystem.DAL.Entites.Enums.PaymentMethod>()" required></select>
+              </div>
+
+              <div class="form-group" style="grid-column: span 2;">
+                <label class="form-label required">العميل</label>
+                <select class="form-control" asp-for="CustomerId" asp-items="ViewBag.Customers" required>
+                    <option value="">-- اختر العميل --</option>
+                </select>
+              </div>
+
+              <div class="form-group" style="grid-column: span 2;">
+                <label class="form-label required">المستودع</label>
+                <select class="form-control" asp-for="WarehouseId" asp-items="ViewBag.Warehouses" required>
+                  <option value="">-- اختر المستودع --</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- بنود الفاتورة -->
+        <div class="invoice-section">
+          <div class="invoice-section-header">
+            <i class="fas fa-list-ul"></i> بنود الفاتورة
+          </div>
+          <div class="invoice-section-body" style="padding: 0;">
+            <div class="table-responsive">
+              <table class="invoice-items-table">
+                <thead>
+                  <tr>
+                    <th style="width:25%;">المنتج / الخدمة</th>
+                    <th style="width:10%;">الوحدة</th>
+                    <th style="width:10%;">الكمية</th>
+                    <th style="width:15%;">سعر الوحدة</th>
+                    <th style="width:15%;">الإجمالي</th>
+                    <th style="width:5%;" class="center">حذف</th>
+                  </tr>
+                </thead>
+                <tbody id="lineItemsBody">
+                </tbody>
+              </table>
+            </div>
+
+            <div style="padding: 15px;">
+              <button type="button" class="btn btn-outline-primary" onclick="addNewRow()">
+                <i class="fas fa-plus"></i> إضافة بند جديد
+              </button>
+            </div>
+
+            <!-- الإجماليات -->
+            <div class="invoice-summary" style="padding: 0 20px 20px; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
+              
+              <!-- إعدادات الخصم والضريبة -->
+              <div style="flex: 1; background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                <h6 style="margin-bottom: 15px; color: var(--primary);"><i class="fas fa-sliders-h"></i> إعدادات الخصم والضريبة</h6>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label class="form-label">الخصم (مبلغ)</label>
+                        <input type="number" asp-for="DiscountAmount" class="form-control" id="DiscountAmount" value="0" step="0.01" min="0" oninput="calculateInvoice('amount')">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">الخصم (نسبة %)</label>
+                        <input type="number" asp-for="DiscountPercentage" class="form-control" id="DiscountPercentage" value="0" step="0.01" min="0" max="100" oninput="calculateInvoice('percentage')">
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label class="form-label">نسبة الضريبة القيمة المضافة (%)</label>
+                        <input type="number" asp-for="TaxPercentage" class="form-control" id="TaxPercentage" value="0" step="0.01" min="0" oninput="calculateInvoice('tax')">
+                    </div>
+                </div>
+              </div>
+
+              <table class="invoice-summary-table" style="flex: 1;">
+                <tr>
+                  <td>المجموع الفرعي:</td>
+                  <td class="numeric" id="invoiceSubtotal">0.00</td>
+                </tr>
+                <tr>
+                  <td>إجمالي الخصم:</td>
+                  <td class="numeric" id="invoiceTotalDiscount" style="color:var(--danger);">0.00</td>
+                </tr>
+                <tr>
+                  <td>المجموع بعد الخصم:</td>
+                  <td class="numeric" id="invoiceAfterDiscount">0.00</td>
+                </tr>
+                <tr>
+                  <td>إجمالي الضريبة:</td>
+                  <td class="numeric" id="invoiceTotalTax">0.00</td>
+                </tr>
+                <tr class="total-row">
+                  <td>الإجمالي الكلي:</td>
+                  <td class="numeric" id="invoiceGrandTotal">0.00</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- الملاحظات -->
+        <div class="invoice-section">
+          <div class="invoice-section-header">
+            <i class="fas fa-edit"></i> الملاحظات
+          </div>
+          <div class="invoice-section-body">
+             <div class="form-group">
+                <textarea class="form-control" asp-for="Notes" rows="3" placeholder="أضف ملاحظات الفاتورة هنا..."></textarea>
+             </div>
+          </div>
+        </div>
+        
+      </div>
+
+      <!-- أزرار الحفظ -->
+      <div class="invoice-action-bar no-print mt-3">
+        <button type="submit" class="btn btn-success">
+          <i class="fas fa-check-circle"></i> حفظ وترحيل الفاتورة
+        </button>
+        <a href="/SalesInvoice/Index" class="btn btn-secondary">إلغاء</a>
+      </div>
+    </form>
+  
+
+<script>
+    let rowIndex = 0;
+    const productsData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.ProductsList ?? new object[]{}, new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles }));
+
+    document.addEventListener('DOMContentLoaded', function() {
+        addNewRow(); 
+    });
+
+    function addNewRow() {
+        const productsOptions = `@if(ViewBag.Products != null) { foreach(var item in ViewBag.Products) { <option value="@item.Value">@item.Text</option> } }`;
+        
+        const rowHtml = `
+            <tr id="row_${rowIndex}">
+                <td>
+                    <select name="Items[${rowIndex}].ProductId" class="form-control" onchange="fetchPrice(this, ${rowIndex})" required>
+                        <option value="">-- اختر صنف --</option>
+                        ${productsOptions}
+                    </select>
+                </td>
+                <td>
+                    <input type="text" id="unit_${rowIndex}" class="form-control" readonly style="background:#e9ecef; text-align:center;" value="-" />
+                </td>
+                <td>
+                    <input type="number" name="Items[${rowIndex}].Quantity" id="qty_${rowIndex}" class="form-control qty-input" value="1" min="0.0001" step="any" oninput="calculateInvoice()" required />
+                </td>
+                <td>
+                    <input type="number" name="Items[${rowIndex}].UnitPrice" id="price_${rowIndex}" class="form-control price-input" value="0" step="0.01" min="0" oninput="calculateInvoice()" required />
+                </td>
+                <td>
+                    <input type="text" class="form-control row-total fw-bold text-primary" readonly value="0.00" style="background:#f8f9fa;" />
+                </td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(${rowIndex})">❌</button>
+                </td>
+            </tr>
+        `;
+        
+        document.getElementById('lineItemsBody').insertAdjacentHTML('beforeend', rowHtml);
+        rowIndex++;
+        calculateInvoice();
+    }
+
+    function fetchPrice(selectElement, index) {
+        let productId = selectElement.value;
+        if(productId) {
+            let selectedProduct = productsData.find(p => p.Id == productId);
+            if(selectedProduct) {
+                document.getElementById(`price_${index}`).value = selectedProduct.SalePrice || selectedProduct.SalesPrice || 0;
+                document.getElementById(`unit_${index}`).value = selectedProduct.Unit || "-";
+                calculateInvoice();
+            }
+        }
+    }
+
+    function removeRow(index) {
+        document.getElementById(`row_${index}`).remove();
+        calculateInvoice(); 
+    }
+
+    function calculateInvoice(source = null) {
+        let subTotal = 0;
+        
+        const rows = document.querySelectorAll('#lineItemsBody tr');
+        rows.forEach(row => {
+            let qty = parseFloat(row.querySelector('.qty-input').value) || 0;
+            let price = parseFloat(row.querySelector('.price-input').value) || 0;
+            
+            let rowTotal = qty * price;
+            subTotal += rowTotal; 
+            
+            row.querySelector('.row-total').value = rowTotal.toFixed(2);
+        });
+        
+        let discountAmountInput = document.getElementById('DiscountAmount');
+        let discountPercentageInput = document.getElementById('DiscountPercentage');
+        
+        let discountAmount = parseFloat(discountAmountInput.value) || 0;
+        let discountPercentage = parseFloat(discountPercentageInput.value) || 0;
+
+        if (source === 'amount') {
+            if (subTotal > 0) {
+                discountPercentage = (discountAmount / subTotal) * 100;
+                discountPercentageInput.value = discountPercentage.toFixed(2);
+            } else {
+                discountPercentageInput.value = 0;
+            }
+        } else if (source === 'percentage') {
+            discountAmount = subTotal * (discountPercentage / 100);
+            discountAmountInput.value = discountAmount.toFixed(2);
+        } else {
+            // default re-calculation based on amount if subtotal changes
+            if (subTotal > 0) {
+                discountPercentage = (discountAmount / subTotal) * 100;
+                discountPercentageInput.value = discountPercentage.toFixed(2);
+            }
+        }
+        
+        let totalAfterDiscount = subTotal - discountAmount;
+        if (totalAfterDiscount < 0) totalAfterDiscount = 0;
+
+        let taxRate = parseFloat(document.getElementById('TaxPercentage').value) || 0;
+        let taxAmount = totalAfterDiscount * (taxRate / 100);
+        let grandTotal = totalAfterDiscount + taxAmount;
+        
+        document.getElementById('invoiceSubtotal').innerText = subTotal.toFixed(2);
+        document.getElementById('invoiceTotalDiscount').innerText = discountAmount.toFixed(2);
+        document.getElementById('invoiceAfterDiscount').innerText = totalAfterDiscount.toFixed(2);
+        document.getElementById('invoiceTotalTax').innerText = taxAmount.toFixed(2);
+        document.getElementById('invoiceGrandTotal').innerText = grandTotal.toFixed(2);
+    }
+</script>
+
+
+
+
+

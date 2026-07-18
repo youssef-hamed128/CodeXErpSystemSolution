@@ -1,0 +1,89 @@
+﻿@{ Layout = "_Layout"; }
+
+    <nav class="breadcrumb"><div class="breadcrumb-item"><a href="~/Home/Index"><i class="fas fa-home"></i> الرئيسية</a></div><div class="breadcrumb-item active">مركز التقارير</div></nav>
+    <div class="page-header">
+      <div class="page-header-left"><h1 class="page-title"><i class="fas fa-chart-pie" style="color:var(--primary);"></i> مركز التقارير</h1><p style="color:var(--text-muted);font-size:var(--fs-sm);margin-top:4px;">استعرض وتحليل بيانات الشركة من خلال التقارير الشاملة</p></div>
+    </div>
+    
+    <div class="tabs" data-tab-group="reportsTabs">
+      <button class="tab active" data-tab="financial">التقارير المالية</button>
+      <button class="tab" data-tab="sales">تقارير المبيعات</button>
+      <button class="tab" data-tab="inventory">تقارير المخزون</button>
+      <button class="tab" data-tab="tax">التقارير الضريبية (ZATCA)</button>
+    </div>
+
+    <!-- Financial Reports -->
+    <div class="tab-panel active" id="financial">
+      <div class="grid-3">
+        <div class="card" style="padding:var(--spacing-5);">
+          <div style="font-size:24px;color:var(--primary);margin-bottom:var(--spacing-3);"><i class="fas fa-balance-scale"></i></div>
+          <h3 style="font-size:var(--fs-lg);font-weight:700;margin-bottom:var(--spacing-2);">الميزانية العمومية</h3>
+          <p style="font-size:var(--fs-sm);color:var(--text-secondary);margin-bottom:var(--spacing-4);">عرض ملخص لما تملكه الشركة (الأصول) وما تدين به (الخصوم وحقوق الملكية) في لحظة معينة.</p>
+          <button class="btn btn-outline-primary btn-sm" style="width:100%;" onclick="window.location.href='@Url.Action("BalanceSheet", "Reports")'">عرض التقرير <i class="fas fa-arrow-left" style="margin-right:8px;"></i></button>
+        </div>
+        <div class="card" style="padding:var(--spacing-5);">
+          <div style="font-size:24px;color:var(--success);margin-bottom:var(--spacing-3);"><i class="fas fa-file-invoice-dollar"></i></div>
+          <h3 style="font-size:var(--fs-lg);font-weight:700;margin-bottom:var(--spacing-2);">قائمة الدخل</h3>
+          <p style="font-size:var(--fs-sm);color:var(--text-secondary);margin-bottom:var(--spacing-4);">تفصيل الإيرادات والمصروفات لتحديد صافي الربح أو الخسارة خلال فترة زمنية محددة.</p>
+          <button class="btn btn-outline-primary btn-sm" style="width:100%;" onclick="window.location.href='@Url.Action("View", "Reports", new { id = "income_statement" })'">عرض التقرير <i class="fas fa-arrow-left" style="margin-right:8px;"></i></button>
+        </div>
+        <div class="card" style="padding:var(--spacing-5);">
+          <div style="font-size:24px;color:var(--info);margin-bottom:var(--spacing-3);"><i class="fas fa-list-alt"></i></div>
+          <h3 style="font-size:var(--fs-lg);font-weight:700;margin-bottom:var(--spacing-2);">ميزان المراجعة</h3>
+          <p style="font-size:var(--fs-sm);color:var(--text-secondary);margin-bottom:var(--spacing-4);">قائمة بأرصدة جميع الحسابات في دفتر الأستاذ العام لضمان توازن الأرصدة المدينة والدائنة.</p>
+          <button class="btn btn-outline-primary btn-sm" style="width:100%;" onclick="window.location.href='@Url.Action("View", "Reports", new { id = "trial_balance" })'">عرض التقرير <i class="fas fa-arrow-left" style="margin-right:8px;"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sales Reports -->
+    <div class="tab-panel" id="sales">
+      <div class="grid-3">
+        <div class="card" style="padding:var(--spacing-5);">
+          <div style="font-size:24px;color:var(--primary);margin-bottom:var(--spacing-3);"><i class="fas fa-chart-line"></i></div>
+          <h3 style="font-size:var(--fs-lg);font-weight:700;margin-bottom:var(--spacing-2);">المبيعات حسب العميل</h3>
+          <p style="font-size:var(--fs-sm);color:var(--text-secondary);margin-bottom:var(--spacing-4);">تحليل حجم المبيعات والإيرادات لكل عميل على حدة.</p>
+          <button class="btn btn-outline-primary btn-sm" style="width:100%;" onclick="window.location.href='@Url.Action("View", "Reports", new { id = "sales_by_customer" })'">عرض التقرير</button>
+        </div>
+        <div class="card" style="padding:var(--spacing-5);">
+          <div style="font-size:24px;color:var(--warning);margin-bottom:var(--spacing-3);"><i class="fas fa-tags"></i></div>
+          <h3 style="font-size:var(--fs-lg);font-weight:700;margin-bottom:var(--spacing-2);">المبيعات حسب المنتج</h3>
+          <p style="font-size:var(--fs-sm);color:var(--text-secondary);margin-bottom:var(--spacing-4);">تحديد المنتجات الأكثر مبيعاً والأكثر ربحية.</p>
+          <button class="btn btn-outline-primary btn-sm" style="width:100%;" onclick="window.location.href='@Url.Action("View", "Reports", new { id = "sales_by_product" })'">عرض التقرير</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inventory Reports -->
+    <div class="tab-panel" id="inventory">
+      <div class="grid-3">
+        <div class="card" style="padding:var(--spacing-5);">
+          <div style="font-size:24px;color:var(--info);margin-bottom:var(--spacing-3);"><i class="fas fa-boxes"></i></div>
+          <h3 style="font-size:var(--fs-lg);font-weight:700;margin-bottom:var(--spacing-2);">قيمة المخزون</h3>
+          <p style="font-size:var(--fs-sm);color:var(--text-secondary);margin-bottom:var(--spacing-4);">تقييم المخزون الحالي بناءً على التكلفة.</p>
+          <button class="btn btn-outline-primary btn-sm" style="width:100%;" onclick="window.location.href='@Url.Action("InventoryReport", "Reports")'">عرض التقرير</button>
+        </div>
+        <div class="card" style="padding:var(--spacing-5);">
+          <div style="font-size:24px;color:var(--danger);margin-bottom:var(--spacing-3);"><i class="fas fa-exclamation-triangle"></i></div>
+          <h3 style="font-size:var(--fs-lg);font-weight:700;margin-bottom:var(--spacing-2);">نواقص المخزون</h3>
+          <p style="font-size:var(--fs-sm);color:var(--text-secondary);margin-bottom:var(--spacing-4);">تقرير بالمنتجات التي وصلت للحد الأدنى من المخزون وتحتاج لإعادة طلب.</p>
+          <button class="btn btn-outline-primary btn-sm" style="width:100%;" onclick="window.location.href='@Url.Action("View", "Reports", new { id = "low_stock" })'">عرض التقرير</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tax Reports -->
+    <div class="tab-panel" id="tax">
+      <div class="grid-3">
+        <div class="card" style="padding:var(--spacing-5);">
+          <div style="font-size:24px;color:var(--danger);margin-bottom:var(--spacing-3);"><i class="fas fa-file-invoice"></i></div>
+          <h3 style="font-size:var(--fs-lg);font-weight:700;margin-bottom:var(--spacing-2);">إقرار ضريبة القيمة المضافة</h3>
+          <p style="font-size:var(--fs-sm);color:var(--text-secondary);margin-bottom:var(--spacing-4);">تقرير الإقرار الضريبي المخصص لهيئة الزكاة والضريبة والجمارك (ZATCA) يشمل ضريبة المخرجات والمدخلات.</p>
+          <button class="btn btn-outline-primary btn-sm" style="width:100%;" onclick="window.location.href='@Url.Action("View", "Reports", new { id = "zatca_tax" })'">إنشاء الإقرار <i class="fas fa-arrow-left" style="margin-right:8px;"></i></button>
+        </div>
+      </div>
+    </div>
+
+  
+
+

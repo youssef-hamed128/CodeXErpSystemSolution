@@ -1,0 +1,41 @@
+﻿@{ Layout = "_Layout"; }
+
+    <nav class="breadcrumb"><div class="breadcrumb-item"><a href="~/Home/Index"><i class="fas fa-home"></i> الرئيسية</a></div><div class="breadcrumb-item"><a href="~/Reports/Index">التقارير</a></div><div class="breadcrumb-item active">قيمة المخزون</div></nav>
+    <div class="page-header">
+      <div class="page-header-left"><h1 class="page-title"><i class="fas fa-boxes" style="color:var(--info);"></i> تقرير قيمة المخزون</h1></div>
+      <div class="page-header-right">
+        <button class="btn btn-outline-secondary btn-sm" onclick="exportToExcel('reportTable')"><i class="fas fa-file-excel"></i> تصدير Excel</button>
+        <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-print"></i> طباعة</button>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="card" style="margin-bottom:var(--spacing-5);">
+      <div class="chart-header"><h3 class="chart-title">أعلى 5 منتجات قيمةً في المخزون</h3></div>
+      <div class="chart-container" style="height:300px;"><canvas id="reportChart"></canvas></div>
+    </div>
+
+    <!-- Table -->
+    <div class="data-table-wrapper">
+      <div class="table-responsive">
+        <table class="data-table" id="reportTable">
+          <thead><tr><th>كود المنتج</th><th>اسم المنتج</th><th>الكمية الحالية</th><th>تكلفة الوحدة (ر.س)</th><th>القيمة الإجمالية (ر.س)</th></tr></thead>
+          <tbody>
+            <tr><td dir="ltr" style="text-align:right;">LAP-001</td><td>لاب توب Dell XPS</td><td class="numeric">25</td><td class="numeric">3,500.00</td><td class="numeric" style="font-weight:700;">87,500.00</td></tr>
+            <tr><td dir="ltr" style="text-align:right;">MON-004</td><td>شاشة Samsung</td><td class="numeric">8</td><td class="numeric">1,600.00</td><td class="numeric" style="font-weight:700;">12,800.00</td></tr>
+            <tr><td dir="ltr" style="text-align:right;">CHR-006</td><td>كرسي مكتب Premium</td><td class="numeric">18</td><td class="numeric">600.00</td><td class="numeric" style="font-weight:700;">10,800.00</td></tr>
+            <tr><td dir="ltr" style="text-align:right;">PRN-002</td><td>طابعة HP</td><td class="numeric">12</td><td class="numeric">850.00</td><td class="numeric" style="font-weight:700;">10,200.00</td></tr>
+            <tr><td dir="ltr" style="text-align:right;">AUD-010</td><td>سماعات Headset</td><td class="numeric">15</td><td class="numeric">220.00</td><td class="numeric" style="font-weight:700;">3,300.00</td></tr>
+            <tr style="background:var(--bg-active);font-weight:800;">
+              <td colspan="4" style="text-align:left;">إجمالي قيمة المخزون</td>
+              <td class="numeric" style="color:var(--primary);font-size:16px;">124,600.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  
+
+
+
+

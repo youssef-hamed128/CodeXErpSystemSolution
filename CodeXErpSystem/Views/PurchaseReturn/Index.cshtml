@@ -1,0 +1,93 @@
+﻿@model IEnumerable<CodeXErpSystem.BLL.ViewModels.Invoice.InvoiceViewModel>
+@{ Layout = "_Layout"; }
+
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1 class="page-title"><i class="fas fa-file-invoice-dollar" style="color:var(--primary);"></i> مرتجع المشتريات</h1>
+        <p style="color:var(--text-muted);font-size:var(--fs-sm);margin-top:4px;">إدارة وتتبع جميع مرتجع المشتريات</p>
+      </div>
+      <div class="page-header-right">
+        <button class="btn btn-outline-secondary btn-sm" onclick="exportToExcel('salesTable')"><i class="fas fa-file-excel"></i> Excel</button>
+        <button class="btn btn-outline-secondary btn-sm" onclick="printPage()"><i class="fas fa-print"></i> طباعة</button>
+        <a href="/PurchaseReturn/Create" class="btn btn-primary">
+          <i class="fas fa-plus"></i> فاتورة جديدة
+        </a>
+      </div>
+    </div>
+
+    <!-- Data Table Card -->
+    <div class="data-table-wrapper" id="PurchaseReturnTable">
+      <div class="filter-bar">
+        <input type="text" class="form-control" id="searchInput" placeholder="بحث برقم الفاتورة أو اسم المورد..." data-table-search-simple="salesTable" style="max-width:280px;">
+        <input type="date" class="form-control" id="dateFrom" placeholder="من تاريخ">
+        <input type="date" class="form-control" id="dateTo" placeholder="إلى تاريخ">
+      </div>
+
+      <div class="bulk-actions" id="bulkActionsBar">
+        <span class="bulk-count" id="bulkCount">0 عناصر محددة</span>
+        <button class="btn btn-outline-secondary btn-sm" onclick="printPage()"><i class="fas fa-print"></i> طباعة المربع</button>
+        <button class="btn btn-ghost btn-sm" data-deselect-all="salesTable"><i class="fas fa-times"></i> إلغاء التحديد</button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table" id="salesTable" data-bulk="bulkActionsBar">
+          <thead>
+            <tr>
+              <th class="table-checkbox"><input type="checkbox" id="selectAll" title="تحديد الكل"></th>
+              <th data-sort="number">رقم الفاتورة <i class="fas fa-sort sort-icon"></i></th>
+              <th data-sort="customer">المورد <i class="fas fa-sort sort-icon"></i></th>
+              <th data-sort="date">التاريخ <i class="fas fa-sort sort-icon"></i></th>
+              <th data-sort="dueDate">تاريخ الاستحقاق <i class="fas fa-sort sort-icon"></i></th>
+              <th data-sort="total">الإجمالي <i class="fas fa-sort sort-icon"></i></th>
+              <th data-sort="paid">المدفوع <i class="fas fa-sort sort-icon"></i></th>
+              <th data-sort="status">الحالة <i class="fas fa-sort sort-icon"></i></th>
+              <th class="center">الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (Model != null)
+            {
+                foreach(var item in Model)
+                {
+                    <tr data-status="@item.Status.ToString().ToLower()">
+                      <td class="table-checkbox"><input type="checkbox" value="@item.Id"></td>
+                      <td><a href="/PurchaseReturn/Print/@item.Id" style="color:var(--primary);font-weight:600;">@item.InvoiceNumber</a></td>
+                      <td><div style="font-weight:500;">@item.SupplierName</div></td>
+                      <td>@item.Date.ToString("yyyy-MM-dd")</td>
+                      <td>@item.Date.AddDays(30).ToString("yyyy-MM-dd")</td>
+                      <td class="numeric">@item.TotalAmount.ToString("N2")</td>
+                      <td class="numeric" style="color:var(--text-muted);">0.00</td>
+                      <td>
+                          @if(item.Status == CodeXErpSystem.DAL.Entites.Enums.InvoiceStatus.Paid) {
+                              <span class="badge badge-success" style="background-color:#28a745; color:white;">مدفوعة</span>
+                          } else {
+                              <span class="badge badge-warning" style="background-color:#ffc107; color:black;">غير مدفوعة</span>
+                          }
+                      </td>
+                      <td class="table-actions text-center">
+                          <a href="/PurchaseReturn/Print/@item.Id" class="action-btn view" title="طباعة الفاتورة" style="color:#0d6efd;"><i class="fas fa-print"></i></a>
+                      </td>
+                    </tr>
+                }
+            }
+          </tbody>
+          <tfoot>
+            <tr style="background: var(--bg-hover); font-weight: 700;">
+              <td colspan="5" style="padding: var(--spacing-3) var(--spacing-4); text-align:right;">المجموع الكلي للصفحة</td>
+              <td class="numeric" style="padding: var(--spacing-3) var(--spacing-4);">@(Model != null ? Model.Sum(x => x.TotalAmount).ToString("N2") : "0.00")</td>
+              <td class="numeric" style="padding: var(--spacing-3) var(--spacing-4); color:var(--success);">0.00</td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="pagination mt-3">
+        <div class="pagination-info">إجمالي الفواتير: <strong>@(Model?.Count() ?? 0)</strong> فاتورة</div>
+      </div>
+    </div>
+  
+
+
+
+
+
