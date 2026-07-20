@@ -5,7 +5,7 @@
     <div class="page-header">
       <div class="page-header-left"><h1 class="page-title"><i class="fas fa-warehouse" style="color:var(--primary);"></i> إدارة المستودعات</h1></div>
       <div class="page-header-right">
-        <button class="btn btn-primary" onclick="openModal('addWarehouseModal')"><i class="fas fa-plus"></i> إضافة مستودع جديد</button>
+        <button class="btn btn-primary" onclick="openAddWarehouseModal()"><i class="fas fa-plus"></i> إضافة مستودع جديد</button>
       </div>
     </div>
     
@@ -21,7 +21,7 @@
               <span class="badge @warehouse.StatusClass" style="font-size:10px;">@warehouse.Status</span>
             </div>
           </div>
-          <div><button class="action-btn edit" onclick="openModal('addWarehouseModal')"><i class="fas fa-edit"></i></button></div>
+          <div><button class="action-btn edit" onclick="editWarehouse(@warehouse.Id, '@(warehouse.Name?.Replace("'", "\\'"))', '@(warehouse.Code?.Replace("'", "\\'"))', '@(warehouse.Phone?.Replace("'", "\\'"))', '@(warehouse.Location?.Replace("'", "\\'"))', '@warehouse.IsActive.ToString().ToLower()')"><i class="fas fa-edit"></i></button></div>
         </div>
         <div style="font-size:var(--fs-sm); color:var(--text-secondary); margin-bottom:var(--spacing-4);">
           <div style="margin-bottom:4px;"><i class="fas fa-map-marker-alt" style="width:20px; text-align:center;"></i> @warehouse.Location</div>
@@ -29,7 +29,7 @@
         </div>
         <div style="background:var(--bg-hover); padding:var(--spacing-3); border-radius:var(--radius-md); display:flex; justify-content:space-between; align-items:center;">
           <span style="font-size:var(--fs-sm); color:var(--text-muted);">إجمالي قيمة المخزون:</span>
-          <span style="font-weight:700; font-size:var(--fs-base); color:var(--primary);">@warehouse.TotalInventoryValue.ToString("N2") ر.س</span>
+          <span style="font-weight:700; font-size:var(--fs-base); color:var(--primary);">@warehouse.TotalInventoryValue.ToString("N2") ج.م</span>
         </div>
       </div>
       }
@@ -113,8 +113,20 @@
         });
     });
     
-    function editWarehouse(id) {
+    function openAddWarehouseModal() {
+        document.getElementById('warehouseForm').reset();
+        $('#WarehouseId').val('0');
+        openModal('addWarehouseModal');
+    }
+
+    function editWarehouse(id, name, code, phone, address, isActive) {
+        document.getElementById('warehouseForm').reset();
         $('#WarehouseId').val(id);
+        $('input[name="Name"]').val(name);
+        $('input[name="Code"]').val(code);
+        $('input[name="Phone"]').val(phone);
+        $('textarea[name="Address"]').val(address);
+        $('select[name="IsActive"]').val(isActive.toLowerCase() === 'true' ? 'true' : 'false');
         openModal('addWarehouseModal');
     }
 </script>

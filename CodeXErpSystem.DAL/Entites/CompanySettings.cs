@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,7 +16,7 @@ namespace CodeXErpSystem.DAL.Entites
         public string? Address { get; set; }
         public string BaseCurrency { get; set; } = "EGP";
         public decimal? DefaultTaxRate { get; set; } = 0;
-        public DateTime FinancialYearStart { get; set; } = new DateTime(DateTime.Now.Year, 1, 1);
+        public DateTime FinancialYearStart { get; set; } = new DateTime(2024, 1, 1);
         public bool IsPortalTaxConnected { get; set; } = false;
         public string? PortalTaxAPIKey { get; set; }
 

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using CodeXErpSystem.BLL.Services.Interfaces;
@@ -22,7 +22,7 @@ namespace CodeXErpSystem.BLL.Services.Classes
 
         public IEnumerable<ProductViewModel> GetAllProducts()
         {
-            var entities = _unitOfWork.GetRepository<Product>().GetAll(false).Result;
+            var entities = _unitOfWork.GetRepository<Product>().FindAsync(includeProperties: "Category").Result;
             return _mapper.Map<IEnumerable<ProductViewModel>>(entities);
         }
 

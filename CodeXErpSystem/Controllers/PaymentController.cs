@@ -7,15 +7,24 @@ namespace CodeXErpSystem.Controllers
     public class PaymentController : Controller
     {
         private readonly IPaymentService _paymentService;
+        private readonly CodeXErpSystem.BLL.Services.Interfaces.ICustomerService _customerService;
+        private readonly CodeXErpSystem.BLL.Services.Interfaces.ISupplierService _supplierService;
 
-        public PaymentController(IPaymentService paymentService)
+        public PaymentController(
+            IPaymentService paymentService, 
+            CodeXErpSystem.BLL.Services.Interfaces.ICustomerService customerService,
+            CodeXErpSystem.BLL.Services.Interfaces.ISupplierService supplierService)
         {
             _paymentService = paymentService;
+            _customerService = customerService;
+            _supplierService = supplierService;
         }
 
         public async Task<IActionResult> Index()
         {
             var model = await _paymentService.GetAllAsync();
+            ViewBag.Customers = await _customerService.GetAllAsync();
+            ViewBag.Suppliers = await _supplierService.GetAllAsync();
             return View(model);
         }
 

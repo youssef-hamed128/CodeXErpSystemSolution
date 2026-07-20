@@ -1,56 +1,154 @@
-﻿@{ Layout = "_Layout"; }
+@model IEnumerable<CodeXErpSystem.BLL.ViewModels.Settings.UserViewModel>
+@{ Layout = "_Layout"; }
 
-    <nav class="breadcrumb"><div class="breadcrumb-item"><a href="~/Home/Index"><i class="fas fa-home"></i> الرئيسية</a></div><div class="breadcrumb-item active">المستخدمون</div></nav>
-    <div class="page-header">
-      <div class="page-header-left"><h1 class="page-title"><i class="fas fa-users-cog" style="color:var(--primary);"></i> إدارة المستخدمين والصلاحيات</h1></div>
-      <div class="page-header-right">
+<nav class="breadcrumb">
+    <div class="breadcrumb-item"><a href="~/Home/Index"><i class="fas fa-home"></i> الرئيسية</a></div>
+    <div class="breadcrumb-item active">المستخدمون</div>
+</nav>
+
+<div class="page-header">
+    <div class="page-header-left">
+        <h1 class="page-title"><i class="fas fa-users-cog" style="color:var(--primary);"></i> إدارة المستخدمين والصلاحيات</h1>
+    </div>
+    <div class="page-header-right">
         <button class="btn btn-primary" onclick="openModal('addUserModal')"><i class="fas fa-user-plus"></i> إضافة مستخدم جديد</button>
-      </div>
     </div>
-    
-    <div class="data-table-wrapper">
-      <div class="filter-bar">
-        <input type="text" class="form-control" placeholder="بحث بالاسم أو البريد..." style="max-width:280px;">
-        <select class="form-select"><option value="">جميع الأدوار</option><option>مدير النظام</option><option>محاسب</option><option>مبيعات</option></select>
-      </div>
-      <div class="table-responsive">
-        <table class="data-table">
-          <thead><tr><th>المستخدم</th><th>البريد الإلكتروني</th><th>الدور (الصلاحية)</th><th>تاريخ الإضافة</th><th>الحالة</th><th class="center">الإجراءات</th></tr></thead>
-          <tbody>
-            <tr>
-              <td><div style="display:flex;align-items:center;gap:8px;"><div style="width:32px;height:32px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;">أ</div><span style="font-weight:600;">أحمد السعيد</span></div></td>
-              <td dir="ltr" style="text-align:right;">ahmed@codex-erp.sa</td><td>مدير النظام</td><td>1 يناير 2024</td><td><span class="badge badge-success">نشط</span></td>
-              <td class="table-actions"><button class="action-btn edit" onclick="openModal('addUserModal')"><i class="fas fa-edit"></i></button></td>
-            </tr>
-            <tr>
-              <td><div style="display:flex;align-items:center;gap:8px;"><div style="width:32px;height:32px;border-radius:50%;background:var(--info);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;">س</div><span style="font-weight:600;">سارة محمد</span></div></td>
-              <td dir="ltr" style="text-align:right;">sara@codex-erp.sa</td><td>محاسب</td><td>15 يناير 2024</td><td><span class="badge badge-success">نشط</span></td>
-              <td class="table-actions"><button class="action-btn edit" onclick="openModal('addUserModal')"><i class="fas fa-edit"></i></button><button class="action-btn delete" onclick="deleteRow(this, 'المستخدم')"><i class="fas fa-trash"></i></button></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  <!-- Add User Modal -->
-<div class="modal-overlay" id="addUserModal">
-  <div class="modal modal-md">
-    <div class="modal-header"><h5 class="modal-title"><i class="fas fa-user-plus"></i> إضافة مستخدم</h5><button class="modal-close" data-modal-close="addUserModal"><i class="fas fa-times"></i></button></div>
-    <div class="modal-body">
-      <div class="form-group"><label class="form-label required">الاسم الكامل</label><input type="text" class="form-control" placeholder="أحمد السعيد"></div>
-      <div class="form-grid-2">
-        <div class="form-group"><label class="form-label required">اسم المستخدم</label><input type="text" class="form-control" dir="ltr" placeholder="ahmed123"></div>
-        <div class="form-group"><label class="form-label required">البريد الإلكتروني</label><input type="email" class="form-control" dir="ltr" placeholder="ahmed@example.com"></div>
-        <div class="form-group"><label class="form-label required">كلمة المرور</label><input type="password" class="form-control" dir="ltr"></div>
-        <div class="form-group"><label class="form-label required">تأكيد كلمة المرور</label><input type="password" class="form-control" dir="ltr"></div>
-      </div>
-      <div class="form-group" style="margin-top:var(--spacing-4);"><label class="form-label required">الدور والصلاحية</label><select class="form-select"><option>مدير النظام</option><option>محاسب رئيسي</option><option>موظف مبيعات</option><option>أمين مستودع</option></select></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-primary" onclick="showToast('تمت إضافة المستخدم بنجاح','success');closeModal('addUserModal');"><i class="fas fa-save"></i> حفظ</button>
-      <button class="btn btn-secondary" data-modal-close="addUserModal">إلغاء</button>
-    </div>
-  </div>
 </div>
+
+<div class="data-table-wrapper">
+    <div class="filter-bar">
+        <input type="text" class="form-control" placeholder="بحث بالاسم أو اسم المستخدم..." style="max-width:280px;">
+        <select class="form-select">
+            <option value="">جميع الأدوار</option>
+            @if(ViewBag.Roles != null)
+            {
+                foreach(var role in ViewBag.Roles)
+                {
+                    <option value="@role.Value">@role.Text</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>المستخدم</th>
+                    <th>اسم المستخدم</th>
+                    <th>الدور (الصلاحية)</th>
+                    <th>الحالة</th>
+                    <th class="center">الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    var initial = !string.IsNullOrEmpty(user.FullName) ? user.FullName.Substring(0, 1) : "م";
+                    <tr>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <div style="width:32px;height:32px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;">@initial</div>
+                                <span style="font-weight:600;">@user.FullName</span>
+                            </div>
+                        </td>
+                        <td dir="ltr" style="text-align:right;">@user.Username</td>
+                        <td>@user.RoleName</td>
+                        <td>
+                            @if(user.IsActive)
+                            {
+                                <span class="badge badge-success">نشط</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-danger">غير نشط</span>
+                            }
+                        </td>
+                        <td class="table-actions center">
+                            <button class="action-btn delete" onclick="deleteUser(@user.Id, '@user.FullName')"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="modal-overlay" id="addUserModal">
+    <div class="modal modal-md">
+        <div class="modal-header">
+            <h5 class="modal-title"><i class="fas fa-user-plus"></i> إضافة مستخدم</h5>
+            <button class="modal-close" data-modal-close="addUserModal"><i class="fas fa-times"></i></button>
+        </div>
+        <form asp-action="Create" asp-controller="Users" method="post">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label required">الاسم الكامل</label>
+                    <input type="text" name="FullName" class="form-control" placeholder="الأسم" required>
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label required">اسم المستخدم</label>
+                        <input type="text" name="Username" class="form-control" dir="ltr" placeholder="name123" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">كلمة المرور</label>
+                        <input type="password" name="Password" class="form-control" dir="ltr" required>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top:var(--spacing-4);">
+                    <label class="form-label required">الدور والصلاحية</label>
+                    <select name="RoleId" class="form-select" required>
+                        <option value="">-- اختر الصلاحية --</option>
+                        @if(ViewBag.Roles != null)
+                        {
+                            foreach(var role in ViewBag.Roles)
+                            {
+                                <option value="@role.Value">@role.Text</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> حفظ</button>
+                <button type="button" class="btn btn-secondary" data-modal-close="addUserModal">إلغاء</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="toast-container"></div>
+<script src="~/js/app.js"></script>
 
+<script>
+    function deleteUser(id, name) {
+        if(confirm('هل أنت متأكد من حذف المستخدم ' + name + '؟')) {
+            $.post('/Users/Delete', { id: id }, function(res) {
+                if(res.success) {
+                    showToast(res.message, 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast('حدث خطأ أثناء الحذف', 'error');
+                }
+            });
+        }
+    }
+</script>
 
+@if(TempData["Success"] != null)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            showToast('@TempData["Success"]', 'success');
+        });
+    </script>
+}
+@if(TempData["Error"] != null)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            showToast('@TempData["Error"]', 'error');
+        });
+    </script>
+}

@@ -21,10 +21,24 @@ namespace CodeXErpSystem.BLL.Mapping
             // 1. Users & Settings
             CreateMap<ApplicationUser, UserViewModel>().ReverseMap();
             CreateMap<ApplicationUser, UserCreateViewModel>().ReverseMap();
-            CreateMap<CompanySettings, CompanySettingsViewModel>().ReverseMap();
+            CreateMap<CompanySettings, CompanySettingsViewModel>()
+                .ForMember(dest => dest.CommercialRegistration, opt => opt.MapFrom(src => src.CRNumber))
+                .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.PhoneNumber))
+                .ForMember(dest => dest.NationalAddress, opt => opt.MapFrom(src => src.Address))
+                .ForMember(dest => dest.IsZatcaConnected, opt => opt.MapFrom(src => src.IsPortalTaxConnected))
+                .ForMember(dest => dest.ZatcaApiKey, opt => opt.MapFrom(src => src.PortalTaxAPIKey))
+                .ReverseMap()
+                .ForMember(dest => dest.CRNumber, opt => opt.MapFrom(src => src.CommercialRegistration))
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.Phone))
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.NationalAddress))
+                .ForMember(dest => dest.IsPortalTaxConnected, opt => opt.MapFrom(src => src.IsZatcaConnected))
+                .ForMember(dest => dest.PortalTaxAPIKey, opt => opt.MapFrom(src => src.ZatcaApiKey));
 
             // 2. Inventory & Products
-            CreateMap<Product, ProductViewModel>().ReverseMap();
+            CreateMap<Product, ProductViewModel>()
+                .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : null))
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : null))
+                .ReverseMap();
             CreateMap<Product, ProductCreateViewModel>().ReverseMap();
 
             CreateMap<ProductCategory, ProductCategoryViewModel>().ReverseMap();

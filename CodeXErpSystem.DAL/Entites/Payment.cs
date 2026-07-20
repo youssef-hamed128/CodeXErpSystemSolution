@@ -1,4 +1,4 @@
-﻿using CodeXErpSystem.DAL.Entites.Enums;
+using CodeXErpSystem.DAL.Entites.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -15,15 +15,15 @@ namespace CodeXErpSystem.DAL.Entites
         public decimal Amount { get; set; }
         public PaymentMethod PaymentMethod { get; set; }
         public string? Reference { get; set; } 
-        public Invoice? Invoice { get; set; } = null!;
+        public Invoice? Invoice { get; set; }
         [ForeignKey("InvoiceId")]
-        public int InvoiceId { get; set; }
-        public Customer? Customer { get; set; } = null!;
+        public int? InvoiceId { get; set; }
+        public Customer? Customer { get; set; }
         [ForeignKey("CustomerId")]
-        public int CustomerId { get; set; }
-        public Supplier? Supplier { get; set; } = null!;
+        public int? CustomerId { get; set; }
+        public Supplier? Supplier { get; set; }
         [ForeignKey("SupplierId")]
-        public int SupplierId { get; set; }
+        public int? SupplierId { get; set; }
 
 
 

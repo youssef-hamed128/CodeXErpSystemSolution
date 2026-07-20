@@ -75,9 +75,11 @@ namespace CodeXErpSystem.Controllers
             var customers = await _unitOfWork.GetRepository<Customer>().FindAsync();
             var warehouses = await _unitOfWork.GetRepository<Warehouse>().FindAsync();
             var products = await _unitOfWork.GetRepository<Product>().FindAsync();
+            var categories = await _unitOfWork.GetRepository<ProductCategory>().FindAsync();
 
             ViewBag.Customers = new SelectList(customers, "Id", "Name");
             ViewBag.Warehouses = new SelectList(warehouses, "Id", "Name");
+            ViewBag.Categories = new SelectList(categories, "Id", "Name");
             ViewBag.Products = new SelectList(products, "Id", "Name");
             ViewBag.ProductsList = products;
         }

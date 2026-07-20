@@ -25,7 +25,10 @@
               </div>
               <div class="form-group">
                 <label class="form-label">رقم الفاتورة الأصلية (مرجعي)</label>
-                <input type="text" class="form-control" asp-for="ReferenceNumber" placeholder="مثال: INV-2024-0001">
+                <div style="display: flex; gap: 5px;">
+                    <input type="text" class="form-control" asp-for="ReferenceNumber" id="referenceNumberInput" placeholder="مثال: INV-2024-0001">
+                    <button type="button" class="btn btn-outline-primary" onclick="fetchOriginalInvoice()"><i class="fas fa-search"></i> جلب</button>
+                </div>
               </div>
               
               <div class="form-group">
@@ -59,7 +62,6 @@
             </div>
           </div>
         </div>
-
 
         <!-- بنود الفاتورة -->
         <div class="invoice-section">
@@ -107,7 +109,7 @@
                     </div>
                     <div class="form-group" style="grid-column: span 2;">
                         <label class="form-label">نسبة الضريبة القيمة المضافة (%)</label>
-                        <input type="number" asp-for="TaxPercentage" class="form-control" id="TaxPercentage" value="15" step="0.01" min="0" oninput="calculateInvoice('tax')">
+                        <input type="number" asp-for="TaxPercentage" class="form-control" id="TaxPercentage" value="0" step="0.01" min="0" oninput="calculateInvoice('tax')">
                     </div>
                 </div>
               </div>
@@ -160,7 +162,6 @@
         <a href="/SalesReturn/Index" class="btn btn-secondary">إلغاء</a>
       </div>
     </form>
-  
 
 <script>
     let rowIndex = 0;
@@ -171,12 +172,17 @@
     });
 
     function addNewRow() {
+        const categoryOptions = `@if(ViewBag.Categories != null) { foreach(var cat in ViewBag.Categories) { <option value="@cat.Value">@cat.Text</option> } }`;
         const productsOptions = `@if(ViewBag.Products != null) { foreach(var item in ViewBag.Products) { <option value="@item.Value">@item.Text</option> } }`;
         
         const rowHtml = `
             <tr id="row_${rowIndex}">
                 <td>
-                    <select name="Items[${rowIndex}].ProductId" class="form-control" onchange="fetchPrice(this, ${rowIndex})" required>
+                    <select class="form-control mb-1 category-select" onchange="filterProducts(this, ${rowIndex})">
+                        <option value="">-- كل المجموعات --</option>
+                        ${categoryOptions}
+                    </select>
+                    <select name="Items[${rowIndex}].ProductId" class="form-control product-select" onchange="fetchPrice(this, ${rowIndex})" required>
                         <option value="">-- اختر صنف --</option>
                         ${productsOptions}
                     </select>
@@ -200,8 +206,34 @@
         `;
         
         document.getElementById('lineItemsBody').insertAdjacentHTML('beforeend', rowHtml);
+        
+        $(`#row_${rowIndex} .product-select`).select2({
+            placeholder: "-- اختر صنف --",
+            width: '100%',
+            dir: "rtl"
+        });
+
         rowIndex++;
         calculateInvoice();
+    }
+
+    function filterProducts(categorySelect, index) {
+        let categoryId = categorySelect.value;
+        let productSelect = $(`#row_${index} .product-select`);
+        
+        productSelect.empty();
+        productSelect.append(new Option("-- اختر صنف --", "", true, true));
+        
+        let filteredProducts = productsData;
+        if (categoryId) {
+            filteredProducts = productsData.filter(p => p.CategoryId == categoryId);
+        }
+        
+        filteredProducts.forEach(p => {
+            productSelect.append(new Option(p.Name, p.Id, false, false));
+        });
+        
+        productSelect.trigger('change');
     }
 
     function fetchPrice(selectElement, index) {
@@ -210,7 +242,7 @@
             let selectedProduct = productsData.find(p => p.Id == productId);
             if(selectedProduct) {
                 document.getElementById(`price_${index}`).value = selectedProduct.SalePrice || selectedProduct.SalesPrice || 0;
-                document.getElementById(`unit_${index}`).value = selectedProduct.Unit || "-";
+                document.getElementById(`unit_${index}`).value = selectedProduct.UnitOfMeasure || "-";
                 calculateInvoice();
             }
         }
@@ -252,7 +284,6 @@
             discountAmount = subTotal * (discountPercentage / 100);
             discountAmountInput.value = discountAmount.toFixed(2);
         } else {
-            // default re-calculation based on amount if subtotal changes
             if (subTotal > 0) {
                 discountPercentage = (discountAmount / subTotal) * 100;
                 discountPercentageInput.value = discountPercentage.toFixed(2);
@@ -272,10 +303,69 @@
         document.getElementById('invoiceTotalTax').innerText = taxAmount.toFixed(2);
         document.getElementById('invoiceGrandTotal').innerText = grandTotal.toFixed(2);
     }
+
+    function fetchOriginalInvoice() {
+        const invoiceNumber = document.getElementById('referenceNumberInput').value.trim();
+        if(!invoiceNumber) {
+            showToast('يرجى إدخال رقم الفاتورة الأصلية أولاً', 'error');
+            return;
+        }
+        
+        $.get('/api/InvoiceApi/GetInvoiceByNumber?invoiceNumber=' + invoiceNumber, function(res) {
+            if(res.success && res.data) {
+                showToast('تم جلب بيانات الفاتورة بنجاح', 'success');
+                const invoice = res.data;
+                
+                if(invoice.customerId && document.querySelector('select[name="CustomerId"]')) {
+                    document.querySelector('select[name="CustomerId"]').value = invoice.customerId;
+                }
+                if(invoice.dueDate && document.querySelector('input[name="DueDate"]')) {
+                    document.querySelector('input[name="DueDate"]').value = invoice.dueDate.split('T')[0];
+                }
+                
+                document.getElementById('lineItemsBody').innerHTML = '';
+                rowIndex = 0;
+                
+                if(invoice.items && invoice.items.length > 0) {
+                    invoice.items.forEach(item => {
+                        const categoryOptions = `@if(ViewBag.Categories != null) { foreach(var cat in ViewBag.Categories) { <option value="@cat.Value">@cat.Text</option> } }`;
+                        const productsOptions = `@if(ViewBag.Products != null) { foreach(var p in ViewBag.Products) { <option value="@p.Value">@p.Text</option> } }`;
+                        const tr = document.createElement('tr');
+                        tr.id = `row_${rowIndex}`;
+                        tr.innerHTML = `
+                          <td>
+                            <select class="form-control mb-1 category-select" onchange="filterProducts(this, ${rowIndex})">
+                                <option value="">-- كل المجموعات --</option>
+                                ${categoryOptions}
+                            </select>
+                            <select class="form-control product-select" name="Items[${rowIndex}].ProductId" required onchange="fetchPrice(this, ${rowIndex})">
+                              <option value="${item.productId}" selected>${item.productName || 'منتج ' + item.productId}</option>
+                              ${productsOptions}
+                            </select>
+                          </td>
+                          <td><input type="text" id="unit_${rowIndex}" class="form-control" readonly style="background:#e9ecef; text-align:center;" value="-" /></td>
+                          <td><input type="number" id="qty_${rowIndex}" class="form-control qty-input" name="Items[${rowIndex}].Quantity" value="${item.quantity}" min="1" oninput="calculateInvoice()"></td>
+                          <td><input type="number" id="price_${rowIndex}" class="form-control price-input" name="Items[${rowIndex}].UnitPrice" value="${item.unitPrice}" step="0.01" oninput="calculateInvoice()"></td>
+                          <td><input type="text" class="form-control row-total fw-bold text-primary" readonly value="${item.total}" style="background:#f8f9fa;" /></td>
+                          <td class="text-center"><button type="button" class="btn btn-sm btn-danger" onclick="removeRow(${rowIndex})">❌</button></td>
+                        `;
+                        document.getElementById('lineItemsBody').appendChild(tr);
+                        
+                        $(`#row_${rowIndex} .product-select`).select2({
+                            placeholder: "-- اختر صنف --",
+                            width: '100%',
+                            dir: "rtl"
+                        });
+
+                        rowIndex++;
+                    });
+                    calculateInvoice();
+                }
+            } else {
+                showToast(res.message || 'لم يتم العثور على الفاتورة', 'error');
+            }
+        }).fail(function(err) {
+            showToast('حدث خطأ أثناء جلب الفاتورة', 'error');
+        });
+    }
 </script>
-
-
-
-
-
-

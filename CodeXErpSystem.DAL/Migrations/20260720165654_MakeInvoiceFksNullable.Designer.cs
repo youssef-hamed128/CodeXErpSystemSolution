@@ -4,6 +4,7 @@ using CodeXErpSystem.DAL.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CodeXErpSystem.DAL.Migrations
 {
     [DbContext(typeof(CodeXDbContext))]
-    partial class CodeXDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260720165654_MakeInvoiceFksNullable")]
+    partial class MakeInvoiceFksNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -691,32 +694,6 @@ namespace CodeXErpSystem.DAL.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Code = "",
-                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsDeleted = false,
-                            Name = "مدير النظام"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Code = "",
-                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsDeleted = false,
-                            Name = "محاسب"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Code = "",
-                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsDeleted = false,
-                            Name = "مبيعات"
-                        });
                 });
 
             modelBuilder.Entity("CodeXErpSystem.DAL.Entites.StockQuantity", b =>

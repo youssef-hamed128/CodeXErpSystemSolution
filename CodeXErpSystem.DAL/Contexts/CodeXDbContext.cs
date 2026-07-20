@@ -1,4 +1,4 @@
-﻿using CodeXErpSystem.DAL.Configrations;
+using CodeXErpSystem.DAL.Configrations;
 using CodeXErpSystem.DAL.Entites;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -26,6 +26,14 @@ namespace CodeXErpSystem.DAL.Contexts
             modelBuilder.ApplyConfiguration<StockTransaction>(new StockTransactionConfiguration());
             modelBuilder.ApplyConfiguration<CompanySettings>(new CompanySettingsConfiguration());
             modelBuilder.ApplyConfiguration<Expense>(new ExpenseConfiguration());
+
+            // Seed Roles
+            var seedDate = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            modelBuilder.Entity<Role>().HasData(
+                new Role { Id = 1, Name = "مدير النظام", CreatedAt = seedDate },
+                new Role { Id = 2, Name = "محاسب", CreatedAt = seedDate },
+                new Role { Id = 3, Name = "مبيعات", CreatedAt = seedDate }
+            );
         }
         public DbSet<Product> Products { get; set; }
         public DbSet<Invoice> Invoices { get; set; }

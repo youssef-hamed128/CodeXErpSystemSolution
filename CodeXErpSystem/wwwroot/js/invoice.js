@@ -291,7 +291,7 @@ function attachRowEvents(row) {
               <strong>${p.name}</strong>
               <span style="color:var(--text-muted); font-size:var(--fs-xs); margin-right:8px;">${p.sku}</span>
             </div>
-            <div style="color:var(--text-muted); font-size:var(--fs-xs);">${formatNumber(p.unitPrice)} ر.س</div>
+            <div style="color:var(--text-muted); font-size:var(--fs-xs);">${formatNumber(p.unitPrice)} ج.م</div>
           </div>
         `).join('');
       }

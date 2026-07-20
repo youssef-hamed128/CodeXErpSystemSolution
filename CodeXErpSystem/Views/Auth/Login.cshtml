@@ -4,96 +4,127 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>تسجيل الدخول | CodeX Erp System</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="~/lib/fontawesome/css/all.min.css">
-  <link rel="stylesheet" href="~/css/variables.css"><link rel="stylesheet" href="~/css/main.css"><link rel="stylesheet" href="~/css/components.css">
-  <style>
-    body {
-      background: var(--bg-hover);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .login-card {
-      background: var(--bg-card);
-      width: 100%;
-      max-width: 420px;
-      padding: var(--spacing-6) var(--spacing-8);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-xl);
-      text-align: center;
-    }
-    .login-logo {
-      font-size: 48px;
-      color: var(--primary);
-      margin-bottom: var(--spacing-2);
-    }
-    .login-title {
-      font-size: var(--fs-xl);
-      font-weight: 700;
-      margin-bottom: var(--spacing-2);
-    }
-    .login-subtitle {
-      color: var(--text-secondary);
-      font-size: var(--fs-sm);
-      margin-bottom: var(--spacing-6);
-    }
-    .form-group {
-      text-align: right;
-      margin-bottom: var(--spacing-4);
-    }
-    .login-btn {
-      width: 100%;
-      padding: var(--spacing-3);
-      font-size: var(--fs-base);
-      margin-top: var(--spacing-4);
-    }
-    .forgot-password {
-      display: block;
-      margin-top: var(--spacing-4);
-      font-size: var(--fs-sm);
-      color: var(--primary);
-      text-decoration: none;
-    }
-    .forgot-password:hover { text-decoration: underline; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول | CodeX ERP</title>
+    <link href="~/lib/cairo/cairo.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/lib/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="~/css/variables.css">
+    <style>
+        body {
+            background-color: var(--bg-body);
+            font-family: 'Cairo', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            direction: rtl;
+        }
+        .login-card {
+            background: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .login-logo {
+            font-size: 40px;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        .login-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--text-dark);
+        }
+        .login-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 14px;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+        .error-message {
+            color: var(--danger);
+            font-size: 14px;
+            margin-bottom: 15px;
+            text-align: right;
+            background: #fff5f5;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #feb2b2;
+        }
+    </style>
 </head>
-<body class="rtl">
-  <div class="login-card">
-    <div class="login-logo"><i class="fas fa-chart-line"></i></div>
-    <div class="login-title">CodeX Erp System</div>
-    <div class="login-subtitle">نظام المحاسبة المتكامل</div>
-    
-    <form action="~/Home/Index" method="GET">
-      <div class="form-group">
-        <label class="form-label">اسم المستخدم</label>
-        <div class="input-group">
-          <span class="input-group-text" style="background:var(--bg-card);"><i class="fas fa-user"></i></span>
-          <input type="text" class="form-control" placeholder="أدخل اسم المستخدم" required>
+<body>
+    <div class="login-card">
+        <div class="login-logo">
+            <i class="fas fa-chart-line"></i>
         </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">كلمة المرور</label>
-        <div class="input-group">
-          <span class="input-group-text" style="background:var(--bg-card);"><i class="fas fa-lock"></i></span>
-          <input type="password" class="form-control" placeholder="أدخل كلمة المرور" required>
-        </div>
-      </div>
-      
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:var(--spacing-2); font-size:var(--fs-sm);">
-        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-          <input type="checkbox"> تذكرني
-        </label>
-      </div>
+        <div class="login-title">CodeX ERP</div>
+        <div class="login-subtitle">يرجى تسجيل الدخول للوصول إلى النظام</div>
 
-      <button type="submit" class="btn btn-primary login-btn">تسجيل الدخول <i class="fas fa-sign-in-alt" style="margin-right:8px;"></i></button>
-      
-      <a href="#" class="forgot-password">هل نسيت كلمة المرور؟</a>
-    </form>
-  </div>
+        @if (ViewBag.Error != null)
+        {
+            <div class="error-message">
+                <i class="fas fa-exclamation-circle"></i> @ViewBag.Error
+            </div>
+        }
+
+        <form method="post" action="~/Auth/Login">
+            <div class="form-group">
+                <label class="form-label">اسم المستخدم</label>
+                <input type="text" name="username" class="form-control" placeholder="أدخل اسم المستخدم" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">كلمة المرور</label>
+                <input type="password" name="password" class="form-control" placeholder="أدخل كلمة المرور" required>
+            </div>
+            <button type="submit" class="btn-primary">تسجيل الدخول</button>
+        </form>
+    </div>
 </body>
 </html>

@@ -1,4 +1,4 @@
-﻿using CodeXErpSystem.DAL.Contexts;
+using CodeXErpSystem.DAL.Contexts;
 using CodeXErpSystem.DAL.Entites;
 using CodeXErpSystem.DAL.Repository.Inetrfaces;
 using Microsoft.EntityFrameworkCore;
@@ -66,15 +66,20 @@ namespace CodeXErpSystem.DAL.Repository.Classes
             IQueryable<TEntity> query = dbContext.Set<TEntity>();
             if(!isTracked) query = query.AsNoTracking();
             if(filter != null) query = query.Where(filter);
+            
             if (includeProperties != null)
             {
                 foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 {
                     query = query.Include(includeProp);
                 }
-                if(orderBy != null)
-                    return await orderBy(query).ToListAsync(ct);
             }
+            
+            if(orderBy != null)
+            {
+                return await orderBy(query).ToListAsync(ct);
+            }
+            
             return await query.ToListAsync(ct);
         }
     }

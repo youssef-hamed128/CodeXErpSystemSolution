@@ -9,7 +9,7 @@
         <a href="~/Inventory/StockTransfer" class="btn btn-outline-secondary btn-sm"><i class="fas fa-exchange-alt"></i> تحويل مخزون</a>
         <a href="~/Inventory/StockAdjustment" class="btn btn-outline-secondary btn-sm"><i class="fas fa-sliders-h"></i> تسوية المخزون</a>
         <button class="btn btn-outline-secondary btn-sm" onclick="exportToExcel('productsTable')"><i class="fas fa-file-excel"></i> Excel</button>
-        <button class="btn btn-primary" onclick="openModal('addCategoryModal')"><i class="fas fa-tags"></i> تصنيف جديد</button>
+        <button class="btn btn-primary" onclick="openModal('addCategoryModal')"><i class="fas fa-tags"></i> إضافة مجموعة جديدة</button>
         <button class="btn btn-info" onclick="openModal('addProductModal')"><i class="fas fa-plus"></i> منتج جديد</button>
       </div>
     </div>
@@ -62,7 +62,7 @@
                   <td><span class="badge @badgeClass">@product.Status</span></td>
                   <td class="table-actions">
                     <button class="action-btn view" onclick="showPreview('معاينة السجل')"><i class="fas fa-eye"></i></button>
-                    <button class="action-btn edit" onclick="openEditModal(@product.Id, '@product.ProductName', '@product.SKU', '@product.Category', '@product.UnitCost', '@product.SalePrice', '@product.MinQuantity', '@product.Unit')"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn edit" onclick="openEditModal(@product.Id, '@product.ProductName', '@product.SKU', '@product.CategoryId', '@product.UnitCost', '@product.SalePrice', '@product.MinQuantity', '@product.Unit', '@product.TaxRate', '@product.Barcode')"><i class="fas fa-edit"></i></button>
                     <button class="action-btn delete" onclick="deleteRecord(@product.Id)"><i class="fas fa-trash"></i></button>
                   </td>
                 </tr>
@@ -79,12 +79,11 @@
     <div class="modal-header"><h5 class="modal-title"><i class="fas fa-box"></i> إضافة / تعديل منتج</h5><button class="modal-close" data-modal-close="addProductModal"><i class="fas fa-times"></i></button></div>
     <form id="productForm" method="post">
     <input type="hidden" name="Id" id="productId" value="0" />
-    <div class="modal-body">
+    <div class="modal-body" data-tab-group="productTabs">
       <!-- Tabs -->
-      <div class="tabs" data-tab-group="productTabs">
+      <div class="tabs">
         <button type="button" class="tab active" data-tab="basicTab">البيانات الأساسية</button>
         <button type="button" class="tab" data-tab="pricingTab">التسعير والمخزون</button>
-        <button type="button" class="tab" data-tab="supplierTab">المورد والمشتريات</button>
       </div>
 
       <div class="tab-panel active" id="basicTab">
@@ -115,18 +114,10 @@
 
       <div class="tab-panel" id="pricingTab">
         <div class="form-grid-2" style="margin-top:var(--spacing-4);">
-          <div class="form-group"><label class="form-label required">تكلفة الوحدة</label><div class="input-group"><input type="number" class="form-control" name="PurchasePrice" value="0" min="0" step="0.01" required><span class="input-group-text">ر.س</span></div></div>
-          <div class="form-group"><label class="form-label required">سعر البيع</label><div class="input-group"><input type="number" class="form-control" name="SalePrice" value="0" min="0" step="0.01" required><span class="input-group-text">ر.س</span></div></div>
-          <div class="form-group"><label class="form-label">نسبة الضريبة (%)</label><input type="number" class="form-control" name="TaxRate" value="15" min="0" max="100" step="0.01"></div>
-          <div class="form-group"><label class="form-label">الحد الأدنى للتنبيه</label><input type="number" class="form-control" name="MinStockLevel" value="5" min="0"></div>
-          <div class="form-group"><label class="form-label">سعر البيع بالجملة (غير مدعوم)</label><div class="input-group"><input type="number" class="form-control" name="WholesalePrice" value="0" min="0" step="0.01" disabled><span class="input-group-text">ر.س</span></div></div>
-        </div>
-      </div>
-
-      <div class="tab-panel" id="supplierTab">
-        <div class="form-grid-2" style="margin-top:var(--spacing-4);">
-          <div class="form-group"><label class="form-label">المورد الرئيسي (غير مدعوم)</label><select class="form-select" name="PrimarySupplierId" disabled><option value="">-- اختر المورد --</option></select></div>
-          <div class="form-group"><label class="form-label">رمز المنتج عند المورد (غير مدعوم)</label><input type="text" class="form-control" name="SupplierSKU" dir="ltr" placeholder="كود المورد" disabled></div>
+          <div class="form-group"><label class="form-label required">تكلفة الوحدة</label><div class="input-group"><input type="number" class="form-control" name="PurchasePrice" value="0" min="0" step="0.01" required><span class="input-group-text">ج.م</span></div></div>
+          <div class="form-group"><label class="form-label required">سعر البيع</label><div class="input-group"><input type="number" class="form-control" name="SalePrice" value="0" min="0" step="0.01" required><span class="input-group-text">ج.م</span></div></div>
+          <div class="form-group"><label class="form-label">نسبة الضريبة (%)</label><input type="number" class="form-control" name="TaxRate" value="0" min="0" max="100" step="0.01"></div>
+          <div class="form-group"><label class="form-label">الحد الأدنى للتنبيه</label><input type="number" class="form-control" name="MinStockLevel" value="0" min="0"></div>
         </div>
       </div>
     </div>
@@ -142,22 +133,22 @@
 <div class="modal-overlay" id="addCategoryModal">
   <div class="modal modal-sm">
     <div class="modal-header">
-      <h5 class="modal-title"><i class="fas fa-tags"></i> إضافة تصنيف جديد</h5>
+      <h5 class="modal-title"><i class="fas fa-tags"></i> مجموعات الأصناف</h5>
       <button class="modal-close" data-modal-close="addCategoryModal"><i class="fas fa-times"></i></button>
     </div>
     <form id="categoryForm">
       <div class="modal-body">
         <div class="form-group">
-          <label class="form-label required">اسم التصنيف</label>
-          <input type="text" name="Name" class="form-control" required placeholder="أدخل اسم التصنيف...">
+          <label class="form-label required">اسم المجموعة</label>
+          <input type="text" name="Name" class="form-control" required placeholder="أدخل اسم المجموعة...">
         </div>
         <div class="form-group">
           <label class="form-label">الوصف</label>
-          <textarea name="Description" class="form-control" rows="3" placeholder="وصف التصنيف (اختياري)"></textarea>
+          <textarea name="Description" class="form-control" rows="3" placeholder="وصف المجموعة (اختياري)"></textarea>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> حفظ التصنيف</button>
+        <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> حفظ المجموعة</button>
         <button type="button" class="btn btn-secondary" data-modal-close="addCategoryModal">إلغاء</button>
       </div>
     </form>
@@ -192,50 +183,31 @@
 
     $('#productForm').on('submit', function (e) {
         e.preventDefault();
-        var data = {};
-        $(this).serializeArray().forEach(item => {
-            data[item.name] = item.value;
-        });
 
-        var url = data.Id == 0 ? '/Product/Create' : '/Product/Edit';
+        var url = $('#productId').val() == 0
+            ? '/Product/Create'
+            : '/Product/Edit';
 
-                  $('#productForm').on('submit', function (e) {
-            e.preventDefault();
-
-            var url = $('#productId').val() == 0
-                ? '/Product/Create'
-                : '/Product/Edit';
-
-            console.log("Submit Fired");
-            console.log("URL:", url);
-            console.log($(this).serialize());
-
-            $.ajax({
-                url: url,
-                type: 'POST',
-                data: $(this).serialize(),
-
-                success: function (res) {
-                    console.log("Success:", res);
-
-                    if (res.success) {
-                        showToast(res.message, 'success');
-                        closeModal('addProductModal');
-                        setTimeout(() => location.reload(), 1000);
-                    } else {
-                        showToast(res.message, 'error');
-                    }
-                },
-
-                error: function (xhr) {
-                    console.log("Status:", xhr.status);
-                    console.log("Response:", xhr.responseText);
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: $(this).serialize(),
+            success: function (res) {
+                if (res.success) {
+                    showToast(res.message, 'success');
+                    closeModal('addProductModal');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast(res.message, 'error');
                 }
-            });
+            },
+            error: function (xhr) {
+                showToast('حدث خطأ أثناء الحفظ', 'error');
+            }
         });
     });
     
-    function openEditModal(id, name, code, category, purchasePrice, salePrice, minStock, unit) {
+    function openEditModal(id, name, code, categoryId, purchasePrice, salePrice, minStock, unit, taxRate, barcode) {
         document.getElementById('productForm').reset();
         document.getElementById('productId').value = id;
         document.querySelector('input[name="Name"]').value = name;
@@ -244,16 +216,37 @@
         document.querySelector('input[name="SalePrice"]').value = salePrice;
         document.querySelector('input[name="MinStockLevel"]').value = minStock;
         
+        if (categoryId && categoryId !== 'null') document.querySelector('select[name="CategoryId"]').value = categoryId;
+        if (unit && unit !== 'null') document.querySelector('select[name="UnitOfMeasure"]').value = unit;
+        if (taxRate && taxRate !== 'null') document.querySelector('input[name="TaxRate"]').value = taxRate;
+        if (barcode && barcode !== 'null' && barcode !== '') document.querySelector('input[name="Barcode"]').value = barcode;
+        
         openModal('addProductModal');
     }
 
-    // Example logic for the Category Form
     $('#categoryForm').on('submit', function(e) {
          e.preventDefault();
-         showToast('تمت إضافة التصنيف بنجاح', 'success');
-         closeModal('addCategoryModal');
-         // In a real app, you would post this to the backend:
-         // $.post('/ProductCategory/Create', $(this).serialize(), ...)
+         $.ajax({
+             url: '/Product/CreateCategory',
+             type: 'POST',
+             data: $(this).serialize(),
+             success: function(res) {
+                 if (res.success) {
+                     showToast(res.message, 'success');
+                     closeModal('addCategoryModal');
+                     // Add the new category to the dropdowns
+                     var newOption = new Option(res.name, res.id);
+                     $('select[name="CategoryId"]').append(newOption);
+                     $('.filter-bar select:first').append(new Option(res.name, res.id));
+                     document.getElementById('categoryForm').reset();
+                 } else {
+                     showToast(res.message, 'error');
+                 }
+             },
+             error: function() {
+                 showToast('حدث خطأ أثناء الاتصال بالخادم', 'error');
+             }
+         });
     });
 </script>
 }

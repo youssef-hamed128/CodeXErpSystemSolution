@@ -561,14 +561,29 @@ function initTabs() {
       // Show target panel
       const panel = document.getElementById(panelId);
       if (panel) panel.classList.add('active');
+
+      // Save to sessionStorage to preserve tab state across reloads
+      if(tabGroup && tabGroup.hasAttribute('data-tab-group')) {
+          sessionStorage.setItem('activeTab_' + window.location.pathname, panelId);
+      }
     });
   });
 
-  // Activate first tab in each group
+  // Activate first tab in each group or restored tab
   document.querySelectorAll('[data-tab-group]').forEach(group => {
-    const firstTab = group.querySelector('.tab[data-tab]');
-    if (firstTab && !group.querySelector('.tab.active')) {
-      firstTab.click();
+    const savedTabId = sessionStorage.getItem('activeTab_' + window.location.pathname);
+    let tabToActivate = null;
+    
+    if (savedTabId) {
+        tabToActivate = group.querySelector(`.tab[data-tab="${savedTabId}"]`);
+    }
+    
+    if (!tabToActivate) {
+        tabToActivate = group.querySelector('.tab[data-tab]');
+    }
+    
+    if (tabToActivate && !group.querySelector('.tab.active')) {
+      tabToActivate.click();
     }
   });
 }
@@ -767,6 +782,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Prevent form submission on Enter key in input fields
+  document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+          const target = e.target;
+          if (target.tagName === 'INPUT' && target.type !== 'submit' && target.type !== 'button') {
+              e.preventDefault();
+              // Optionally move focus to next input
+              const form = target.closest('form');
+              if(form) {
+                  const inputs = Array.from(form.querySelectorAll('input, select, textarea, button[type="submit"]'))
+                      .filter(el => !el.disabled && el.tabIndex !== -1);
+                  const index = inputs.indexOf(target);
+                  if (index > -1 && index < inputs.length - 1) {
+                      inputs[index + 1].focus();
+                  }
+              }
+          }
+      }
+  });
+
   console.log('%c ERP System Initialized ✓', 'color:#1a56db; font-weight:bold; font-size:14px;');
 });
 
@@ -879,9 +914,9 @@ function showPreview(title, contentHTML) {
           <p style="margin: 2px 0 0; color: #777; font-size: 0.95rem;">الرياض، المملكة العربية السعودية</p>
         </div>
         <div style="text-align: left;">
-          <h3 style="margin: 0; color: #333; font-size: 1.4rem;"> + title + </h3>
+          <h3 style="margin: 0; color: #333; font-size: 1.4rem;">` + title + `</h3>
           <p style="margin: 8px 0 0; color: #555; font-size: 1rem; font-weight: 600;">رقم المرجع: INV-2026-0042</p>
-          <p style="margin: 2px 0 0; color: #777; font-size: 0.95rem;">التاريخ:  + new Date().toLocaleDateString('ar-SA') + </p>
+          <p style="margin: 2px 0 0; color: #777; font-size: 0.95rem;">التاريخ: ` + new Date().toLocaleDateString('ar-SA') + `</p>
         </div>
       </div>
 
@@ -913,14 +948,14 @@ function showPreview(title, contentHTML) {
           <tr>
             <td style="padding: 12px; border: 1px solid #ddd; color: #333;">خدمات استشارية متقدمة (معاينة)</td>
             <td style="padding: 12px; border: 1px solid #ddd; text-align: center; color: #333;">1</td>
-            <td style="padding: 12px; border: 1px solid #ddd; text-align: center; color: #333;">1,500.00 ر.س</td>
-            <td style="padding: 12px; border: 1px solid #ddd; text-align: left; color: #333;">1,500.00 ر.س</td>
+            <td style="padding: 12px; border: 1px solid #ddd; text-align: center; color: #333;">1,500.00 ج.م</td>
+            <td style="padding: 12px; border: 1px solid #ddd; text-align: left; color: #333;">1,500.00 ج.م</td>
           </tr>
           <tr>
             <td style="padding: 12px; border: 1px solid #ddd; color: #333;">تطوير نظام برمجيات (الدفعة الأولى)</td>
             <td style="padding: 12px; border: 1px solid #ddd; text-align: center; color: #333;">1</td>
-            <td style="padding: 12px; border: 1px solid #ddd; text-align: center; color: #333;">3,500.00 ر.س</td>
-            <td style="padding: 12px; border: 1px solid #ddd; text-align: left; color: #333;">3,500.00 ر.س</td>
+            <td style="padding: 12px; border: 1px solid #ddd; text-align: center; color: #333;">3,500.00 ج.م</td>
+            <td style="padding: 12px; border: 1px solid #ddd; text-align: left; color: #333;">3,500.00 ج.م</td>
           </tr>
         </tbody>
       </table>
@@ -929,13 +964,13 @@ function showPreview(title, contentHTML) {
       <div style="display: flex; justify-content: flex-end; flex-direction: row-reverse;">
         <div style="width: 280px; background: #fafafa; padding: 20px; border-radius: 6px; border: 1px solid #eee;">
           <div style="display: flex; justify-content: space-between; margin-bottom: 12px; color: #555;">
-            <strong>5,000.00 ر.س</strong> <span>المجموع الفرعي:</span> 
+            <strong>5,000.00 ج.م</strong> <span>المجموع الفرعي:</span> 
           </div>
           <div style="display: flex; justify-content: space-between; margin-bottom: 12px; color: #555;">
-            <strong>750.00 ر.س</strong> <span>الضريبة (15%):</span> 
+            <strong>750.00 ج.م</strong> <span>الضريبة (15%):</span> 
           </div>
           <div style="display: flex; justify-content: space-between; border-top: 2px solid #ddd; padding-top: 15px; color: var(--primary); font-size: 1.2rem; font-weight: 700;">
-            <strong>5,750.00 ر.س</strong> <span>الإجمالي:</span> 
+            <strong>5,750.00 ج.م</strong> <span>الإجمالي:</span> 
           </div>
         </div>
       </div>

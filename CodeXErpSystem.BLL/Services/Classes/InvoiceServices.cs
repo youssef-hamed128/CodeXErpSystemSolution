@@ -27,23 +27,30 @@ namespace CodeXErpSystem.BLL.Services.Classes
         {
             var prefix = type switch
             {
-                InvoiceType.Sales => "INV-",
-                InvoiceType.Purchase => "PUR-",
-                InvoiceType.SalesReturn => "SRT-",
-                InvoiceType.PurchaseReturn => "PRT-",
+                InvoiceType.Sales => "INV",
+                InvoiceType.Purchase => "PUR",
+                InvoiceType.SalesReturn => "SRT",
+                InvoiceType.PurchaseReturn => "PRT",
 
-                _ => "DOC-"
+                _ => "DOC"
             };
             var lastInvoice = await unitOfWork.GetRepository<Invoice>().FindAsync(i => i.Type == type, null, i => i.OrderByDescending(x => x.Id), false);
             var last = lastInvoice.FirstOrDefault();
 
             if (last == null || string.IsNullOrEmpty(last.InvoiceNumber))
                 return $"{prefix}-{DateTime.Now.Year}-00001";
-            var parts = last.InvoiceNumber.Split('-');
-            if(parts.Length == 3 && int.TryParse(parts[2],out int lastNum))
-                return  $"{prefix}-{DateTime.Now.Year}-{(lastNum + 1):D5}";
 
-            return $"{prefix}-{DateTime.Now.Year}-{new Random().Next(1000,9999)}";
+            int lastDashIndex = last.InvoiceNumber.LastIndexOf('-');
+            if (lastDashIndex >= 0 && lastDashIndex < last.InvoiceNumber.Length - 1)
+            {
+                string numStr = last.InvoiceNumber.Substring(lastDashIndex + 1);
+                if (int.TryParse(numStr, out int lastNum))
+                {
+                    return $"{prefix}-{DateTime.Now.Year}-{(lastNum + 1):D5}";
+                }
+            }
+
+            return $"{prefix}-{DateTime.Now.Year}-{new Random().Next(10000,99999)}";
         }
         public async Task<InvoiceViewModel> CreateInvoiceAsync(InvoiceCreateViewModel model,string userId, CancellationToken ct = default)
         {
@@ -52,7 +59,7 @@ namespace CodeXErpSystem.BLL.Services.Classes
             {//--------------------- حساب صافي السعر  و حسباب الخصم و حساب الضريبه و حساب الاجمالي
                 var invoice = mapper.Map<Invoice>(model);
                 invoice.InvoiceNumber = await GenerateInvoiceNumberAsync(model.Type);
-                invoice.Status = InvoiceStatus.Unpaid;
+                invoice.Status = InvoiceStatus.Paid;
                 invoice.CreatedBy = userId;
 
                 invoice.SubTotal = model.Items.Sum(i => i.Quantity * i.UnitPrice);
@@ -131,6 +138,32 @@ namespace CodeXErpSystem.BLL.Services.Classes
                 await unitOfWork.RollbackTransactionAsync(ct); 
                 throw;
             }
+        }
+
+        public async Task<InvoiceViewModel?> GetInvoiceByNumberAsync(string invoiceNumber, CancellationToken ct = default)
+        {
+            var invoices = await unitOfWork.GetRepository<Invoice>().FindAsync(
+                filter: i => i.InvoiceNumber == invoiceNumber,
+                includeProperties: "Items,Items.Product,Customer,Supplier",
+                orderBy: null,
+                isTracked: false,
+                ct: ct
+            );
+
+            var invoice = invoices.FirstOrDefault();
+            if (invoice == null) return null;
+
+            return mapper.Map<InvoiceViewModel>(invoice);
+        }
+
+        public async Task<bool> UpdateInvoiceStatusAsync(int invoiceId, CodeXErpSystem.DAL.Entites.Enums.InvoiceStatus newStatus, CancellationToken ct = default)
+        {
+            var invoice = await unitOfWork.GetRepository<Invoice>().GetById(invoiceId, ct);
+            if (invoice == null) return false;
+
+            invoice.Status = newStatus;
+            unitOfWork.GetRepository<Invoice>().Update(invoice);
+            return await unitOfWork.CompleteAsync() > 0;
         }
 
 

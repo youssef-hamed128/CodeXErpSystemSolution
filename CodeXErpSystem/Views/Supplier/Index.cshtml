@@ -1,58 +1,6 @@
 @model IEnumerable<CodeXErpSystem.BLL.ViewModels.Suppliers.SupplierViewModel>
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>الموردون | CodeX Erp System</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="~/lib/fontawesome/css/all.min.css">
-  <link rel="stylesheet" href="~/css/variables.css"><link rel="stylesheet" href="~/css/main.css"><link rel="stylesheet" href="~/css/layout.css"><link rel="stylesheet" href="~/css/components.css"><link rel="stylesheet" href="~/css/additions.css">
-</head>
-<body class="rtl">
-<nav class="sidebar" id="sidebar">
-  <a class="sidebar-brand" href="~/Home/Index"><div class="sidebar-brand-icon"><i class="fas fa-chart-line"></i></div><div class="sidebar-brand-text"><span class="sidebar-brand-name">CodeX Erp System</span></div></a>
-  <div class="sidebar-nav-wrapper">      <ul class="sidebar-nav">
-  <li class="nav-section-label">الرئيسية</li>
-  <li class="nav-item"><a class="nav-link" href="~/Home/Index"><span class="nav-icon"><i class="fas fa-home"></i></span><span class="nav-text">الصفحة الرئيسية</span></a></li>
-  
-  <li class="nav-section-label">المبيعات</li>
-  
-  <li class="nav-item"><a class="nav-link" href="~/SalesInvoice/Index"><span class="nav-icon"><i class="fas fa-file-invoice-dollar"></i></span><span class="nav-text">فواتير المبيعات</span></a></li>
-  <li class="nav-item"><a class="nav-link" href="~/SalesReturn/Index"><span class="nav-icon"><i class="fas fa-undo"></i></span><span class="nav-text">مرتجعات المبيعات</span></a></li>
+@{ Layout = "_Layout"; }
 
-  <li class="nav-section-label">المشتريات</li>
-  
-  <li class="nav-item"><a class="nav-link" href="~/PurchaseInvoice/Index"><span class="nav-icon"><i class="fas fa-file-invoice"></i></span><span class="nav-text">فواتير المشتريات</span></a></li>
-  <li class="nav-item"><a class="nav-link" href="~/PurchaseReturn/Index"><span class="nav-icon"><i class="fas fa-undo-alt"></i></span><span class="nav-text">مرتجعات المشتريات</span></a></li>
-
-  <li class="nav-section-label">المخزون</li>
-  <li class="nav-item"><a class="nav-link" href="~/Inventory/Products"><span class="nav-icon"><i class="fas fa-box"></i></span><span class="nav-text">المنتجات</span></a></li>
-  <li class="nav-item"><a class="nav-link" href="~/Inventory/Warehouses"><span class="nav-icon"><i class="fas fa-warehouse"></i></span><span class="nav-text">المستودعات</span></a></li>
-  <li class="nav-item"><a class="nav-link" href="~/Inventory/StockTransfer"><span class="nav-icon"><i class="fas fa-exchange-alt"></i></span><span class="nav-text">نقل المخزون</span></a></li>
-  <li class="nav-item"><a class="nav-link" href="~/Inventory/StockAdjustment"><span class="nav-icon"><i class="fas fa-sliders-h"></i></span><span class="nav-text">تسوية المخزون</span></a></li>
-
-  <li class="nav-section-label">المحاسبة</li>
-  <li class="nav-item"><a class="nav-link" href="~/ChartOfAccounts/Index"><span class="nav-icon"><i class="fas fa-book"></i></span><span class="nav-text">دليل الحسابات</span></a></li>
-  <li class="nav-item"><a class="nav-link" href="~/JournalEntry/Index"><span class="nav-icon"><i class="fas fa-balance-scale"></i></span><span class="nav-text">القيود اليومية</span></a></li>
-  <li class="nav-item"><a class="nav-link" href="~/Payment/Index"><span class="nav-icon"><i class="fas fa-money-check-alt"></i></span><span class="nav-text">المدفوعات</span></a></li>
-  <li class="nav-item"><a class="nav-link" href="~/Customer/Index"><span class="nav-icon"><i class="fas fa-users"></i></span><span class="nav-text">العملاء</span></a></li>
-  <li class="nav-item"><a class="nav-link" href="~/Supplier/Index"><span class="nav-icon"><i class="fas fa-truck"></i></span><span class="nav-text">الموردون</span></a></li>
-  <li class="nav-item"><a class="nav-link" href="~/Expense/Index"><span class="nav-icon"><i class="fas fa-receipt"></i></span><span class="nav-text">المصروفات</span></a></li>
-
-  <li class="nav-section-label">التقارير</li>
-  <li class="nav-item"><a class="nav-link" href="~/Reports/Index"><span class="nav-icon"><i class="fas fa-chart-line"></i></span><span class="nav-text">مركز التقارير</span></a></li>
-
-  <li class="nav-section-label">الإعدادات</li>
-  <li class="nav-item"><a class="nav-link" href="~/Users/Index"><span class="nav-icon"><i class="fas fa-users-cog"></i></span><span class="nav-text">المستخدمين والصلاحيات</span></a></li>
-  <li class="nav-item"><a class="nav-link" href="~/Settings/Index"><span class="nav-icon"><i class="fas fa-cogs"></i></span><span class="nav-text">إعدادات النظام</span></a></li>
-</ul>
-</div>
-</nav>
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-<div class="main-wrapper" id="mainWrapper">
-  <header class="navbar"><div class="navbar-start"><button class="sidebar-toggle-btn" id="sidebarToggle"><i class="fas fa-bars"></i></button></div><div class="navbar-end"><div class="lang-switcher"><button class="lang-btn active" data-lang="ar">عربي</button></div><button class="theme-toggle navbar-btn" id="themeToggle"><i class="fas fa-moon"></i></button></div></header>
-
-  <main class="content-wrapper">
     <nav class="breadcrumb"><div class="breadcrumb-item"><a href="~/Home/Index"><i class="fas fa-home"></i> الرئيسية</a></div><div class="breadcrumb-item active">الموردون</div></nav>
     <div class="page-header">
       <div class="page-header-left"><h1 class="page-title"><i class="fas fa-truck" style="color:var(--primary);"></i> إدارة الموردين</h1></div>
@@ -62,16 +10,16 @@
       </div>
     </div>
     
-    <div class="stats-grid">
+@*     <div class="stats-grid">
       <div class="card" style="padding:var(--spacing-4);">
         <div style="font-size:var(--fs-sm);color:var(--text-secondary);"><i class="fas fa-truck"></i> إجمالي الموردين</div>
         <div style="font-size:var(--fs-2xl);font-weight:700;margin-top:var(--spacing-2);">32</div>
       </div>
       <div class="card" style="padding:var(--spacing-4);">
         <div style="font-size:var(--fs-sm);color:var(--text-secondary);"><i class="fas fa-hand-holding-usd"></i> إجمالي الذمم الدائنة</div>
-        <div style="font-size:var(--fs-2xl);font-weight:700;margin-top:var(--spacing-2);color:var(--danger);">145,000 ر.س</div>
+        <div style="font-size:var(--fs-2xl);font-weight:700;margin-top:var(--spacing-2);color:var(--danger);">145,000 ج.م</div>
       </div>
-    </div>
+    </div> *@
 
     <div class="data-table-wrapper">
       <div class="filter-bar">
@@ -93,10 +41,7 @@
         </table>
       </div>
     </div>
-  </main>
-</div>
-
-<!-- Add Supplier Modal -->
+  <!-- Add Supplier Modal -->
 <div class="modal-overlay" id="addSupplierModal">
   <div class="modal modal-lg">
     <div class="modal-header"><h5 class="modal-title"><i class="fas fa-plus"></i> إضافة مورد جديد</h5><button class="modal-close" data-modal-close="addSupplierModal"><i class="fas fa-times"></i></button></div>
@@ -120,10 +65,10 @@
   </div>
 </div>
 
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/js/app.js"></script><script src="~/js/datatable.js"></script>
+
+@section Scripts {
 <script>
-    function openEditModal(id, name, phone, taxNumber, address) {
+function openEditModal(id, name, phone, taxNumber, address) {
         document.getElementById('supplierForm').reset();
         document.getElementById('supplierId').value = id;
         document.querySelector('input[name="Name"]').value = name;
@@ -161,6 +106,5 @@
         });
     });
 </script>
-</body>
-</html>
+}
 

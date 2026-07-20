@@ -1,4 +1,4 @@
-﻿@model IEnumerable<CodeXErpSystem.BLL.ViewModels.Invoice.InvoiceViewModel>
+@model IEnumerable<CodeXErpSystem.BLL.ViewModels.Invoice.InvoiceViewModel>
 @{ Layout = "_Layout"; }
 
     <div class="page-header">
@@ -8,8 +8,8 @@
       </div>
       <div class="page-header-right">
         <button class="btn btn-outline-secondary btn-sm" onclick="exportToExcel('salesTable')"><i class="fas fa-file-excel"></i> Excel</button>
-        <button class="btn btn-outline-secondary btn-sm" onclick="printPage()"><i class="fas fa-print"></i> طباعة</button>
-        <a href="/PurchaseReturn/Create" class="btn btn-primary">
+@*         <button class="btn btn-outline-secondary btn-sm" onclick="printPage()"><i class="fas fa-print"></i> طباعة</button>
+ *@        <a href="/PurchaseReturn/Create" class="btn btn-primary">
           <i class="fas fa-plus"></i> فاتورة جديدة
         </a>
       </div>
@@ -57,12 +57,19 @@
                       <td>@item.Date.AddDays(30).ToString("yyyy-MM-dd")</td>
                       <td class="numeric">@item.TotalAmount.ToString("N2")</td>
                       <td class="numeric" style="color:var(--text-muted);">0.00</td>
-                      <td>
-                          @if(item.Status == CodeXErpSystem.DAL.Entites.Enums.InvoiceStatus.Paid) {
-                              <span class="badge badge-success" style="background-color:#28a745; color:white;">مدفوعة</span>
-                          } else {
-                              <span class="badge badge-warning" style="background-color:#ffc107; color:black;">غير مدفوعة</span>
-                          }
+                      <td id="statusTd_@item.Id">
+                          <div style="display: flex; align-items: center; gap: 8px;">
+                              @if(item.Status == CodeXErpSystem.DAL.Entites.Enums.InvoiceStatus.Paid) {
+                                  <span class="badge badge-success" style="background-color:#28a745; color:white;">مدفوعة</span>
+                              } else if (item.Status == CodeXErpSystem.DAL.Entites.Enums.InvoiceStatus.Partial) {
+                                  <span class="badge badge-info" style="background-color:#17a2b8; color:white;">مدفوعة جزئياً</span>
+                              } else {
+                                  <span class="badge badge-warning" style="background-color:#ffc107; color:black;">غير مدفوعة</span>
+                              }
+                              <button type="button" class="btn btn-sm btn-ghost p-1" onclick="openStatusModal(@item.Id, @((int)item.Status))" title="تعديل الحالة">
+                                  <i class="fas fa-edit" style="color: var(--primary);"></i>
+                              </button>
+                          </div>
                       </td>
                       <td class="table-actions text-center">
                           <a href="/PurchaseReturn/Print/@item.Id" class="action-btn view" title="طباعة الفاتورة" style="color:#0d6efd;"><i class="fas fa-print"></i></a>
@@ -85,9 +92,62 @@
         <div class="pagination-info">إجمالي الفواتير: <strong>@(Model?.Count() ?? 0)</strong> فاتورة</div>
       </div>
     </div>
-  
 
+    <!-- Status Change Modal -->
+    <div class="modal-overlay" id="statusModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-edit"></i> تعديل حالة الفاتورة</h2>
+                <button type="button" class="close-btn" onclick="closeModal('statusModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="statusInvoiceId" />
+                <div class="form-group">
+                    <label class="form-label">الحالة الجديدة</label>
+                    <select class="form-control" id="newStatusSelect">
+                        <option value="2">غير مدفوعة</option>
+                        <option value="3">مدفوعة جزئياً</option>
+                        <option value="1">مدفوعة بالكامل</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('statusModal')">إلغاء</button>
+                <button type="button" class="btn btn-primary" onclick="saveStatus()">حفظ التغييرات</button>
+            </div>
+        </div>
+    </div>
 
+@section Scripts {
+    <script>
+        function openStatusModal(invoiceId, currentStatus) {
+            document.getElementById('statusInvoiceId').value = invoiceId;
+            document.getElementById('newStatusSelect').value = currentStatus;
+            openModal('statusModal');
+        }
 
+        function saveStatus() {
+            const invoiceId = document.getElementById('statusInvoiceId').value;
+            const newStatus = parseInt(document.getElementById('newStatusSelect').value);
 
-
+            $.ajax({
+                url: '/api/InvoiceApi/UpdateStatus',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ invoiceId: invoiceId, newStatus: newStatus }),
+                success: function(res) {
+                    if (res.success) {
+                        showToast(res.message, 'success');
+                        closeModal('statusModal');
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        showToast(res.message || 'حدث خطأ', 'error');
+                    }
+                },
+                error: function(err) {
+                    showToast('حدث خطأ أثناء الاتصال بالخادم', 'error');
+                }
+            });
+        }
+    </script>
+}

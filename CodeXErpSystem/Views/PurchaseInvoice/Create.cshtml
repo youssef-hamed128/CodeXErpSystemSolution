@@ -103,7 +103,7 @@
                     </div>
                     <div class="form-group" style="grid-column: span 2;">
                         <label class="form-label">نسبة الضريبة القيمة المضافة (%)</label>
-                        <input type="number" asp-for="TaxPercentage" class="form-control" id="TaxPercentage" value="15" step="0.01" min="0" oninput="calculateInvoice('tax')">
+                        <input type="number" asp-for="TaxPercentage" class="form-control" id="TaxPercentage" value="0" step="0.01" min="0" oninput="calculateInvoice('tax')">
                     </div>
                 </div>
               </div>
@@ -167,12 +167,17 @@
     });
 
     function addNewRow() {
+        const categoryOptions = `@if(ViewBag.Categories != null) { foreach(var cat in ViewBag.Categories) { <option value="@cat.Value">@cat.Text</option> } }`;
         const productsOptions = `@if(ViewBag.Products != null) { foreach(var item in ViewBag.Products) { <option value="@item.Value">@item.Text</option> } }`;
         
         const rowHtml = `
             <tr id="row_${rowIndex}">
                 <td>
-                    <select name="Items[${rowIndex}].ProductId" class="form-control" onchange="fetchPrice(this, ${rowIndex})" required>
+                    <select class="form-control mb-1 category-select" onchange="filterProducts(this, ${rowIndex})">
+                        <option value="">-- كل المجموعات --</option>
+                        ${categoryOptions}
+                    </select>
+                    <select name="Items[${rowIndex}].ProductId" class="form-control product-select" onchange="fetchPrice(this, ${rowIndex})" required>
                         <option value="">-- اختر صنف --</option>
                         ${productsOptions}
                     </select>
@@ -196,8 +201,34 @@
         `;
         
         document.getElementById('lineItemsBody').insertAdjacentHTML('beforeend', rowHtml);
+        
+        $(`#row_${rowIndex} .product-select`).select2({
+            placeholder: "-- اختر صنف --",
+            width: '100%',
+            dir: "rtl"
+        });
+
         rowIndex++;
         calculateInvoice();
+    }
+
+    function filterProducts(categorySelect, index) {
+        let categoryId = categorySelect.value;
+        let productSelect = $(`#row_${index} .product-select`);
+        
+        productSelect.empty();
+        productSelect.append(new Option("-- اختر صنف --", "", true, true));
+        
+        let filteredProducts = productsData;
+        if (categoryId) {
+            filteredProducts = productsData.filter(p => p.CategoryId == categoryId);
+        }
+        
+        filteredProducts.forEach(p => {
+            productSelect.append(new Option(p.Name, p.Id, false, false));
+        });
+        
+        productSelect.trigger('change');
     }
 
     function fetchPrice(selectElement, index) {
@@ -206,7 +237,7 @@
             let selectedProduct = productsData.find(p => p.Id == productId);
             if(selectedProduct) {
                 document.getElementById(`price_${index}`).value = selectedProduct.SalePrice || selectedProduct.SalesPrice || 0;
-                document.getElementById(`unit_${index}`).value = selectedProduct.Unit || "-";
+                document.getElementById(`unit_${index}`).value = selectedProduct.UnitOfMeasure || "-";
                 calculateInvoice();
             }
         }

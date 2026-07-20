@@ -18,7 +18,7 @@ namespace CodeXErpSystem.BLL.ViewModels.Invoice
         [Required(ErrorMessage = "تاريخ الفاتورة مطلوب")]
         public DateTime Date { get; set; } = DateTime.UtcNow;
         [Required(ErrorMessage = "تاريخ الاستحقاق مطلوب")]
-        public DateTime DueDate { get; set; } = DateTime.UtcNow.AddDays(30);
+        public DateTime DueDate { get; set; } = DateTime.UtcNow;
         public int? CustomerId { get; set; }
         public int? SupplierId { get; set; }
         [Required(ErrorMessage = "المخزن مطلوب")]

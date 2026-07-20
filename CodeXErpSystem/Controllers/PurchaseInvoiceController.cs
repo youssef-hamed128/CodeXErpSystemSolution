@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using CodeXErpSystem.BLL.Services.Interfaces;
 using CodeXErpSystem.BLL.ViewModels;
 using CodeXErpSystem.BLL.ViewModels.Invoice;
@@ -75,9 +75,11 @@ namespace CodeXErpSystem.Controllers
             var suppliers = await _unitOfWork.GetRepository<Supplier>().FindAsync();
             var warehouses = await _unitOfWork.GetRepository<Warehouse>().FindAsync();
             var products = await _unitOfWork.GetRepository<Product>().FindAsync();
+            var categories = await _unitOfWork.GetRepository<ProductCategory>().FindAsync();
 
             ViewBag.Suppliers = new SelectList(suppliers, "Id", "Name");
             ViewBag.Warehouses = new SelectList(warehouses, "Id", "Name");
+            ViewBag.Categories = new SelectList(categories, "Id", "Name");
             ViewBag.Products = new SelectList(products, "Id", "Name");
             ViewBag.ProductsList = products;
         }

@@ -39,6 +39,18 @@ namespace CodeXErpSystem.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> CreateCategory([FromForm] CodeXErpSystem.DAL.Entites.ProductCategory category)
+        {
+            if (string.IsNullOrEmpty(category.Name))
+                return Json(new { success = false, message = "اسم المجموعة مطلوب" });
+                
+            _unitOfWork.GetRepository<CodeXErpSystem.DAL.Entites.ProductCategory>().Add(category);
+            await _unitOfWork.CompleteAsync();
+            
+            return Json(new { success = true, message = "تمت إضافة المجموعة بنجاح", id = category.Id, name = category.Name });
+        }
+
+        [HttpPost]
         public async Task<IActionResult> Edit([FromForm] CodeXErpSystem.BLL.ViewModels.Products.ProductCreateViewModel model)
         {
             await _productService.UpdateAsync(model);
