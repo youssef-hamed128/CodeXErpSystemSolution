@@ -32,7 +32,8 @@ namespace CodeXErpSystem.DAL.Contexts
             modelBuilder.Entity<Role>().HasData(
                 new Role { Id = 1, Name = "مدير النظام", CreatedAt = seedDate },
                 new Role { Id = 2, Name = "محاسب", CreatedAt = seedDate },
-                new Role { Id = 3, Name = "مبيعات", CreatedAt = seedDate }
+                new Role { Id = 3, Name = "مبيعات", CreatedAt = seedDate },
+                new Role { Id = 4, Name = "مشتريات ومخازن", CreatedAt = seedDate }
             );
         }
         public DbSet<Product> Products { get; set; }

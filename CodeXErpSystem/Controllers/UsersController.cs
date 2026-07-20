@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CodeXErpSystem.Controllers
 {
+    [Authorize(Roles = "مدير النظام")]
     public class UsersController : Controller
     {
         private readonly CodeXErpSystem.DAL.Repository.Inetrfaces.IUnitOfWork _unitOfWork;
@@ -35,12 +37,7 @@ namespace CodeXErpSystem.Controllers
                 var repo = _unitOfWork.GetRepository<CodeXErpSystem.DAL.Entites.ApplicationUser>();
                 var user = _mapper.Map<CodeXErpSystem.DAL.Entites.ApplicationUser>(model);
                 
-                // Simple Hash for demo (In production use proper hashing)
-                using (var sha256 = System.Security.Cryptography.SHA256.Create())
-                {
-                    var bytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(model.Password));
-                    user.PasswordHash = Convert.ToBase64String(bytes);
-                }
+                user.PasswordHash = model.Password;
                 
                 repo.Add(user);
                 await _unitOfWork.CompleteAsync();
@@ -64,3 +61,4 @@ namespace CodeXErpSystem.Controllers
         }
     }
 }
+

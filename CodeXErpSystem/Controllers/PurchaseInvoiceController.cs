@@ -1,3 +1,4 @@
+﻿using Microsoft.AspNetCore.Authorization;
 using AutoMapper;
 using CodeXErpSystem.BLL.Services.Interfaces;
 using CodeXErpSystem.BLL.ViewModels;
@@ -14,6 +15,7 @@ using System.Threading.Tasks;
 
 namespace CodeXErpSystem.Controllers
 {
+    [Authorize(Roles = "مدير النظام, مشتريات ومخازن")]
     public class PurchaseInvoiceController : Controller
     {
         private readonly IInvoiceService _invoiceService;
@@ -70,6 +72,21 @@ namespace CodeXErpSystem.Controllers
             return View(model);
         }
 
+        public async Task<IActionResult> Print(int id)
+        {
+            var invoice = (await _unitOfWork.GetRepository<Invoice>().FindAsync(i => i.Id == id, includeProperties: "Supplier,Items.Product")).FirstOrDefault();
+            if (invoice == null || invoice.Type != InvoiceType.Purchase)
+            {
+                return NotFound();
+            }
+
+            var company = (await _unitOfWork.GetRepository<CompanySettings>().FindAsync()).FirstOrDefault();
+            ViewBag.Company = company;
+
+            var model = _mapper.Map<InvoiceViewModel>(invoice);
+            return View(model);
+        }
+
         private async Task PrepareDropdownsAsync()
         {
             var suppliers = await _unitOfWork.GetRepository<Supplier>().FindAsync();
@@ -85,5 +102,6 @@ namespace CodeXErpSystem.Controllers
         }
     }
 }
+
 
 

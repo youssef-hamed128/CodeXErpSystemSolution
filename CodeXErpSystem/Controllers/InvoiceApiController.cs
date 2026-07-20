@@ -1,4 +1,4 @@
-using CodeXErpSystem.BLL.Services.Interfaces;
+﻿using CodeXErpSystem.BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -8,6 +8,7 @@ namespace CodeXErpSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "مدير النظام, مبيعات, مشتريات ومخازن")]
     public class InvoiceApiController : ControllerBase
     {
         private readonly IInvoiceService _invoiceService;
@@ -33,7 +34,7 @@ namespace CodeXErpSystem.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = "حدث خطأ أثناء جلب الفاتورة", details = ex.Message });
+                return StatusCode(500, new { success = false, message = "حدث خطأ أثناء استرداد الفاتورة", details = ex.Message });
             }
         }
 
@@ -64,3 +65,4 @@ namespace CodeXErpSystem.Controllers
         public CodeXErpSystem.DAL.Entites.Enums.InvoiceStatus NewStatus { get; set; }
     }
 }
+

@@ -1,8 +1,10 @@
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using CodeXErpSystem.BLL.Services.Interfaces;
 
 namespace CodeXErpSystem.Controllers
 {
+    [Authorize(Roles = "مدير النظام, مشتريات ومخازن")]
     public class StockTransferController : Controller
     {
         private readonly IStockTransferService _stockTransferService;
@@ -40,3 +42,4 @@ namespace CodeXErpSystem.Controllers
         }
     }
 }
+

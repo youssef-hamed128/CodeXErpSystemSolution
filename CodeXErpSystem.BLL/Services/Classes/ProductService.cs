@@ -22,8 +22,29 @@ namespace CodeXErpSystem.BLL.Services.Classes
 
         public IEnumerable<ProductViewModel> GetAllProducts()
         {
-            var entities = _unitOfWork.GetRepository<Product>().FindAsync(includeProperties: "Category").Result;
-            return _mapper.Map<IEnumerable<ProductViewModel>>(entities);
+            var entities = _unitOfWork.GetRepository<Product>().FindAsync(includeProperties: "Category,StockQuantities,StockQuantities.Warehouse").Result;
+            var viewModels = _mapper.Map<IEnumerable<ProductViewModel>>(entities).ToList();
+            
+            // Map the warehouse names manually
+            foreach (var vm in viewModels)
+            {
+                var entity = entities.FirstOrDefault(e => e.Id == vm.Id);
+                if (entity != null && entity.StockQuantities.Any())
+                {
+                    vm.WarehouseName = string.Join(", ", entity.StockQuantities.Select(sq => sq.Warehouse?.Name).Where(n => !string.IsNullOrEmpty(n)).Distinct());
+                    vm.AvailableQuantity = entity.StockQuantities.Sum(sq => sq.Quantity);
+                    if (vm.AvailableQuantity == 0) vm.Status = "نفذت الكمية";
+                    else if (vm.AvailableQuantity <= vm.MinQuantity) vm.Status = "منخفض";
+                    else vm.Status = "متاح";
+                }
+                else
+                {
+                    vm.WarehouseName = "غير محدد";
+                    vm.AvailableQuantity = 0;
+                    vm.Status = "نفذت الكمية";
+                }
+            }
+            return viewModels;
         }
 
         public async Task CreateAsync(CodeXErpSystem.BLL.ViewModels.Products.ProductCreateViewModel model)

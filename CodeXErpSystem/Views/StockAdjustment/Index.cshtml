@@ -36,10 +36,17 @@
               <table class="invoice-items-table">
                 <thead><tr><th style="width:40%;">المنتج</th><th style="width:15%;">الكمية الحالية (حسب النظام)</th><th style="width:15%;">الكمية الفعلية</th><th style="width:15%;">الفرق</th><th style="width:10%;" class="center">×</th></tr></thead>
                 <tbody id="adjItemsBody">
-                  @foreach(var item in Model.AdjustmentItems) {
+                  @for(int i = 0; i < Model.AdjustmentItems.Count(); i++) {
+                    var item = Model.AdjustmentItems.ElementAt(i);
                   <tr>
                     <td>
-                      <select class="form-select">
+                      <select class="form-select mb-1 category-select" onchange="filterAdjProducts(this, 'adj_existing_@i')">
+                         <option value="">-- كل المجموعات --</option>
+                         @foreach(var cat in Model.Categories) {
+                             <option value="@cat.Id">@cat.Name</option>
+                         }
+                      </select>
+                      <select class="form-select product-select" name="AdjustmentItems[@i].ProductId" id="adj_existing_@i" onchange="updateSystemQuantity(this.id)" required>
                         @foreach(var p in Model.Products) {
                           if (p.Id == item.ProductId) {
                             <option value="@p.Id" selected>@p.ProductName</option>
@@ -49,16 +56,16 @@
                         }
                       </select>
                     </td>
-                    <td class="numeric"><input type="text" class="form-control" value="@item.SystemQuantity" readonly style="background:var(--bg-hover);"></td>
-                    <td><input type="number" class="form-control actual-qty" value="@item.ActualQuantity" min="0"></td>
-                    <td class="numeric" style="color:var(--danger);font-weight:700;" dir="ltr">@item.Difference</td>
+                    <td class="numeric"><input type="number" class="form-control sys-qty" name="AdjustmentItems[@i].SystemQuantity" value="@item.SystemQuantity" readonly style="background:var(--bg-hover);"></td>
+                    <td><input type="number" class="form-control actual-qty" name="AdjustmentItems[@i].ActualQuantity" value="@item.ActualQuantity" min="0" oninput="calculateDifference(this)"></td>
+                    <td class="numeric diff-qty" style="color:var(--danger);font-weight:700;" dir="ltr">@item.Difference</td>
                     <td class="center"><button type="button" class="remove-row-btn" onclick="const r = this.closest('tr'); if(r){r.style.opacity=0;setTimeout(()=>r.remove(),300);}"><i class="fas fa-trash"></i></button></td>
                   </tr>
                   }
                 </tbody>
               </table>
             </div>
-            <div style="padding:var(--spacing-4);"><button type="button" class="add-line-btn" onclick="showToast('تمت الإضافة', 'success')"><i class="fas fa-plus"></i> إضافة منتج</button></div>
+            <div style="padding:var(--spacing-4);"><button type="button" class="add-line-btn" id="addAdjLine"><i class="fas fa-plus"></i> إضافة منتج</button></div>
           </div>
         </div>
 
@@ -101,6 +108,106 @@
                 }
             });
         }
+    });
+
+    var productsList = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Products));
+    var categoriesList = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Categories));
+    var categoryOptions = categoriesList.map(c => `<option value="${c.Id}">${c.Name}</option>`).join('');
+    
+    let adjRowIndex = 0;
+
+    $('#addAdjLine').on('click', function() {
+        var trId = 'adj_row_' + adjRowIndex;
+        var tr = `
+            <tr>
+                <td>
+                    <select class="form-select mb-1" onchange="filterAdjProducts(this, '${trId}')">
+                        <option value="">-- كل المجموعات --</option>
+                        ${categoryOptions}
+                    </select>
+                    <select class="form-select product-select" name="AdjustmentItems[].ProductId" id="${trId}" onchange="updateSystemQuantity('${trId}')" required>
+                        <option value="">-- اختر المنتج --</option>
+                        ${productsList.map(p => `<option value="${p.Id}">${p.ProductName}</option>`).join('')}
+                    </select>
+                </td>
+                <td class="numeric"><input type="number" class="form-control sys-qty" name="AdjustmentItems[].SystemQuantity" value="0" readonly style="background:var(--bg-hover);"></td>
+                <td><input type="number" class="form-control actual-qty" name="AdjustmentItems[].ActualQuantity" value="0" min="0" oninput="calculateDifference(this)"></td>
+                <td class="numeric diff-qty" style="color:var(--danger);font-weight:700;" dir="ltr">0</td>
+                <td class="center">
+                    <button type="button" class="remove-row-btn" onclick="const r = this.closest('tr'); if(r){r.style.opacity=0;setTimeout(()=>r.remove(),300);}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+        $('#adjItemsBody').append(tr);
+        adjRowIndex++;
+    });
+
+    function filterAdjProducts(categorySelect, productSelectId) {
+        let categoryId = categorySelect.value;
+        let productSelect = $('#' + productSelectId);
+        
+        productSelect.empty();
+        productSelect.append(new Option("-- اختر المنتج --", "", true, true));
+        
+        let filteredProducts = productsList;
+        if (categoryId) {
+            filteredProducts = productsList.filter(p => p.CategoryId == categoryId);
+        }
+        
+        filteredProducts.forEach(p => {
+            productSelect.append(new Option(p.ProductName, p.Id, false, false));
+        });
+        updateSystemQuantity(productSelectId);
+    }
+
+    function updateSystemQuantity(selectId) {
+        let warehouseId = $('select[name="WarehouseId"]').val();
+        let productSelect = $('#' + selectId);
+        let productId = productSelect.val();
+        
+        let tr = productSelect.closest('tr');
+        let sysQtyInput = tr.find('.sys-qty');
+
+        if (!warehouseId || !productId) {
+            sysQtyInput.val('0');
+            calculateDifference(tr.find('.actual-qty')[0]);
+            return;
+        }
+
+        let product = productsList.find(p => p.Id == productId);
+        if (product && product.StockByWarehouse && product.StockByWarehouse[warehouseId] !== undefined) {
+            let qty = product.StockByWarehouse[warehouseId];
+            sysQtyInput.val(qty);
+        } else {
+            sysQtyInput.val('0');
+        }
+        calculateDifference(tr.find('.actual-qty')[0]);
+    }
+
+    function calculateDifference(actualQtyInput) {
+        if (!actualQtyInput) return;
+        let tr = $(actualQtyInput).closest('tr');
+        let sysQty = parseFloat(tr.find('.sys-qty').val()) || 0;
+        let actualQty = parseFloat($(actualQtyInput).val()) || 0;
+        let diff = actualQty - sysQty;
+        
+        let diffCell = tr.find('.diff-qty');
+        diffCell.text((diff > 0 ? '+' : '') + diff);
+        if (diff < 0) {
+            diffCell.css('color', 'var(--danger)');
+        } else if (diff > 0) {
+            diffCell.css('color', 'var(--success)');
+        } else {
+            diffCell.css('color', 'var(--text)');
+        }
+    }
+
+    $('select[name="WarehouseId"]').on('change', function() {
+        $('.product-select').each(function() {
+            updateSystemQuantity($(this).attr('id'));
+        });
     });
 
     $('#adjustmentForm').on('submit', function (e) {

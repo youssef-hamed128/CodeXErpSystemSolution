@@ -1,7 +1,9 @@
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CodeXErpSystem.Controllers
 {
+    [Authorize(Roles = "مدير النظام")]
     public class SettingsController : Controller
     {
         private readonly CodeXErpSystem.DAL.Repository.Inetrfaces.IUnitOfWork _unitOfWork;
@@ -55,3 +57,4 @@ namespace CodeXErpSystem.Controllers
         }
     }
 }
+

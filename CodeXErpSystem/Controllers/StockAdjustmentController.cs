@@ -1,9 +1,11 @@
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using CodeXErpSystem.BLL.Services.Interfaces;
 using CodeXErpSystem.BLL.ViewModels.Warehouses;
 
 namespace CodeXErpSystem.Controllers
 {
+    [Authorize(Roles = "مدير النظام, مشتريات ومخازن")]
     public class StockAdjustmentController : Controller
     {
         private readonly IStockAdjustmentService _stockAdjustmentService;
@@ -41,3 +43,4 @@ namespace CodeXErpSystem.Controllers
         }
     }
 }
+

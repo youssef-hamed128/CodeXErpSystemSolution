@@ -1,3 +1,4 @@
+﻿using Microsoft.AspNetCore.Authorization;
 using CodeXErpSystem.BLL.Services.Interfaces;
 using CodeXErpSystem.BLL.ViewModels.Accounting;
 using Microsoft.AspNetCore.Mvc;
@@ -5,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace CodeXErpSystem.Controllers
 {
+    [Authorize(Roles = "مدير النظام, محاسب")]
     public class JournalEntryController : Controller
     {
         private readonly IJournalEntryService _journalEntryService;
@@ -50,3 +52,4 @@ namespace CodeXErpSystem.Controllers
         }
     }
 }
+

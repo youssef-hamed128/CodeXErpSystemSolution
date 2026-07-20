@@ -1,3 +1,4 @@
+﻿using Microsoft.AspNetCore.Authorization;
 using CodeXErpSystem.BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -5,6 +6,7 @@ using System.Linq;
 
 namespace CodeXErpSystem.Controllers
 {
+    [Authorize(Roles = "مدير النظام, مشتريات ومخازن")]
     public class SupplierController : Controller
     {
         private readonly ISupplierService _supplierService;
@@ -46,4 +48,5 @@ namespace CodeXErpSystem.Controllers
         }
     }
 }
+
 

@@ -36,6 +36,8 @@
       <li class="nav-item"><a class="nav-link" href="~/Home/Index"><span class="nav-icon"><i class="fas fa-home"></i></span><span class="nav-text">الصفحة الرئيسية</span></a></li>
       
       <li class="nav-section-label">المعاملات</li>
+@if (User.IsInRole("مدير النظام") || User.IsInRole("مبيعات"))
+      {
       <li class="nav-item">
         <div class="nav-link" data-submenu="s1">
           <span class="nav-icon"><i class="fas fa-file-invoice-dollar"></i></span>
@@ -48,6 +50,9 @@
                         <li class="nav-item"><a class="nav-link" href="~/SalesReturn/Index"><span class="nav-text">مرتجعات البيع</span></a></li>
         </ul>
       </li>
+      }
+@if (User.IsInRole("مدير النظام") || User.IsInRole("مشتريات ومخازن"))
+      {
       <li class="nav-item">
         <div class="nav-link" data-submenu="s2">
           <span class="nav-icon"><i class="fas fa-shopping-cart"></i></span>
@@ -60,6 +65,7 @@
                         <li class="nav-item"><a class="nav-link" href="~/PurchaseReturn/Index"><span class="nav-text">مرتجعات الشراء</span></a></li>
         </ul>
       </li>
+      }
 @*       <li class="nav-item">
         <div class="nav-link" data-submenu="s3">
           <span class="nav-icon"><i class="fas fa-undo-alt"></i></span>
@@ -72,6 +78,8 @@
         </ul>
       </li> *@
 
+@if (User.IsInRole("مدير النظام") || User.IsInRole("مبيعات") || User.IsInRole("مشتريات ومخازن"))
+      {
       <li class="nav-section-label">المخزون</li>
       <li class="nav-item">
         <div class="nav-link" data-submenu="s4">
@@ -86,7 +94,10 @@
           <li class="nav-item"><a class="nav-link" href="~/StockAdjustment/Index"><span class="nav-text">تسوية المخزون</span></a></li>
         </ul>
       </li>
+      }
 
+@if (User.IsInRole("مدير النظام") || User.IsInRole("محاسب"))
+      {
       <li class="nav-section-label">المحاسبة</li>
       <li class="nav-item">
         <div class="nav-link" data-submenu="s5">
@@ -98,18 +109,37 @@
 @*           <li class="nav-item"><a class="nav-link" href="~/ChartOfAccounts/Index"><span class="nav-text">دليل الحسابات</span></a></li>
  *@          <li class="nav-item"><a class="nav-link" href="~/JournalEntry/Index"><span class="nav-text">القيود اليومية</span></a></li>
           <li class="nav-item"><a class="nav-link" href="~/Payment/Index"><span class="nav-text">المدفوعات</span></a></li>
-          <li class="nav-item"><a class="nav-link" href="~/Customer/Index"><span class="nav-text">العملاء</span></a></li>
-          <li class="nav-item"><a class="nav-link" href="~/Supplier/Index"><span class="nav-text">الموردون</span></a></li>
           <li class="nav-item"><a class="nav-link" href="~/Expense/Index"><span class="nav-text">المصروفات</span></a></li>
         </ul>
       </li>
+      }
+@if (User.IsInRole("مدير النظام") || User.IsInRole("مبيعات") || User.IsInRole("محاسب") || User.IsInRole("مشتريات ومخازن"))
+      {
+      <li class="nav-section-label">جهات الاتصال</li>
+      <li class="nav-item">
+        <ul class="nav-submenu" style="display:block;">
+            @if(User.IsInRole("مدير النظام") || User.IsInRole("مبيعات")) {
+              <li class="nav-item"><a class="nav-link" href="~/Customer/Index"><span class="nav-icon"><i class="fas fa-users"></i></span><span class="nav-text">العملاء</span></a></li>
+            }
+            @if(User.IsInRole("مدير النظام") || User.IsInRole("مشتريات ومخازن")) {
+              <li class="nav-item"><a class="nav-link" href="~/Supplier/Index"><span class="nav-icon"><i class="fas fa-truck"></i></span><span class="nav-text">الموردون</span></a></li>
+            }
+        </ul>
+      </li>
+      }
 
+@if (User.IsInRole("مدير النظام") || User.IsInRole("مبيعات") || User.IsInRole("محاسب") || User.IsInRole("مشتريات ومخازن"))
+      {
       <li class="nav-section-label">التحليل</li>
       <li class="nav-item"><a class="nav-link" href="~/Reports/Index"><span class="nav-icon"><i class="fas fa-chart-bar"></i></span><span class="nav-text">التقارير</span></a></li>
-      
+      }
+
+@if (User.IsInRole("مدير النظام"))
+      {
       <li class="nav-section-label">الإدارة</li>
       <li class="nav-item"><a class="nav-link" href="~/Settings/Index"><span class="nav-icon"><i class="fas fa-cog"></i></span><span class="nav-text">الإعدادات</span></a></li>
       <li class="nav-item"><a class="nav-link" href="~/Users/Index"><span class="nav-icon"><i class="fas fa-users-cog"></i></span><span class="nav-text">المستخدمون</span></a></li>
+      }
     </ul>
   </div>
   <div class="sidebar-footer">
@@ -161,13 +191,16 @@
       <div style="position:relative;">
         <button class="user-avatar-btn" data-dropdown-toggle="userDrop">
 @*           <div class="user-info-text">
-            <div class="user-name">أحمد السعيد</div>
-            <div class="user-role">مدير النظام</div>
+            <div class="user-name">@(User.Identity?.IsAuthenticated == true ? User.Identity.Name : "مدير النظام")</div>
+            <div class="user-role">@(User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value ?? "مدير النظام")</div>
+          </div>
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;">
+              @(User.Identity?.IsAuthenticated == true && !string.IsNullOrEmpty(User.Identity.Name) ? User.Identity.Name.Substring(0, 1) : "م")
           </div> *@
-@*           <div style="width:32px;height:32px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;">أ</div>
- *@        </button>
-          @* <div class="dropdown-divider"></div> *@
-          <a class="dropdown-item" href="~/Auth/Logout" style="color:var(--danger);"><i class="fas fa-sign-out-alt"></i><span>تسجيل الخروج</span></a>
+        </button>
+        <a class="dropdown-item" href="~/Auth/Logout" style="color:var(--danger); padding:8px 16px; margin-right: 15px; display:inline-flex; align-items:center; text-decoration:none;">
+            <i class="fas fa-sign-out-alt" style="margin-left:8px;"></i><span>تسجيل الخروج</span>
+        </a>
       </div>
     </div>
   </header>

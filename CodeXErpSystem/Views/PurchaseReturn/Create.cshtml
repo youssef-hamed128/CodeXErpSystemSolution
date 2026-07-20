@@ -27,7 +27,7 @@
                 <label class="form-label">رقم الفاتورة الأصلية (مرجعي)</label>
                 <div style="display: flex; gap: 5px;">
                     <input type="text" class="form-control" asp-for="ReferenceNumber" id="referenceNumberInput" placeholder="مثال: PUR-2024-0001">
-                    <button type="button" class="btn btn-outline-primary" onclick="fetchOriginalInvoice()"><i class="fas fa-search"></i> جلب</button>
+                    <button type="button" class="btn btn-outline-primary" onclick="fetchOriginalInvoice()"><i class="fas fa-search"></i> </button>
                 </div>
               </div>
               
@@ -313,7 +313,7 @@
         
         $.get('/api/InvoiceApi/GetInvoiceByNumber?invoiceNumber=' + invoiceNumber, function(res) {
             if(res.success && res.data) {
-                showToast('تم جلب بيانات الفاتورة بنجاح', 'success');
+                showToast('تم استرداد بيانات الفاتورة بنجاح', 'success');
                 const invoice = res.data;
                 
                 if(invoice.supplierId && document.querySelector('select[name="SupplierId"]')) {
@@ -365,7 +365,7 @@
                 showToast(res.message || 'لم يتم العثور على الفاتورة', 'error');
             }
         }).fail(function(err) {
-            showToast('حدث خطأ أثناء جلب الفاتورة', 'error');
+            showToast('حدث خطأ أثناء استرداد الفاتورة', 'error');
         });
     }
 </script>

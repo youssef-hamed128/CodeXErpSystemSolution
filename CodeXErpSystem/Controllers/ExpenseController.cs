@@ -1,3 +1,4 @@
+﻿using Microsoft.AspNetCore.Authorization;
 using CodeXErpSystem.BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -5,6 +6,7 @@ using CodeXErpSystem.BLL.ViewModels.Expenses;
 
 namespace CodeXErpSystem.Controllers
 {
+    [Authorize(Roles = "مدير النظام, محاسب")]
     public class ExpenseController : Controller
     {
         private readonly IExpenseService _expenseService;
@@ -50,3 +52,4 @@ namespace CodeXErpSystem.Controllers
         }
     }
 }
+

@@ -26,12 +26,28 @@ namespace CodeXErpSystem.BLL.Services.Classes
         public StockAdjustmentViewModel GetStockAdjustmentInitialData()
         {
             var warehouses = _unitOfWork.GetRepository<Warehouse>().GetAll(false).Result;
-            var products = _unitOfWork.GetRepository<Product>().GetAll(false).Result;
+            var products = _unitOfWork.GetRepository<Product>().FindAsync(includeProperties: "Category,StockQuantities").Result;
+            var categories = _unitOfWork.GetRepository<ProductCategory>().GetAll(false).Result;
+
+            var productsVm = _mapper.Map<System.Collections.Generic.IEnumerable<CodeXErpSystem.BLL.ViewModels.Products.ProductViewModel>>(products).ToList();
+            foreach (var p in productsVm)
+            {
+                var entity = products.FirstOrDefault(x => x.Id == p.Id);
+                if (entity != null && entity.StockQuantities != null)
+                {
+                    p.StockByWarehouse = entity.StockQuantities
+                        .GroupBy(sq => sq.WarehouseId)
+                        .ToDictionary(g => g.Key, g => g.Sum(sq => sq.Quantity));
+                        
+                    p.AvailableQuantity = entity.StockQuantities.Sum(sq => sq.Quantity);
+                }
+            }
 
             return new StockAdjustmentViewModel
             {
                 Warehouses = _mapper.Map<System.Collections.Generic.IEnumerable<WarehouseViewModel>>(warehouses).ToList(),
-                Products = _mapper.Map<System.Collections.Generic.IEnumerable<CodeXErpSystem.BLL.ViewModels.Products.ProductViewModel>>(products).ToList(),
+                Products = productsVm,
+                Categories = _mapper.Map<System.Collections.Generic.IEnumerable<CodeXErpSystem.BLL.ViewModels.Products.ProductCategoryViewModel>>(categories).ToList(),
                 AdjustmentItems = new System.Collections.Generic.List<StockAdjustmentItemViewModel>()
             };
         }

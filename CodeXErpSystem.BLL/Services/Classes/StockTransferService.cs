@@ -24,12 +24,29 @@ namespace CodeXErpSystem.BLL.Services.Classes
         public StockTransferViewModel GetStockTransferInitialData()
         {
             var warehouses = _unitOfWork.GetRepository<Warehouse>().GetAll(false).Result;
-            var products = _unitOfWork.GetRepository<Product>().GetAll(false).Result;
+            var products = _unitOfWork.GetRepository<Product>().FindAsync(includeProperties: "Category,StockQuantities").Result;
+            var categories = _unitOfWork.GetRepository<ProductCategory>().GetAll(false).Result;
+
+            var productsVm = _mapper.Map<IEnumerable<CodeXErpSystem.BLL.ViewModels.Products.ProductViewModel>>(products).ToList();
+            foreach (var p in productsVm)
+            {
+                var entity = products.FirstOrDefault(x => x.Id == p.Id);
+                if (entity != null && entity.StockQuantities != null)
+                {
+                    // If a product is in the same warehouse multiple times, GroupBy handles it, though shouldn't happen.
+                    p.StockByWarehouse = entity.StockQuantities
+                        .GroupBy(sq => sq.WarehouseId)
+                        .ToDictionary(g => g.Key, g => g.Sum(sq => sq.Quantity));
+                        
+                    p.AvailableQuantity = entity.StockQuantities.Sum(sq => sq.Quantity);
+                }
+            }
 
             return new StockTransferViewModel
             {
                 Warehouses = _mapper.Map<IEnumerable<WarehouseViewModel>>(warehouses).ToList(),
-                Products = _mapper.Map<IEnumerable<CodeXErpSystem.BLL.ViewModels.Products.ProductViewModel>>(products).ToList(),
+                Products = productsVm,
+                Categories = _mapper.Map<IEnumerable<ProductCategoryViewModel>>(categories).ToList(),
                 TransferItems = new List<StockTransferItemViewModel>()
             };
         }

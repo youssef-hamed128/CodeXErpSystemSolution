@@ -58,6 +58,7 @@ namespace CodeXErpSystem.BLL.Services.Classes
             try
             {//--------------------- حساب صافي السعر  و حسباب الخصم و حساب الضريبه و حساب الاجمالي
                 var invoice = mapper.Map<Invoice>(model);
+                invoice.ReferenceNumber = model.ReferenceNumber;
                 invoice.InvoiceNumber = await GenerateInvoiceNumberAsync(model.Type);
                 invoice.Status = InvoiceStatus.Paid;
                 invoice.CreatedBy = userId;

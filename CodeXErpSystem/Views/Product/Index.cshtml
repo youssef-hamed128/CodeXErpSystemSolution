@@ -36,7 +36,7 @@
           <thead>
             <tr>
               <th class="table-checkbox"><input type="checkbox"></th>
-              <th>الكود (SKU)</th><th>اسم المنتج</th><th>الفئة</th><th>الوحدة</th>
+              <th>الكود (SKU)</th><th>اسم المنتج</th><th>الفئة</th><th>المستودع</th><th>الوحدة</th>
               <th>تكلفة الوحدة</th><th>سعر البيع</th><th>الكمية المتاحة</th><th>الحد الأدنى</th>
               <th>الحالة</th><th class="center">الإجراءات</th>
             </tr>
@@ -54,6 +54,7 @@
                   <td style="font-family:monospace;font-weight:600;color:var(--text-muted);">@product.SKU</td>
                   <td style="font-weight:500;">@product.ProductName</td>
                   <td>@product.Category</td>
+                  <td><span class="badge badge-info" style="background:rgba(23, 162, 184, 0.1); color:var(--info);">@product.WarehouseName</span></td>
                   <td>@product.Unit</td>
                   <td class="numeric">@product.UnitCost.ToString("N2")</td>
                   <td class="numeric" style="color:var(--success);font-weight:600;">@product.SalePrice.ToString("N2")</td>

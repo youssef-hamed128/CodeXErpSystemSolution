@@ -39,8 +39,7 @@ namespace CodeXErpSystem.Controllers
                 return View();
             }
 
-            var hash = ComputeSha256Hash(password);
-            var users = await _unitOfWork.GetRepository<ApplicationUser>().FindAsync(u => u.Username == username && u.PasswordHash == hash && !u.IsDeleted);
+            var users = await _unitOfWork.GetRepository<ApplicationUser>().FindAsync(u => u.Username == username && u.PasswordHash == password && !u.IsDeleted);
             var user = users.FirstOrDefault();
 
             if (user == null)
@@ -74,13 +73,5 @@ namespace CodeXErpSystem.Controllers
             return RedirectToAction("Login");
         }
 
-        private string ComputeSha256Hash(string rawData)
-        {
-            using (SHA256 sha256Hash = SHA256.Create())
-            {
-                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(rawData));
-                return Convert.ToBase64String(bytes);
-            }
-        }
     }
 }

@@ -1,9 +1,11 @@
+﻿using Microsoft.AspNetCore.Authorization;
 using CodeXErpSystem.BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace CodeXErpSystem.Controllers
 {
+    [Authorize(Roles = "مدير النظام, محاسب")]
     public class PaymentController : Controller
     {
         private readonly IPaymentService _paymentService;
@@ -34,9 +36,10 @@ namespace CodeXErpSystem.Controllers
             if (ModelState.IsValid)
             {
                 await _paymentService.CreateAsync(model);
-                return Json(new { success = true, message = "Payment created successfully" });
+                return Json(new { success = true, message = "تم إضافة السند بنجاح" });
             }
-            return Json(new { success = false, message = "Invalid data" });
+            var errors = string.Join("; ", ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage));
+            return Json(new { success = false, message = "خطأ في البيانات: " + errors });
         }
 
         [HttpPost]
@@ -45,9 +48,10 @@ namespace CodeXErpSystem.Controllers
             if (ModelState.IsValid)
             {
                 await _paymentService.UpdateAsync(model);
-                return Json(new { success = true, message = "Payment updated successfully" });
+                return Json(new { success = true, message = "تم تعديل السند بنجاح" });
             }
-            return Json(new { success = false, message = "Invalid data" });
+            var errors = string.Join("; ", ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage));
+            return Json(new { success = false, message = "خطأ في البيانات: " + errors });
         }
 
         [HttpPost]
@@ -58,3 +62,4 @@ namespace CodeXErpSystem.Controllers
         }
     }
 }
+

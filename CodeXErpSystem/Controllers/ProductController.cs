@@ -1,3 +1,4 @@
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using CodeXErpSystem.BLL.Services.Interfaces;
 using CodeXErpSystem.DAL.Repository.Inetrfaces;
@@ -6,6 +7,7 @@ using System.Linq;
 
 namespace CodeXErpSystem.Controllers
 {
+    [Authorize(Roles = "مدير النظام, مبيعات, مشتريات ومخازن")]
     public class ProductController : Controller
     {
         private readonly IProductService _productService;
@@ -65,3 +67,4 @@ namespace CodeXErpSystem.Controllers
         }
     }
 }
+

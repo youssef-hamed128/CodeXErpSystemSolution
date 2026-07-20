@@ -1,0 +1,77 @@
+@model CodeXErpSystem.BLL.ViewModels.Reports.TrialBalanceViewModel
+@{ Layout = "_Layout"; }
+
+    <nav class="breadcrumb">
+        <div class="breadcrumb-item"><a href="~/Home/Index"><i class="fas fa-home"></i> الرئيسية</a></div>
+        <div class="breadcrumb-item"><a href="~/Reports/Index">التقارير</a></div>
+        <div class="breadcrumb-item active">ميزان المراجعة</div>
+    </nav>
+    <div class="page-header">
+        <div class="page-header-left">
+            <h1 class="page-title"><i class="fas fa-list-alt" style="color:var(--info);"></i> ميزان المراجعة</h1>
+        </div>
+        <div class="page-header-right">
+            <button class="btn btn-outline-secondary btn-sm" onclick="exportToExcel('reportTable')"><i class="fas fa-file-excel"></i> تصدير Excel</button>
+            <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-print"></i> طباعة</button>
+        </div>
+    </div>
+
+    <form method="get" action="~/Reports/TrialBalance">
+        <div class="card" style="padding:var(--spacing-4); margin-bottom:var(--spacing-5);">
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label class="form-label">كما في تاريخ</label>
+                    <input type="date" name="asOfDate" class="form-control" value="@Model.AsOfDate.ToString("yyyy-MM-dd")">
+                </div>
+                <div class="form-group" style="display:flex;align-items:flex-end;">
+                    <button type="submit" class="btn btn-primary" style="width:200px;"><i class="fas fa-filter"></i> تحديث التقرير</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <div class="data-table-wrapper">
+        <div class="table-responsive">
+            <table class="data-table" id="reportTable">
+                <thead>
+                    <tr>
+                        <th>كود الحساب</th>
+                        <th>اسم الحساب</th>
+                        <th>مدين (Debit)</th>
+                        <th>دائن (Credit)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var acc in Model.Accounts)
+                    {
+                        <tr>
+                            <td>@acc.Code</td>
+                            <td style="padding-right:20px;">@acc.Name</td>
+                            <td class="numeric">@(acc.Debit > 0 ? acc.Debit.ToString("N2") : "-")</td>
+                            <td class="numeric">@(acc.Credit > 0 ? acc.Credit.ToString("N2") : "-")</td>
+                        </tr>
+                    }
+
+                    <tr style="background:var(--bg-active);font-weight:800;font-size:16px;">
+                        <td colspan="2">الإجمالي الكلي</td>
+                        <td class="numeric" style="color:var(--primary);">@Model.TotalDebit.ToString("N2")</td>
+                        <td class="numeric" style="color:var(--primary);">@Model.TotalCredit.ToString("N2")</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="margin-top:10px;">
+            @if(Model.IsBalanced)
+            {
+                <div class="alert alert-success" style="padding:15px; border-radius:8px; font-weight:bold; background-color:#d1fae5; color:#065f46;">
+                    <i class="fas fa-check-circle"></i> ميزان المراجعة متوازن.
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-danger" style="padding:15px; border-radius:8px; font-weight:bold; background-color:#fee2e2; color:#b91c1c;">
+                    <i class="fas fa-exclamation-triangle"></i> ميزان المراجعة غير متوازن! يوجد فرق مقداره @Math.Abs(Model.TotalDebit - Model.TotalCredit).ToString("N2")
+                </div>
+            }
+        </div>
+    </div>

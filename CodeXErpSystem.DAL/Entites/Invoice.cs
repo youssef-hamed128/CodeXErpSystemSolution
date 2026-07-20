@@ -11,6 +11,7 @@ namespace CodeXErpSystem.DAL.Entites
     public class Invoice : BaseEntity
     {
         public string InvoiceNumber { get; set; } = string.Empty;
+        public string? ReferenceNumber { get; set; }
         public InvoiceType Type { get; set; }
         public DateTime Date { get; set; }
         public DateTime DueDate { get; set; }

@@ -1,0 +1,58 @@
+@model List<CodeXErpSystem.BLL.ViewModels.Reports.InventoryItemReport>
+@{ Layout = "_Layout"; }
+
+    <nav class="breadcrumb">
+        <div class="breadcrumb-item"><a href="~/Home/Index"><i class="fas fa-home"></i> الرئيسية</a></div>
+        <div class="breadcrumb-item"><a href="~/Reports/Index">التقارير</a></div>
+        <div class="breadcrumb-item active">نواقص المخزون</div>
+    </nav>
+    <div class="page-header">
+        <div class="page-header-left">
+            <h1 class="page-title"><i class="fas fa-exclamation-triangle" style="color:var(--danger);"></i> تقرير نواقص المخزون</h1>
+        </div>
+        <div class="page-header-right">
+            <button class="btn btn-outline-secondary btn-sm" onclick="exportToExcel('reportTable')"><i class="fas fa-file-excel"></i> تصدير Excel</button>
+            <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-print"></i> طباعة</button>
+        </div>
+    </div>
+
+    <div class="data-table-wrapper">
+        <div class="table-responsive">
+            <table class="data-table" id="reportTable">
+                <thead>
+                    <tr>
+                        <th>كود المنتج</th>
+                        <th>اسم المنتج</th>
+                        <th>الكمية الحالية</th>
+                        <th>الحالة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td dir="ltr" style="text-align:right;">@item.Code</td>
+                            <td style="padding-right:20px;">@item.Name</td>
+                            <td class="numeric">@item.Quantity</td>
+                            <td>
+                                @if (item.Quantity == 0)
+                                {
+                                    <span class="badge badge-danger">نفذ تماماً</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-warning">تحت حد إعادة الطلب</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="4" class="center">لا توجد نواقص في المخزون حالياً. جميع المنتجات متوفرة.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>

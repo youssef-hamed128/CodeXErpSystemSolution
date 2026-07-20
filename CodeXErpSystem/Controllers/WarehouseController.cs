@@ -1,9 +1,11 @@
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using CodeXErpSystem.BLL.Services.Interfaces;
 using CodeXErpSystem.BLL.ViewModels.Warehouses;
 
 namespace CodeXErpSystem.Controllers
 {
+    [Authorize(Roles = "مدير النظام, مبيعات, مشتريات ومخازن")]
     public class WarehouseController : Controller
     {
         private readonly IWarehouseService _warehouseService;
@@ -55,3 +57,4 @@ namespace CodeXErpSystem.Controllers
         }
     }
 }
+

@@ -64,7 +64,10 @@
                             }
                         </td>
                         <td class="table-actions center">
-                            <button class="action-btn delete" onclick="deleteUser(@user.Id, '@user.FullName')"><i class="fas fa-trash"></i></button>
+                            @if (user.Id != 1 && user.Username.ToLower() != "admin")
+                            {
+                                <button class="action-btn delete" onclick="deleteUser(@user.Id, '@user.FullName')"><i class="fas fa-trash"></i></button>
+                            }
                         </td>
                     </tr>
                 }

@@ -24,14 +24,20 @@
         </div>
         <div class="table-responsive">
           <table class="data-table">
-            <thead><tr><th>رقم السند</th><th>التاريخ</th><th>المبلغ</th><th>طريقة الدفع</th><th>المرجع</th><th>الحالة</th><th class="center">الإجراءات</th></tr></thead>
+            <thead><tr><th>رقم السند</th><th>التاريخ</th><th>العميل</th><th>المبلغ</th><th>طريقة الدفع</th><th>المرجع</th><th>الحالة</th><th class="center">الإجراءات</th></tr></thead>
             <tbody>
 @foreach(var item in Model.Where(m => m.CustomerId != null || (m.SupplierId == null && m.Reference == null))) {
             <tr>
               <td style="font-weight:600;color:var(--primary);">#@item.ReceiptNumber</td>
               <td>@item.Date.ToString("yyyy-MM-dd")</td>
+              <td>@(item.CustomerName ?? "عميل عام")</td>
               <td class="numeric" style="font-weight:700;color:var(--success);">@item.Amount.ToString("N2")</td>
-              <td>@item.PaymentMethod</td>
+              <td>
+                @if(item.PaymentMethod == CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.Cash) { <span>نقدي</span> }
+                else if(item.PaymentMethod == CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.BankTransfer) { <span>تحويل بنكي</span> }
+                else if(item.PaymentMethod == CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.CreaditCard) { <span>بطاقة ائتمان</span> }
+                else { <span>شيك</span> }
+              </td>
               <td>@item.Reference</td>
               <td><span class="badge badge-success">مكتمل</span></td>
               <td class="table-actions"><button class="action-btn edit" onclick="openEditModal(@item.Id, '@item.ReceiptNumber', '@item.Date.ToString("yyyy-MM-dd")', @item.Amount, '@item.PaymentMethod', '@(item.Reference ?? "")', @(item.CustomerId?.ToString() ?? "null"), @(item.SupplierId?.ToString() ?? "null"))"><i class="fas fa-edit"></i></button><button class="action-btn delete" onclick="deleteRecord(@item.Id)"><i class="fas fa-trash"></i></button></td>
@@ -61,7 +67,12 @@
               <td>@item.Date.ToString("yyyy-MM-dd")</td>
               <td>@(item.SupplierName ?? "مورد عام")</td>
               <td class="numeric" style="font-weight:700;color:var(--danger);">@item.Amount.ToString("N2")</td>
-              <td>@item.PaymentMethod</td>
+              <td>
+                @if(item.PaymentMethod == CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.Cash) { <span>نقدي</span> }
+                else if(item.PaymentMethod == CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.BankTransfer) { <span>تحويل بنكي</span> }
+                else if(item.PaymentMethod == CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.CreaditCard) { <span>بطاقة ائتمان</span> }
+                else { <span>شيك</span> }
+              </td>
               <td>@item.Reference</td>
               <td><span class="badge badge-success">مكتمل</span></td>
               <td class="table-actions"><button class="action-btn edit" onclick="openEditModal(@item.Id, '@item.ReceiptNumber', '@item.Date.ToString("yyyy-MM-dd")', @item.Amount, '@item.PaymentMethod', '@(item.Reference ?? "")', @(item.CustomerId?.ToString() ?? "null"), @(item.SupplierId?.ToString() ?? "null"))"><i class="fas fa-edit"></i></button><button class="action-btn delete" onclick="deleteRecord(@item.Id)"><i class="fas fa-trash"></i></button></td>
@@ -101,8 +112,8 @@
             <select class="form-select" name="PaymentMethod" required>
               <option value="Cash">نقدي</option>
               <option value="BankTransfer">تحويل بنكي</option>
-              <option value="CreditCard">بطاقة ائتمان</option>
-              <option value="Cheque">شيك</option>
+              <option value="CreaditCard">بطاقة ائتمان</option>
+              <option value="Check">شيك</option>
             </select>
           </div>
           <div class="form-group" style="grid-column:span 2;"><label class="form-label">المرجع / ملاحظات</label><input type="text" class="form-control" name="Reference"></div>

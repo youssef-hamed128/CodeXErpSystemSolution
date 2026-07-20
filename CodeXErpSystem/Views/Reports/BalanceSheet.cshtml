@@ -1,4 +1,5 @@
-﻿@{ Layout = "_Layout"; }
+@model CodeXErpSystem.BLL.ViewModels.Reports.BalanceSheetViewModel
+@{ Layout = "_Layout"; }
 
     <nav class="breadcrumb"><div class="breadcrumb-item"><a href="~/Home/Index"><i class="fas fa-home"></i> الرئيسية</a></div><div class="breadcrumb-item"><a href="~/Reports/Index">التقارير</a></div><div class="breadcrumb-item active">الميزانية العمومية</div></nav>
     <div class="page-header">
@@ -9,12 +10,14 @@
       </div>
     </div>
     
-    <div class="card" style="padding:var(--spacing-4); margin-bottom:var(--spacing-5);">
-      <div class="form-grid-2">
-        <div class="form-group"><label class="form-label">كما في تاريخ</label><input type="date" class="form-control" value="2024-12-31"></div>
-        <div class="form-group" style="display:flex;align-items:flex-end;"><button class="btn btn-primary" style="width:200px;" onclick="showToast('تم تحديث التقرير', 'success')"><i class="fas fa-filter"></i> تحديث التقرير</button></div>
+    <form method="get" action="~/Reports/BalanceSheet">
+      <div class="card" style="padding:var(--spacing-4); margin-bottom:var(--spacing-5);">
+        <div class="form-grid-2">
+          <div class="form-group"><label class="form-label">كما في تاريخ</label><input type="date" name="asOfDate" class="form-control" value="@Model.AsOfDate.ToString("yyyy-MM-dd")"></div>
+          <div class="form-group" style="display:flex;align-items:flex-end;"><button type="submit" class="btn btn-primary" style="width:200px;"><i class="fas fa-filter"></i> تحديث التقرير</button></div>
+        </div>
       </div>
-    </div>
+    </form>
 
     <!-- Chart -->
     <div class="card" style="margin-bottom:var(--spacing-5);">
@@ -26,34 +29,77 @@
     <div class="data-table-wrapper">
       <div class="table-responsive">
         <table class="data-table" id="reportTable">
-          <thead><tr><th>البند</th><th>الأصول (ج.م)</th><th>الخصوم وحقوق الملكية (ج.م)</th></tr></thead>
+          <thead><tr><th>البند</th><th>الأصول</th><th>الخصوم وحقوق الملكية</th></tr></thead>
           <tbody>
-            <tr style="background:var(--bg-hover);font-weight:700;"><td colspan="3">الأصول المتداولة</td></tr>
-            <tr><td style="padding-right:20px;">النقدية وما يعادلها</td><td class="numeric">150,000.00</td><td class="numeric">-</td></tr>
-            <tr><td style="padding-right:20px;">الذمم المدينة</td><td class="numeric">45,000.00</td><td class="numeric">-</td></tr>
-            <tr><td style="padding-right:20px;">المخزون</td><td class="numeric">80,000.00</td><td class="numeric">-</td></tr>
-            <tr style="background:rgba(26,86,219,0.05);font-weight:700;"><td>إجمالي الأصول المتداولة</td><td class="numeric" style="color:var(--primary);">275,000.00</td><td class="numeric">-</td></tr>
+            <!-- Assets -->
+            <tr style="background:var(--bg-hover);font-weight:700;"><td colspan="3">الأصول</td></tr>
+            @foreach(var acc in Model.Accounts.Where(a => a.Code.StartsWith("1"))) {
+                <tr><td style="padding-right:20px;">@acc.Name</td><td class="numeric">@acc.Balance.ToString("N2")</td><td class="numeric">-</td></tr>
+            }
+            <tr style="background:rgba(26,86,219,0.05);font-weight:700;"><td>إجمالي الأصول</td><td class="numeric" style="color:var(--primary);">@Model.TotalAssets.ToString("N2")</td><td class="numeric">-</td></tr>
 
+            <!-- Liabilities -->
             <tr style="background:var(--bg-hover);font-weight:700;"><td colspan="3">الخصوم</td></tr>
-            <tr><td style="padding-right:20px;">الذمم الدائنة</td><td class="numeric">-</td><td class="numeric">60,000.00</td></tr>
-            <tr style="background:rgba(225,29,72,0.05);font-weight:700;"><td>إجمالي الخصوم</td><td class="numeric">-</td><td class="numeric" style="color:var(--danger);">60,000.00</td></tr>
+            @foreach(var acc in Model.Accounts.Where(a => a.Code.StartsWith("2"))) {
+                <tr><td style="padding-right:20px;">@acc.Name</td><td class="numeric">-</td><td class="numeric">@acc.Balance.ToString("N2")</td></tr>
+            }
+            <tr style="background:rgba(225,29,72,0.05);font-weight:700;"><td>إجمالي الخصوم</td><td class="numeric">-</td><td class="numeric" style="color:var(--danger);">@Model.TotalLiabilities.ToString("N2")</td></tr>
 
+            <!-- Equity -->
             <tr style="background:var(--bg-hover);font-weight:700;"><td colspan="3">حقوق الملكية</td></tr>
-            <tr><td style="padding-right:20px;">رأس المال</td><td class="numeric">-</td><td class="numeric">150,000.00</td></tr>
-            <tr><td style="padding-right:20px;">الأرباح المحتجزة</td><td class="numeric">-</td><td class="numeric">65,000.00</td></tr>
-            <tr style="background:rgba(5,150,105,0.05);font-weight:700;"><td>إجمالي حقوق الملكية</td><td class="numeric">-</td><td class="numeric" style="color:var(--success);">215,000.00</td></tr>
+            @foreach(var acc in Model.Accounts.Where(a => a.Code.StartsWith("3"))) {
+                <tr><td style="padding-right:20px;">@acc.Name</td><td class="numeric">-</td><td class="numeric">@acc.Balance.ToString("N2")</td></tr>
+            }
+            @{
+                var pureEquityAccounts = Model.Accounts.Where(a => a.Code.StartsWith("3")).Sum(a => a.Balance);
+                var retainedEarnings = Model.TotalEquity - pureEquityAccounts;
+            }
+            <tr><td style="padding-right:20px; font-style:italic;">الأرباح (أو الخسائر) المحتجزة</td><td class="numeric">-</td><td class="numeric">@retainedEarnings.ToString("N2")</td></tr>
+            
+            <tr style="background:rgba(5,150,105,0.05);font-weight:700;"><td>إجمالي حقوق الملكية</td><td class="numeric">-</td><td class="numeric" style="color:var(--success);">@Model.TotalEquity.ToString("N2")</td></tr>
 
+            <!-- Total -->
             <tr style="background:var(--bg-active);font-weight:800;font-size:16px;">
               <td>الإجمالي الكلي</td>
-              <td class="numeric" style="color:var(--primary);">275,000.00</td>
-              <td class="numeric" style="color:var(--primary);">275,000.00</td>
+              <td class="numeric" style="color:var(--primary);">@Model.TotalAssets.ToString("N2")</td>
+              <td class="numeric" style="color:var(--primary);">@((Model.TotalLiabilities + Model.TotalEquity).ToString("N2"))</td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
-  
-
-
-
-
+    
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        var ctx = document.getElementById('reportChart').getContext('2d');
+        var reportChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['الأصول', 'الخصوم', 'حقوق الملكية'],
+                datasets: [{
+                    data: [@Model.TotalAssets, @Model.TotalLiabilities, @Model.TotalEquity],
+                    backgroundColor: [
+                        '#1a56db', // primary
+                        '#e11d48', // danger
+                        '#059669'  // success
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { family: "'Tajawal', sans-serif" }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}

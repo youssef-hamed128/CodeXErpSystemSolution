@@ -9,6 +9,7 @@ namespace CodeXErpSystem.BLL.ViewModels.Warehouses
 
         public System.Collections.Generic.IEnumerable<WarehouseViewModel> Warehouses { get; set; } = new System.Collections.Generic.List<WarehouseViewModel>();
         public System.Collections.Generic.IEnumerable<CodeXErpSystem.BLL.ViewModels.Products.ProductViewModel> Products { get; set; } = new System.Collections.Generic.List<CodeXErpSystem.BLL.ViewModels.Products.ProductViewModel>();
+        public System.Collections.Generic.IEnumerable<CodeXErpSystem.BLL.ViewModels.Products.ProductCategoryViewModel> Categories { get; set; } = new System.Collections.Generic.List<CodeXErpSystem.BLL.ViewModels.Products.ProductCategoryViewModel>();
         public System.Collections.Generic.IEnumerable<StockAdjustmentItemViewModel> AdjustmentItems { get; set; } = new System.Collections.Generic.List<StockAdjustmentItemViewModel>();
     }
 }

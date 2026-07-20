@@ -1,4 +1,4 @@
-﻿using CodeXErpSystem.DAL.Entites.Enums;
+using CodeXErpSystem.DAL.Entites.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +11,7 @@ namespace CodeXErpSystem.BLL.ViewModels.Invoice
     {
         public int Id { get; set; }
         public string InvoiceNumber { get; set; } = string.Empty;
+        public string? ReferenceNumber { get; set; }
         public InvoiceType Type { get; set; }
         public string TypeDisplay => Type switch
         {

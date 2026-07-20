@@ -1,0 +1,83 @@
+@model CodeXErpSystem.BLL.ViewModels.Reports.IncomeStatementViewModel
+@{ Layout = "_Layout"; }
+
+    <nav class="breadcrumb">
+        <div class="breadcrumb-item"><a href="~/Home/Index"><i class="fas fa-home"></i> الرئيسية</a></div>
+        <div class="breadcrumb-item"><a href="~/Reports/Index">التقارير</a></div>
+        <div class="breadcrumb-item active">قائمة الدخل</div>
+    </nav>
+    <div class="page-header">
+        <div class="page-header-left">
+            <h1 class="page-title"><i class="fas fa-file-invoice-dollar" style="color:var(--success);"></i> قائمة الدخل</h1>
+        </div>
+        <div class="page-header-right">
+            <button class="btn btn-outline-secondary btn-sm" onclick="exportToExcel('reportTable')"><i class="fas fa-file-excel"></i> تصدير Excel</button>
+            <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-print"></i> طباعة</button>
+        </div>
+    </div>
+
+    <form method="get" action="~/Reports/IncomeStatement">
+        <div class="card" style="padding:var(--spacing-4); margin-bottom:var(--spacing-5);">
+            <div class="form-grid-3">
+                <div class="form-group">
+                    <label class="form-label">من تاريخ</label>
+                    <input type="date" name="startDate" class="form-control" value="@Model.StartDate.ToString("yyyy-MM-dd")">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">إلى تاريخ</label>
+                    <input type="date" name="endDate" class="form-control" value="@Model.EndDate.ToString("yyyy-MM-dd")">
+                </div>
+                <div class="form-group" style="display:flex;align-items:flex-end;">
+                    <button type="submit" class="btn btn-primary" style="width:200px;"><i class="fas fa-filter"></i> تحديث التقرير</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <div class="data-table-wrapper">
+        <div class="table-responsive">
+            <table class="data-table" id="reportTable">
+                <thead>
+                    <tr>
+                        <th>كود الحساب</th>
+                        <th>اسم الحساب</th>
+                        <th>القيمة (ج.م)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background:var(--bg-hover);font-weight:700;"><td colspan="3">الإيرادات</td></tr>
+                    @foreach (var acc in Model.RevenueAccounts)
+                    {
+                        <tr>
+                            <td>@acc.Code</td>
+                            <td style="padding-right:20px;">@acc.Name</td>
+                            <td class="numeric text-success">@acc.Balance.ToString("N2")</td>
+                        </tr>
+                    }
+                    <tr style="background:rgba(5,150,105,0.05);font-weight:700;">
+                        <td colspan="2">إجمالي الإيرادات</td>
+                        <td class="numeric" style="color:var(--success);">@Model.TotalRevenues.ToString("N2")</td>
+                    </tr>
+
+                    <tr style="background:var(--bg-hover);font-weight:700;"><td colspan="3">المصروفات</td></tr>
+                    @foreach (var acc in Model.ExpenseAccounts)
+                    {
+                        <tr>
+                            <td>@acc.Code</td>
+                            <td style="padding-right:20px;">@acc.Name</td>
+                            <td class="numeric text-danger">@acc.Balance.ToString("N2")</td>
+                        </tr>
+                    }
+                    <tr style="background:rgba(225,29,72,0.05);font-weight:700;">
+                        <td colspan="2">إجمالي المصروفات</td>
+                        <td class="numeric" style="color:var(--danger);">@Model.TotalExpenses.ToString("N2")</td>
+                    </tr>
+
+                    <tr style="background:var(--bg-active);font-weight:800;font-size:16px;">
+                        <td colspan="2">صافي الدخل</td>
+                        <td class="numeric" style="color:@(Model.NetIncome >= 0 ? "var(--success)" : "var(--danger)");">@Model.NetIncome.ToString("N2")</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>

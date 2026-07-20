@@ -1,0 +1,244 @@
+@model CodeXErpSystem.BLL.ViewModels.Invoice.InvoiceViewModel
+@{ Layout = null; }
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>طباعة إشعار مرتجع مشتريات #@Model.InvoiceNumber</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #d97706; /* برتقالي لمرتجعات المشتريات */
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --border: #e5e7eb;
+        }
+        body {
+            font-family: 'Tajawal', sans-serif;
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            background: #f3f4f6;
+        }
+        .invoice-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .company-info h1 {
+            color: var(--primary);
+            margin: 0 0 10px 0;
+            font-size: 28px;
+        }
+        .company-info p {
+            margin: 0;
+            color: var(--text-light);
+            font-size: 14px;
+        }
+        .invoice-details {
+            text-align: left;
+        }
+        .invoice-details h2 {
+            margin: 0 0 10px 0;
+            color: var(--primary);
+            font-size: 24px;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        .detail-row span {
+            font-weight: 700;
+            margin-right: 10px;
+        }
+        .parties {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        .party {
+            width: 48%;
+        }
+        .party h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            color: var(--text-light);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 5px;
+        }
+        .party p {
+            margin: 5px 0;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            text-align: right;
+        }
+        th {
+            background-color: #f9fafb;
+            color: var(--text-light);
+            font-weight: 700;
+        }
+        .numeric {
+            text-align: left;
+        }
+        .totals {
+            width: 50%;
+            margin-right: auto;
+            border-top: 2px solid var(--border);
+            padding-top: 20px;
+        }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .total-row.grand-total {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--primary);
+            border-top: 2px solid var(--border);
+            padding-top: 10px;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            color: var(--text-light);
+            font-size: 14px;
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+        }
+        .print-btn {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background: var(--primary);
+            color: #fff;
+            text-align: center;
+            border: none;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        @@media print {
+            body {
+                background: #fff;
+                padding: 0;
+            }
+            .invoice-container {
+                box-shadow: none;
+                padding: 0;
+            }
+            .print-btn {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="print-btn" onclick="window.print()"><i class="fas fa-print"></i> طباعة الإشعار</button>
+    <div class="invoice-container">
+        <div class="header">
+            <div class="company-info">
+                <h1>@(ViewBag.Company?.CompanyName ?? "CodeX ERP")</h1>
+                <p>مستند إخراج مخزون مشتريات (مرتجع)</p>
+                <p>@(ViewBag.Company?.Address ?? "العنوان غير متوفر")</p>
+@*                 <p>الرقم الضريبي: @(ViewBag.Company?.TaxNumber ?? "غير متوفر")</p>
+ *@                <p>رقم الهاتف: @(ViewBag.Company?.PhoneNumber ?? "غير متوفر")</p>
+            </div>
+            <div class="invoice-details">
+                <h2>إشعار مدين (مرتجع مشتريات)</h2>
+                <div class="detail-row"><span>رقم الإشعار المرجعي:</span> <span dir="ltr">#@Model.InvoiceNumber</span></div>
+                <div class="detail-row"><span>رقم الفاتورة الأصلية:</span> <span dir="ltr">@(Model.ReferenceNumber != null ? "#" + Model.ReferenceNumber : "غير متوفر")</span></div>
+                <div class="detail-row"><span>تاريخ الارتجاع:</span> @Model.Date.ToString("yyyy-MM-dd")</div>
+            </div>
+        </div>
+
+        <div class="parties">
+            <div class="party">
+                <h3>تم الرد إلى (المورد)</h3>
+                <p>@(Model.SupplierName ?? "مورد نقدي / عام")</p>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>م</th>
+                    <th>الصنف المردود</th>
+                    <th class="numeric">الكمية</th>
+                    <th class="numeric">سعر الوحدة</th>
+                    <th class="numeric">الضريبة</th>
+                    <th class="numeric">الإجمالي</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{ int idx = 1; }
+                @foreach(var item in Model.Items)
+                {
+                    <tr>
+                        <td>@(idx++)</td>
+                        <td>@item.ProductName</td>
+                        <td class="numeric">@item.Quantity</td>
+                        <td class="numeric">@item.UnitPrice.ToString("N2")</td>
+                        <td class="numeric">@item.TaxAmount.ToString("N2")</td>
+                        <td class="numeric">@item.Total.ToString("N2")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="totals">
+            <div class="total-row">
+                <span>الإجمالي الفرعي للمرتجع:</span>
+                <span>@Model.SubTotal.ToString("N2") ج.م</span>
+            </div>
+            @if(Model.DiscountAmount > 0)
+            {
+                <div class="total-row" style="color:#ef4444;">
+                    <span>الخصم المسترد:</span>
+                    <span>- @Model.DiscountAmount.ToString("N2") ج.م</span>
+                </div>
+            }
+            <div class="total-row">
+                <span>إجمالي ضريبة القيمة المضافة (المدخلات):</span>
+                <span>@Model.TaxAmount.ToString("N2") ج.م</span>
+            </div>
+            <div class="total-row grand-total">
+                <span>إجمالي قيمة المرتجع من المورد:</span>
+                <span>@Model.TotalAmount.ToString("N2") ج.م</span>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>تم إصدار هذا الإشعار آلياً من نظام CodeX ERP للإقرار برد البضاعة للمورد واسترداد قيمتها.</p>
+        </div>
+    </div>
+</body>
+</html>

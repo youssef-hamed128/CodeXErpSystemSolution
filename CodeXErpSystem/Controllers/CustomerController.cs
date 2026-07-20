@@ -1,9 +1,11 @@
+﻿using Microsoft.AspNetCore.Authorization;
 using CodeXErpSystem.BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace CodeXErpSystem.Controllers
 {
+    [Authorize(Roles = "مدير النظام, مبيعات")]
     public class CustomerController : Controller
     {
         private readonly ICustomerService _customerService;
@@ -45,4 +47,5 @@ namespace CodeXErpSystem.Controllers
         }
     }
 }
+
 

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CodeXErpSystem.DAL.Migrations
 {
     [DbContext(typeof(CodeXDbContext))]
-    [Migration("20260720190121_SeedRoles")]
-    partial class SeedRoles
+    [Migration("20260720224140_AllModels")]
+    partial class AllModels
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -328,6 +328,9 @@ namespace CodeXErpSystem.DAL.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReferenceNumber")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
@@ -719,6 +722,14 @@ namespace CodeXErpSystem.DAL.Migrations
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             IsDeleted = false,
                             Name = "مبيعات"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Code = "",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsDeleted = false,
+                            Name = "مشتريات ومخازن"
                         });
                 });
 

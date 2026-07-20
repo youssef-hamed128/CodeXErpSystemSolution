@@ -23,13 +23,17 @@ namespace CodeXErpSystem.BLL.Services.Classes
 
         public async Task<IEnumerable<PaymentViewModel>> GetAllAsync()
         {
-            var entities = await _unitOfWork.GetRepository<Payment>().GetAll(false);
+            var entities = await _unitOfWork.GetRepository<Payment>().FindAsync(includeProperties: "Customer,Supplier");
             return _mapper.Map<IEnumerable<PaymentViewModel>>(entities);
         }
 
         public async Task CreateAsync(PaymentViewModel model)
         {
             var entity = _mapper.Map<Payment>(model);
+            
+            // Prevent AutoMapper from creating empty navigation properties
+            entity.Customer = null;
+            entity.Supplier = null;
             
             // Auto-generate Numeric Receipt Number
             var existingPayments = await _unitOfWork.GetRepository<Payment>().GetAll(false);
@@ -122,6 +126,11 @@ namespace CodeXErpSystem.BLL.Services.Classes
 
             // Update entity properties
             _mapper.Map(model, existingPayment);
+            
+            // Prevent AutoMapper from creating empty navigation properties
+            existingPayment.Customer = null;
+            existingPayment.Supplier = null;
+            
             _unitOfWork.GetRepository<Payment>().Update(existingPayment);
             await _unitOfWork.CompleteAsync();
         }

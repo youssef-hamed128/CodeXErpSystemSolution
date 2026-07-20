@@ -21,6 +21,7 @@ namespace CodeXErpSystem.BLL.ViewModels.Warehouses
 
         public IEnumerable<WarehouseViewModel> Warehouses { get; set; } = new List<WarehouseViewModel>();
         public IEnumerable<CodeXErpSystem.BLL.ViewModels.Products.ProductViewModel> Products { get; set; } = new List<CodeXErpSystem.BLL.ViewModels.Products.ProductViewModel>();
+        public IEnumerable<CodeXErpSystem.BLL.ViewModels.Products.ProductCategoryViewModel> Categories { get; set; } = new List<CodeXErpSystem.BLL.ViewModels.Products.ProductCategoryViewModel>();
         public IEnumerable<StockTransferItemViewModel> TransferItems { get; set; } = new List<StockTransferItemViewModel>();
     }
 }

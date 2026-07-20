@@ -327,6 +327,9 @@ namespace CodeXErpSystem.DAL.Migrations
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ReferenceNumber")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -716,6 +719,14 @@ namespace CodeXErpSystem.DAL.Migrations
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             IsDeleted = false,
                             Name = "مبيعات"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Code = "",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsDeleted = false,
+                            Name = "مشتريات ومخازن"
                         });
                 });
 

@@ -1,4 +1,4 @@
-﻿@{ Layout = "_Layout"; }
+@{ Layout = "_Layout"; }
 
     <nav class="breadcrumb"><div class="breadcrumb-item"><a href="~/Home/Index"><i class="fas fa-home"></i> الرئيسية</a></div><div class="breadcrumb-item active">مركز التقارير</div></nav>
     <div class="page-header">
@@ -9,7 +9,7 @@
       <button class="tab active" data-tab="financial">التقارير المالية</button>
       <button class="tab" data-tab="sales">تقارير المبيعات</button>
       <button class="tab" data-tab="inventory">تقارير المخزون</button>
-      <button class="tab" data-tab="tax">التقارير الضريبية (ZATCA)</button>
+      <button class="tab" data-tab="tax">التقارير الضريبية</button>
     </div>
 
     <!-- Financial Reports -->
@@ -78,12 +78,8 @@
         <div class="card" style="padding:var(--spacing-5);">
           <div style="font-size:24px;color:var(--danger);margin-bottom:var(--spacing-3);"><i class="fas fa-file-invoice"></i></div>
           <h3 style="font-size:var(--fs-lg);font-weight:700;margin-bottom:var(--spacing-2);">إقرار ضريبة القيمة المضافة</h3>
-          <p style="font-size:var(--fs-sm);color:var(--text-secondary);margin-bottom:var(--spacing-4);">تقرير الإقرار الضريبي المخصص لهيئة الزكاة والضريبة والجمارك (ZATCA) يشمل ضريبة المخرجات والمدخلات.</p>
+          <p style="font-size:var(--fs-sm);color:var(--text-secondary);margin-bottom:var(--spacing-4);">  يشمل إقرار القيمة المضافة</p>
           <button class="btn btn-outline-primary btn-sm" style="width:100%;" onclick="window.location.href='@Url.Action("View", "Reports", new { id = "zatca_tax" })'">إنشاء الإقرار <i class="fas fa-arrow-left" style="margin-right:8px;"></i></button>
         </div>
       </div>
     </div>
-
-  
-
-
