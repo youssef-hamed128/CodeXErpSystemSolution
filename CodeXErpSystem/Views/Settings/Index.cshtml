@@ -84,6 +84,19 @@
         </div>
       </div>
     </div>
+    
+    <div class="grid-2" style="margin-top:var(--spacing-5);">
+      <!-- Database Management -->
+      <div class="card" style="padding:var(--spacing-5);">
+        <h3 style="font-size:var(--fs-base);font-weight:700;margin-bottom:var(--spacing-4);border-bottom:1px solid var(--border-color);padding-bottom:var(--spacing-3);"><i class="fas fa-database"></i> إدارة قاعدة البيانات</h3>
+        
+        <p style="color:var(--text-muted);font-size:var(--fs-sm);margin-bottom:var(--spacing-4);">قم بأخذ نسخة احتياطية من جميع بياناتك لضمان عدم ضياعها. النسخة الاحتياطية ستكون بصيغة (.bak) ويمكنك استرجاعها من خلال SQL Server.</p>
+        
+        <div class="form-group">
+            <button type="button" class="btn btn-info" onclick="backupDatabase()"><i class="fas fa-download"></i> إنشاء نسخة احتياطية (Backup)</button>
+        </div>
+      </div>
+    </div>
 </form>
 
 <div class="toast-container"></div>
@@ -95,6 +108,33 @@
         document.addEventListener('DOMContentLoaded', function() {
             showToast('@TempData["Success"]', 'success');
         });
+    </script>
+}
+
+@section Scripts {
+    <script>
+        function backupDatabase() {
+            showToast('جاري إنشاء النسخة الاحتياطية... برجاء الانتظار', 'info');
+            
+            // Create a form dynamically to trigger download
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/Settings/BackupDatabase';
+            
+            // We need to add the AntiForgeryToken
+            var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            var hiddenToken = document.createElement('input');
+            hiddenToken.type = 'hidden';
+            hiddenToken.name = '__RequestVerificationToken';
+            hiddenToken.value = token;
+            form.appendChild(hiddenToken);
+            
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+            
+            setTimeout(() => showToast('تم تنزيل النسخة الاحتياطية بنجاح!', 'success'), 3000);
+        }
     </script>
 }
 

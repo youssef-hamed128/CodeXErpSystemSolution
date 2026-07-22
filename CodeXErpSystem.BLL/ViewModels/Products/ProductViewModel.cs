@@ -25,7 +25,8 @@ namespace CodeXErpSystem.BLL.ViewModels.Products
         public decimal MinStockLevel { get; set; } = 5;
 
         // UI specific properties mapped from Entity
-        public string? SKU { get => Barcode; set => Barcode = value; }
+        public string Code { get; set; } = string.Empty;
+        public string? SKU { get => Code; set => Code = value; }
         public string ProductName { get => Name; set => Name = value; }
         public string? Category { get => CategoryName; set => CategoryName = value; }
         public string? Unit { get => UnitOfMeasure; set => UnitOfMeasure = value; }

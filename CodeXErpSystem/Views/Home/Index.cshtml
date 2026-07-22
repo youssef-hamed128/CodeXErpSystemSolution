@@ -158,37 +158,33 @@
   <div class="stat-card-modern primary">
     <div class="stat-card-top">
       <div class="stat-card-icon"><i class="fas fa-chart-line"></i></div>
-      <div class="stat-card-trend trend-up"><i class="fas fa-arrow-up"></i> 12%</div>
     </div>
     <div class="stat-card-value">@ViewBag.TotalSales?.ToString("N2")</div>
-    <div class="stat-card-title">إجمالي المبيعات (الشهر)</div>
+    <div class="stat-card-title">إجمالي المبيعات</div>
   </div>
   <!-- 2 -->
   <div class="stat-card-modern success">
     <div class="stat-card-top">
       <div class="stat-card-icon"><i class="fas fa-shopping-cart"></i></div>
-      <div class="stat-card-trend trend-up"><i class="fas fa-arrow-up"></i> 8%</div>
     </div>
     <div class="stat-card-value">@ViewBag.TotalPurchases?.ToString("N2")</div>
-    <div class="stat-card-title">إجمالي المشتريات (الشهر)</div>
+    <div class="stat-card-title">إجمالي المشتريات</div>
   </div>
   <!-- 3 -->
   <div class="stat-card-modern warning">
     <div class="stat-card-top">
       <div class="stat-card-icon"><i class="fas fa-hand-holding-usd"></i></div>
-      <div class="stat-card-trend trend-down"><i class="fas fa-arrow-down"></i> 3%</div>
     </div>
     <div class="stat-card-value">@ViewBag.TotalReceivable?.ToString("N2")</div>
-    <div class="stat-card-title">ذمم مدينة (مستحقات لنا)</div>
+    <div class="stat-card-title">مستحقات لنا</div>
   </div>
   <!-- 4 -->
   <div class="stat-card-modern danger">
     <div class="stat-card-top">
       <div class="stat-card-icon"><i class="fas fa-file-invoice-dollar"></i></div>
-      <div class="stat-card-trend trend-up"><i class="fas fa-arrow-up"></i> 5%</div>
     </div>
     <div class="stat-card-value">@ViewBag.TotalPayable?.ToString("N2")</div>
-    <div class="stat-card-title">ذمم دائنة (مستحقات علينا)</div>
+    <div class="stat-card-title">مستحقات علينا</div>
   </div>
 </div>
 

@@ -239,6 +239,20 @@
 <!-- Select2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+<script>
+  $(document).ready(function() {
+      // Global Table Search Logic
+      $('[data-table-search-simple]').on('keyup', function() {
+          var tableId = $(this).attr('data-table-search-simple');
+          var value = $(this).val().toLowerCase();
+          
+          $('#' + tableId + ' tbody tr').filter(function() {
+              $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+          });
+      });
+  });
+</script>
+
 <style>
   /* Custom Select2 styling to match the system theme */
   .select2-container .select2-selection--single {

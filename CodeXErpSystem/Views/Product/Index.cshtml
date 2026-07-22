@@ -19,7 +19,7 @@
     <div class="data-table-wrapper">
       <div class="filter-bar">
         <input type="text" class="form-control" placeholder="بحث بالاسم أو الكود (SKU)..." data-table-search-simple="productsTable" style="max-width:280px;">
-        <select class="form-select">
+        <select class="form-select" id="categoryFilter">
             <option value="">جميع الفئات</option>
             @if (ViewBag.Categories != null)
             {
@@ -62,7 +62,6 @@
                   <td class="numeric">@product.MinQuantity</td>
                   <td><span class="badge @badgeClass">@product.Status</span></td>
                   <td class="table-actions">
-                    <button class="action-btn view" onclick="showPreview('معاينة السجل')"><i class="fas fa-eye"></i></button>
                     <button class="action-btn edit" onclick="openEditModal(@product.Id, '@product.ProductName', '@product.SKU', '@product.CategoryId', '@product.UnitCost', '@product.SalePrice', '@product.MinQuantity', '@product.Unit', '@product.TaxRate', '@product.Barcode')"><i class="fas fa-edit"></i></button>
                     <button class="action-btn delete" onclick="deleteRecord(@product.Id)"><i class="fas fa-trash"></i></button>
                   </td>
@@ -165,6 +164,22 @@
         document.getElementById('confirmMessage').innerText = 'هل أنت متأكد من حذف المنتج؟';
         openModal('confirmModal');
     }
+
+    // Category Filter Logic
+    $('#categoryFilter').on('change', function() {
+        var selectedText = $(this).find("option:selected").text().toLowerCase();
+        var selectedValue = $(this).val();
+        
+        $('#productsTable tbody tr').filter(function() {
+            if (!selectedValue) {
+                $(this).show();
+            } else {
+                // The category name is in the 4th column (index 3)
+                var categoryCell = $(this).find('td:eq(3)').text().toLowerCase().trim();
+                $(this).toggle(categoryCell === selectedText);
+            }
+        });
+    });
 
     document.getElementById('confirmOkBtn').addEventListener('click', function () {
         if (currentDeleteId > 0) {

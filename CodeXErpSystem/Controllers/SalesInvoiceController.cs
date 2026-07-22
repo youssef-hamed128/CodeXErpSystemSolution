@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using AutoMapper;
 using CodeXErpSystem.BLL.Services.Interfaces;
 using CodeXErpSystem.BLL.ViewModels;
@@ -43,6 +43,13 @@ namespace CodeXErpSystem.Controllers
             await PrepareDropdownsAsync();
             var model = new InvoiceCreateViewModel { Type = InvoiceType.Sales, Date = DateTime.UtcNow };
             model.InvoiceNumber = await _invoiceService.GenerateInvoiceNumberAsync(InvoiceType.Sales);
+
+            var cashCustomer = (await _unitOfWork.GetRepository<Customer>().FindAsync(c => c.Name == "نقدي")).FirstOrDefault();
+            if (cashCustomer != null)
+            {
+                model.CustomerId = cashCustomer.Id;
+            }
+
             return View(model);
         }
 

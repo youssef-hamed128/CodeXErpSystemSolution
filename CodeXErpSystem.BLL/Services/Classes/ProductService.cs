@@ -49,6 +49,14 @@ namespace CodeXErpSystem.BLL.Services.Classes
 
         public async Task CreateAsync(CodeXErpSystem.BLL.ViewModels.Products.ProductCreateViewModel model)
         {
+            var existingCode = await _unitOfWork.GetRepository<Product>().FindAsync(p => p.Code == model.Code);
+            if (existingCode.Any())
+                throw new System.InvalidOperationException("رقم الكود مكرر. يرجى إدخال كود مختلف.");
+
+            var existingName = await _unitOfWork.GetRepository<Product>().FindAsync(p => p.Name == model.Name);
+            if (existingName.Any())
+                throw new System.InvalidOperationException("اسم المنتج مكرر. يرجى إدخال اسم مختلف.");
+
             var entity = _mapper.Map<Product>(model);
             _unitOfWork.GetRepository<Product>().Add(entity);
             await _unitOfWork.CompleteAsync();
@@ -56,6 +64,14 @@ namespace CodeXErpSystem.BLL.Services.Classes
 
         public async Task UpdateAsync(CodeXErpSystem.BLL.ViewModels.Products.ProductCreateViewModel model)
         {
+            var existingCode = await _unitOfWork.GetRepository<Product>().FindAsync(p => p.Code == model.Code && p.Id != model.Id);
+            if (existingCode.Any())
+                throw new System.InvalidOperationException("رقم الكود مكرر لمنتج آخر. يرجى إدخال كود مختلف.");
+
+            var existingName = await _unitOfWork.GetRepository<Product>().FindAsync(p => p.Name == model.Name && p.Id != model.Id);
+            if (existingName.Any())
+                throw new System.InvalidOperationException("اسم المنتج مكرر لمنتج آخر. يرجى إدخال اسم مختلف.");
+
             var entity = _mapper.Map<Product>(model);
             _unitOfWork.GetRepository<Product>().Update(entity);
             await _unitOfWork.CompleteAsync();

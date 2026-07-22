@@ -54,7 +54,7 @@
                       <td><a href="/PurchaseReturn/Print/@item.Id" style="color:var(--primary);font-weight:600;">@item.InvoiceNumber</a></td>
                       <td><div style="font-weight:500;">@item.SupplierName</div></td>
                       <td>@item.Date.ToString("yyyy-MM-dd")</td>
-                      <td>@item.Date.AddDays(30).ToString("yyyy-MM-dd")</td>
+                      <td>@item.DueDate.ToString("yyyy-MM-dd")</td>
                       <td class="numeric">@item.TotalAmount.ToString("N2")</td>
                       <td class="numeric" style="color:var(--text-muted);">0.00</td>
                       <td id="statusTd_@item.Id">
@@ -149,5 +149,25 @@
                 }
             });
         }
+
+        // Date Filter Logic
+        $('#dateFrom, #dateTo').on('change', function() {
+            var from = $('#dateFrom').val();
+            var to = $('#dateTo').val();
+            var fromDate = from ? new Date(from) : null;
+            var toDate = to ? new Date(to) : null;
+            
+            $('#salesTable tbody tr').each(function() {
+                var dateStr = $(this).find('td:eq(3)').text().trim();
+                if(!dateStr) return;
+                var rowDate = new Date(dateStr);
+                
+                var show = true;
+                if(fromDate && rowDate < fromDate) show = false;
+                if(toDate && rowDate > toDate) show = false;
+                
+                $(this).toggle(show);
+            });
+        });
     </script>
 }

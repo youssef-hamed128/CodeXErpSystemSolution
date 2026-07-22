@@ -330,6 +330,10 @@
                     invoice.items.forEach(item => {
                         const categoryOptions = `@if(ViewBag.Categories != null) { foreach(var cat in ViewBag.Categories) { <option value="@cat.Value">@cat.Text</option> } }`;
                         const productsOptions = `@if(ViewBag.Products != null) { foreach(var p in ViewBag.Products) { <option value="@p.Value">@p.Text</option> } }`;
+                        
+                        let selectedProduct = productsData.find(p => p.Id == item.productId);
+                        let unitName = selectedProduct && selectedProduct.UnitOfMeasure ? selectedProduct.UnitOfMeasure : "-";
+
                         const tr = document.createElement('tr');
                         tr.id = `row_${rowIndex}`;
                         tr.innerHTML = `
@@ -343,7 +347,7 @@
                               ${productsOptions}
                             </select>
                           </td>
-                          <td><input type="text" id="unit_${rowIndex}" class="form-control" readonly style="background:#e9ecef; text-align:center;" value="-" /></td>
+                          <td><input type="text" id="unit_${rowIndex}" class="form-control" readonly style="background:#e9ecef; text-align:center;" value="${unitName}" /></td>
                           <td><input type="number" id="qty_${rowIndex}" class="form-control qty-input" name="Items[${rowIndex}].Quantity" value="${item.quantity}" min="1" oninput="calculateInvoice()"></td>
                           <td><input type="number" id="price_${rowIndex}" class="form-control price-input" name="Items[${rowIndex}].UnitPrice" value="${item.unitPrice}" step="0.01" oninput="calculateInvoice()"></td>
                           <td><input type="text" class="form-control row-total fw-bold text-primary" readonly value="${item.total}" style="background:#f8f9fa;" /></td>

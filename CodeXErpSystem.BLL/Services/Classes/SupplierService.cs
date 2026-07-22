@@ -5,6 +5,7 @@ using CodeXErpSystem.DAL.Repository.Inetrfaces;
 using AutoMapper;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace CodeXErpSystem.BLL.Services.Classes
 {
@@ -27,6 +28,15 @@ namespace CodeXErpSystem.BLL.Services.Classes
 
         public async Task CreateAsync(SupplierViewModel model)
         {
+            var existingName = await _unitOfWork.GetRepository<Supplier>().FindAsync(s => s.Name == model.Name);
+            if (existingName.Any()) throw new System.InvalidOperationException("اسم المورد مكرر مسبقاً.");
+
+            if (!string.IsNullOrEmpty(model.Phone))
+            {
+                var existingPhone = await _unitOfWork.GetRepository<Supplier>().FindAsync(s => s.Phone == model.Phone);
+                if (existingPhone.Any()) throw new System.InvalidOperationException("رقم هاتف المورد مكرر مسبقاً.");
+            }
+
             var entity = _mapper.Map<Supplier>(model);
             _unitOfWork.GetRepository<Supplier>().Add(entity);
             await _unitOfWork.CompleteAsync();
@@ -34,6 +44,15 @@ namespace CodeXErpSystem.BLL.Services.Classes
 
         public async Task UpdateAsync(SupplierViewModel model)
         {
+            var existingName = await _unitOfWork.GetRepository<Supplier>().FindAsync(s => s.Name == model.Name && s.Id != model.Id);
+            if (existingName.Any()) throw new System.InvalidOperationException("اسم المورد مكرر مع مورد آخر.");
+
+            if (!string.IsNullOrEmpty(model.Phone))
+            {
+                var existingPhone = await _unitOfWork.GetRepository<Supplier>().FindAsync(s => s.Phone == model.Phone && s.Id != model.Id);
+                if (existingPhone.Any()) throw new System.InvalidOperationException("رقم هاتف المورد مكرر مع مورد آخر.");
+            }
+
             var entity = _mapper.Map<Supplier>(model);
             _unitOfWork.GetRepository<Supplier>().Update(entity);
             await _unitOfWork.CompleteAsync();

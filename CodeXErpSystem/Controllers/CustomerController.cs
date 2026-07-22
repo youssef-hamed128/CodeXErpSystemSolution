@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using CodeXErpSystem.BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -22,10 +22,17 @@ namespace CodeXErpSystem.Controllers
         {
             if (ModelState.IsValid)
             {
-                await _customerService.CreateAsync(model);
-                return Json(new { success = true, message = "Customer created successfully" });
+                try
+                {
+                    await _customerService.CreateAsync(model);
+                    return Json(new { success = true, message = "تمت الإضافة بنجاح" });
+                }
+                catch (System.InvalidOperationException ex)
+                {
+                    return Json(new { success = false, message = ex.Message });
+                }
             }
-            return Json(new { success = false, message = "Invalid data" });
+            return Json(new { success = false, message = "بيانات غير صالحة" });
         }
 
         [HttpPost]
@@ -33,10 +40,17 @@ namespace CodeXErpSystem.Controllers
         {
             if (ModelState.IsValid)
             {
-                await _customerService.UpdateAsync(model);
-                return Json(new { success = true, message = "Customer updated successfully" });
+                try
+                {
+                    await _customerService.UpdateAsync(model);
+                    return Json(new { success = true, message = "تم التعديل بنجاح" });
+                }
+                catch (System.InvalidOperationException ex)
+                {
+                    return Json(new { success = false, message = ex.Message });
+                }
             }
-            return Json(new { success = false, message = "Invalid data" });
+            return Json(new { success = false, message = "بيانات غير صالحة" });
         }
 
         [HttpPost]

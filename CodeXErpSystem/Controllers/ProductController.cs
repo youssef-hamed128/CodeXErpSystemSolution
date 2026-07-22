@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using CodeXErpSystem.BLL.Services.Interfaces;
 using CodeXErpSystem.DAL.Repository.Inetrfaces;
@@ -36,8 +36,15 @@ namespace CodeXErpSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromForm] CodeXErpSystem.BLL.ViewModels.Products.ProductCreateViewModel model)
         {
-            await _productService.CreateAsync(model);
-            return Json(new { success = true, message = "تم الإضافة بنجاح" });
+            try
+            {
+                await _productService.CreateAsync(model);
+                return Json(new { success = true, message = "تم الإضافة بنجاح" });
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
 
         [HttpPost]
@@ -55,8 +62,15 @@ namespace CodeXErpSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit([FromForm] CodeXErpSystem.BLL.ViewModels.Products.ProductCreateViewModel model)
         {
-            await _productService.UpdateAsync(model);
-            return Json(new { success = true, message = "تم التعديل بنجاح" });
+            try
+            {
+                await _productService.UpdateAsync(model);
+                return Json(new { success = true, message = "تم التعديل بنجاح" });
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
 
         [HttpPost]
