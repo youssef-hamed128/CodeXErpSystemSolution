@@ -8,6 +8,7 @@ namespace CodeXErpSystem.BLL.Services.Interfaces
     public interface IPaymentService
     {
         Task<IEnumerable<PaymentViewModel>> GetAllAsync();
+        Task<PaymentViewModel?> GetByIdAsync(int id);
         Task CreateAsync(PaymentViewModel model);
         Task UpdateAsync(PaymentViewModel model);
         Task DeleteAsync(int id);

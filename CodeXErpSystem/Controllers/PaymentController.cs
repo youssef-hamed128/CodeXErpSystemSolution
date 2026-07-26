@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using CodeXErpSystem.BLL.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -59,6 +59,13 @@ namespace CodeXErpSystem.Controllers
         {
             await _paymentService.DeleteAsync(id);
             return Json(new { success = true, message = "Payment deleted successfully" });
+        }
+
+        public async Task<IActionResult> Print(int id)
+        {
+            var payment = await _paymentService.GetByIdAsync(id);
+            if (payment == null) return NotFound("السند غير موجود");
+            return View(payment);
         }
     }
 }

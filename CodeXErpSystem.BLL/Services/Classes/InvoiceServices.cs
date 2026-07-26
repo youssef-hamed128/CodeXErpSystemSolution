@@ -60,11 +60,21 @@ namespace CodeXErpSystem.BLL.Services.Classes
                 var invoice = mapper.Map<Invoice>(model);
                 invoice.ReferenceNumber = model.ReferenceNumber;
                 invoice.InvoiceNumber = await GenerateInvoiceNumberAsync(model.Type);
-                invoice.Status = InvoiceStatus.Paid;
+                invoice.Status = model.Status;
+                invoice.PaidAmount = model.PaidAmount;
                 invoice.CreatedBy = userId;
 
                 invoice.SubTotal = model.Items.Sum(i => i.Quantity * i.UnitPrice);
-                if(model.DiscountPercentage > 0) invoice.DiscountAmount = invoice.SubTotal * (model.DiscountPercentage / 100);
+                if (model.DiscountPercentage > 0) 
+                {
+                    invoice.DiscountPercentage = model.DiscountPercentage;
+                    invoice.DiscountAmount = invoice.SubTotal * (model.DiscountPercentage / 100m);
+                }
+                else if (model.DiscountAmount > 0 && invoice.SubTotal > 0)
+                {
+                    invoice.DiscountAmount = model.DiscountAmount;
+                    invoice.DiscountPercentage = Math.Round((model.DiscountAmount / invoice.SubTotal) * 100m, 2);
+                }
                 decimal taxRate = model.TaxPercentage / 100m;
                 foreach (var item in invoice.Items)
                 {
@@ -73,7 +83,44 @@ namespace CodeXErpSystem.BLL.Services.Classes
                 }
                 invoice.TaxAmount = invoice.Items.Sum(i => i.TaxAmount);
                 invoice.TotalAmount = (invoice.SubTotal - invoice.DiscountAmount) + invoice.TaxAmount;
+
+                if (invoice.Status == InvoiceStatus.Paid || (invoice.PaidAmount >= invoice.TotalAmount && invoice.TotalAmount > 0))
+                {
+                    invoice.Status = InvoiceStatus.Paid;
+                    invoice.PaidAmount = invoice.TotalAmount;
+                }
+                else if (invoice.Status == InvoiceStatus.Partial || (invoice.PaidAmount > 0 && invoice.PaidAmount < invoice.TotalAmount))
+                {
+                    invoice.Status = InvoiceStatus.Partial;
+                    if (invoice.PaidAmount < 0) invoice.PaidAmount = 0;
+                }
+                else
+                {
+                    invoice.Status = InvoiceStatus.Unpaid;
+                    invoice.PaidAmount = 0;
+                }
                 unitOfWork.GetRepository<Invoice>().Add(invoice);
+
+                // إنشاء سند فقط للفواتير المدفوعة جزئياً
+                if (invoice.Status == InvoiceStatus.Partial && invoice.PaidAmount > 0)
+                {
+                    var existingPayments = await unitOfWork.GetRepository<Payment>().GetAll(false);
+                    var maxNumber = existingPayments.Any() ? existingPayments.Max(p => int.TryParse(p.ReceiptNumber, out int n) ? n : 0) : 1000;
+                    string nextReceiptNum = (maxNumber + 1).ToString();
+
+                    unitOfWork.GetRepository<Payment>().Add(new Payment
+                    {
+                        ReceiptNumber = nextReceiptNum,
+                        Date = invoice.Date,
+                        Amount = invoice.PaidAmount,
+                        PaymentMethod = PaymentMethod.Cash,
+                        Reference = $"سداد جزئي - فاتورة رقم {invoice.InvoiceNumber}",
+                        Invoice = invoice,
+                        CustomerId = model.CustomerId,
+                        SupplierId = model.SupplierId,
+                        CreatedBy = userId
+                    });
+                }
                 //--------------------- تحديث المخزون
                 foreach (var item in invoice.Items)
                 {
@@ -114,8 +161,9 @@ namespace CodeXErpSystem.BLL.Services.Classes
                     var customer = await unitOfWork.GetRepository<Customer>().GetById(model.CustomerId.Value,ct);
                     if (customer != null)
                     {
-                        if (model.Type == InvoiceType.Sales) customer.Balance += invoice.TotalAmount;
-                        else if (model.Type == InvoiceType.SalesReturn) customer.Balance -= invoice.TotalAmount;
+                        decimal remAmount = invoice.TotalAmount - invoice.PaidAmount;
+                        if (model.Type == InvoiceType.Sales) customer.Balance += remAmount;
+                        else if (model.Type == InvoiceType.SalesReturn) customer.Balance -= remAmount;
                         unitOfWork.GetRepository<Customer>().Update(customer);
                     }
                 }
@@ -124,8 +172,9 @@ namespace CodeXErpSystem.BLL.Services.Classes
                     var supplier = await unitOfWork.GetRepository<Supplier>().GetById(model.SupplierId.Value, ct);
                     if (supplier != null)
                     {
-                        if(model.Type == InvoiceType.Purchase) supplier.Balance += invoice.TotalAmount;
-                        else if (model.Type == InvoiceType.PurchaseReturn) supplier.Balance -= invoice.TotalAmount;
+                        decimal remAmount = invoice.TotalAmount - invoice.PaidAmount;
+                        if(model.Type == InvoiceType.Purchase) supplier.Balance += remAmount;
+                        else if (model.Type == InvoiceType.PurchaseReturn) supplier.Balance -= remAmount;
                         unitOfWork.GetRepository<Supplier>().Update(supplier);
                     }
                 }

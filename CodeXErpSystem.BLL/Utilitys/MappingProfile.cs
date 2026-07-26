@@ -58,6 +58,7 @@ namespace CodeXErpSystem.BLL.Mapping
             CreateMap<Invoice, InvoiceViewModel>()
                 .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.Name : null))
                 .ForMember(dest => dest.SupplierName, opt => opt.MapFrom(src => src.Supplier != null ? src.Supplier.Name : null))
+                .ForMember(dest => dest.PaidAmount, opt => opt.MapFrom(src => src.Status == CodeXErpSystem.DAL.Entites.Enums.InvoiceStatus.Paid && src.PaidAmount == 0 ? src.TotalAmount : src.PaidAmount))
                 .ReverseMap();
 
             CreateMap<Invoice, InvoiceCreateViewModel>().ReverseMap();

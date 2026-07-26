@@ -59,6 +59,16 @@ namespace CodeXErpSystem.Controllers
         {
             model.Type = InvoiceType.Sales;
 
+            // تعيين تاريخ استحقاق افتراضي إذا كان فارغاً
+            if (model.DueDate == default) model.DueDate = model.Date == default ? DateTime.UtcNow : model.Date;
+            if (model.Date == default) model.Date = DateTime.UtcNow;
+
+            // إزالة أخطاء الحقول الغير مطلوبة
+            ModelState.Remove("InvoiceNumber");
+            ModelState.Remove("AttachmentUrl");
+            ModelState.Remove("Notes");
+            ModelState.Remove("PaidAmount");
+
             if (ModelState.IsValid)
             {
                 try
@@ -77,6 +87,11 @@ namespace CodeXErpSystem.Controllers
             
             await PrepareDropdownsAsync();
             return View(model);
+        }
+
+        public IActionResult Details(int id)
+        {
+            return RedirectToAction(nameof(Print), new { id });
         }
 
         public async Task<IActionResult> Print(int id)

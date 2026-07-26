@@ -22,8 +22,20 @@ namespace CodeXErpSystem.BLL.Services.Classes
 
         public async Task<IEnumerable<CodeXErpSystem.BLL.ViewModels.Customers.CustomerViewModel>> GetAllAsync()
         {
-            var entities = await _unitOfWork.GetRepository<Customer>().GetAll(false);
-            return _mapper.Map<IEnumerable<CodeXErpSystem.BLL.ViewModels.Customers.CustomerViewModel>>(entities);
+            var entities = await _unitOfWork.GetRepository<Customer>().FindAsync(includeProperties: "Invoices");
+            var result = _mapper.Map<IEnumerable<CodeXErpSystem.BLL.ViewModels.Customers.CustomerViewModel>>(entities).ToList();
+
+            // نحسب الرصيد الحالي من الفواتير الفعلية بعد الماپنج
+            var entitiesList = entities.ToList();
+            for (int i = 0; i < entitiesList.Count; i++)
+            {
+                var cust = entitiesList[i];
+                result[i].Balance = cust.Invoices
+                    .Where(inv => inv.Type == CodeXErpSystem.DAL.Entites.Enums.InvoiceType.Sales)
+                    .Sum(inv => inv.TotalAmount - inv.PaidAmount);
+            }
+
+            return result;
         }
 
         public async Task CreateAsync(CustomerViewModel model)

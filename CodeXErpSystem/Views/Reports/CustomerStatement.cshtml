@@ -1,0 +1,292 @@
+@model CodeXErpSystem.BLL.ViewModels.Reports.CustomerStatementViewModel
+@{
+    ViewBag.Title = "كشف حساب عميل تفصيلي";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="report-container">
+    <!-- Header & Filters -->
+    <div class="report-header-bar d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h2 class="report-title mb-1">
+                <i class="fas fa-file-invoice-dollar text-primary me-2"></i> كشف حساب عميل تفصيلي
+            </h2>
+            <p class="text-muted mb-0">تقرير شامل لحركة الفواتير، الدفعات الجزئية، وسندات القبض</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button onclick="window.print()" class="btn btn-outline-secondary">
+                <i class="fas fa-print me-1"></i> طباعة كشف الحساب
+            </button>
+            <a href="~/Reports/Index" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-right me-1"></i> عودة للتقارير
+            </a>
+        </div>
+    </div>
+
+    <!-- Selection & Date Filter Form -->
+    <div class="card shadow-sm mb-4 border-0" style="border-radius: 12px; background: #f8fafc;">
+        <div class="card-body p-4">
+            <form method="get" asp-action="CustomerStatement" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">اختر العميل:</label>
+                    <select name="customerId" class="form-select" onchange="this.form.submit()" style="border-radius: 8px;">
+                        @if (ViewBag.Customers != null)
+                        {
+                            foreach (var item in ViewBag.Customers)
+                            {
+                                <option value="@item.Value" selected="@item.Selected">@item.Text</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">من تاريخ:</label>
+                    <input type="date" name="startDate" class="form-control" value="@(Model.StartDate?.ToString("yyyy-MM-dd"))" style="border-radius: 8px;" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">إلى تاريخ:</label>
+                    <input type="date" name="endDate" class="form-control" value="@(Model.EndDate?.ToString("yyyy-MM-dd"))" style="border-radius: 8px;" />
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100" style="border-radius: 8px;">
+                        <i class="fas fa-filter me-1"></i> تصفية
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.CustomerId > 0)
+    {
+        <!-- Customer Info & Stats -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 12px; border-right: 4px solid #3b82f6 !important;">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-2"><i class="fas fa-user-circle me-1"></i> بيانات العميل</h6>
+                        <h4 class="fw-bold mb-1">@Model.CustomerName</h4>
+                        <div class="small text-muted mb-2">
+                            @if (!string.IsNullOrEmpty(Model.Phone)) { <span><i class="fas fa-phone me-1"></i> @Model.Phone | </span> }
+                            @if (!string.IsNullOrEmpty(Model.TaxNumber)) { <span>الرقم الضريبي: @Model.TaxNumber</span> }
+                        </div>
+                        <div class="mt-3 d-flex justify-content-between align-items-center">
+                            <span class="text-muted">الرصيد الدفتري الحالي:</span>
+                            <span class="badge bg-primary fs-6 py-2 px-3">@Model.CustomerCurrentBalance.ToString("N2") ج.م</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary KPI Cards -->
+            <div class="col-md-8">
+                <div class="row g-3 h-100">
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm h-100" style="border-radius: 12px; background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white;">
+                            <div class="card-body d-flex flex-column justify-content-between">
+                                <div class="small opacity-75">إجمالي قيمة الفواتير</div>
+                                <h3 class="fw-bold my-2">@Model.TotalInvoicesAmount.ToString("N2")</h3>
+                                <div class="small opacity-75"><i class="fas fa-file-invoice me-1"></i> @Model.Invoices.Count فاتورة مبيعات</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm h-100" style="border-radius: 12px; background: linear-gradient(135deg, #065f46, #10b981); color: white;">
+                            <div class="card-body d-flex flex-column justify-content-between">
+                                <div class="small opacity-75">إجمالي المسدد من الفواتير</div>
+                                <h3 class="fw-bold my-2">@Model.TotalPaidAmount.ToString("N2")</h3>
+                                <div class="small opacity-75"><i class="fas fa-check-circle me-1"></i> @Model.Invoices.Count(i => i.PaidAmount > 0) فاتورة سُدِّدت / جزئية</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm h-100" style="border-radius: 12px; background: linear-gradient(135deg, #991b1b, #ef4444); color: white;">
+                            <div class="card-body d-flex flex-column justify-content-between">
+                                <div class="small opacity-75">المتبقي على الفواتير</div>
+                                <h3 class="fw-bold my-2">@Model.TotalRemainingAmount.ToString("N2")</h3>
+                                <div class="small opacity-75"><i class="fas fa-exclamation-circle me-1"></i> مطلوب تحصيله</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 1: Invoices and Partial Payment Status -->
+        <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center" style="border-bottom: 2px solid #f1f5f9;">
+                <h5 class="mb-0 fw-bold text-dark">
+                    <i class="fas fa-file-invoice text-primary me-2"></i> فواتير المبيعات وموقف السداد الجزئي/الكلي
+                </h5>
+                <span class="badge bg-light text-dark border">عدد الفواتير: @Model.Invoices.Count</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 text-center">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="py-3">رقم الفاتورة</th>
+                                <th class="py-3">التاريخ</th>
+                                <th class="py-3">إجمالي الفاتورة</th>
+                                <th class="py-3 text-success">المدفوع من الفاتورة</th>
+                                <th class="py-3 text-danger">المتبقي (غير مسدد)</th>
+                                <th class="py-3" style="width: 180px;">نسبة التحصيل</th>
+                                <th class="py-3">حالة السداد</th>
+                                <th class="py-3">الإجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Invoices.Any())
+                            {
+                                foreach (var inv in Model.Invoices)
+                                {
+                                    var percentage = inv.TotalAmount > 0 ? Math.Round((inv.PaidAmount / inv.TotalAmount) * 100, 1) : 0;
+                                    <tr>
+                                        <td class="fw-bold text-primary">@inv.InvoiceNumber</td>
+                                        <td>@inv.Date.ToString("yyyy-MM-dd")</td>
+                                        <td class="fw-bold">@inv.TotalAmount.ToString("N2") ج.م</td>
+                                        <td class="fw-bold text-success">@inv.PaidAmount.ToString("N2") ج.م</td>
+                                        <td class="fw-bold @(inv.RemainingAmount > 0 ? "text-danger" : "text-muted")">
+                                            @inv.RemainingAmount.ToString("N2") ج.م
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center justify-content-center gap-2">
+                                                <div class="progress w-75" style="height: 8px; border-radius: 4px;">
+                                                    <div class="progress-bar @(percentage == 100 ? "bg-success" : percentage > 0 ? "bg-warning" : "bg-danger")"
+                                                         role="progressbar" style="width: @(percentage)%;"></div>
+                                                </div>
+                                                <span class="small fw-bold">@(percentage)%</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if (inv.Status == "مدفوعة بالكامل")
+                                            {
+                                                <span class="badge bg-success py-2 px-3">@inv.Status</span>
+                                            }
+                                            else if (inv.Status == "مدفوعة جزئياً")
+                                            {
+                                                <span class="badge bg-warning text-dark py-2 px-3">@inv.Status</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger py-2 px-3">@inv.Status</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <a href="~/SalesInvoice/Print/@inv.InvoiceId" target="_blank" class="btn btn-sm btn-outline-primary" title="عرض/طباعة الفاتورة">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="8" class="py-4 text-muted">لا توجد فواتير مبيعات مسجلة لهذا العميل في الفترة المحددة</td>
+                                </tr>
+                            }
+                        </tbody>
+                        @if (Model.Invoices.Any())
+                        {
+                            <tfoot class="table-light fw-bold">
+                                <tr>
+                                    <td colspan="2" class="text-end">الإجمالي:</td>
+                                    <td>@Model.TotalInvoicesAmount.ToString("N2") ج.م</td>
+                                    <td class="text-success">@Model.TotalPaidAmount.ToString("N2") ج.م</td>
+                                    <td class="text-danger">@Model.TotalRemainingAmount.ToString("N2") ج.م</td>
+                                    <td colspan="3"></td>
+                                </tr>
+                            </tfoot>
+                        }
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Receipts History (سندات القبض) -->
+        <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center" style="border-bottom: 2px solid #f1f5f9;">
+                <h5 class="mb-0 fw-bold text-dark">
+                    <i class="fas fa-money-bill-wave text-success me-2"></i> سجل سندات القبض والدفعات المستلمة
+                </h5>
+                <span class="badge bg-light text-dark border">عدد السندات: @Model.Receipts.Count</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 text-center">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="py-3">رقم سند القبض</th>
+                                <th class="py-3">التاريخ</th>
+                                <th class="py-3">المبلغ المستلم</th>
+                                <th class="py-3">طريقة الدفع</th>
+                                <th class="py-3">المرتبط بفاتورة</th>
+                                <th class="py-3">البيان / المرجع</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Receipts.Any())
+                            {
+                                foreach (var rec in Model.Receipts)
+                                {
+                                    <tr>
+                                        <td class="fw-bold text-success">@rec.ReceiptNumber</td>
+                                        <td>@rec.Date.ToString("yyyy-MM-dd")</td>
+                                        <td class="fw-bold text-success">@rec.Amount.ToString("N2") ج.م</td>
+                                        <td><span class="badge bg-secondary">@rec.PaymentMethodName</span></td>
+                                        <td>
+                                            <span class="badge @(rec.LinkedInvoiceNumber == "دفعة عامة" ? "bg-light text-dark border" : "bg-info text-dark")">
+                                                @rec.LinkedInvoiceNumber
+                                            </span>
+                                        </td>
+                                        <td class="text-muted">@(string.IsNullOrEmpty(rec.Reference) ? "-" : rec.Reference)</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6" class="py-4 text-muted">لا توجد سندات قبض مسجلة لهذا العميل</td>
+                                </tr>
+                            }
+                        </tbody>
+                        @if (Model.Receipts.Any())
+                        {
+                            <tfoot class="table-light fw-bold">
+                                <tr>
+                                    <td colspan="2" class="text-end">إجمالي المقبوضات:</td>
+                                    <td class="text-success">@Model.Receipts.Sum(r => r.Amount).ToString("N2") ج.م</td>
+                                    <td colspan="3"></td>
+                                </tr>
+                            </tfoot>
+                        }
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center py-5 shadow-sm" style="border-radius: 12px;">
+            <i class="fas fa-info-circle fs-2 mb-2 d-block"></i>
+            <p class="mb-0 fs-5">يرجى اختيار عميل لعرض كشف الحساب وتفاصيل السداد</p>
+        </div>
+    }
+</div>
+
+<style>
+    @@media print {
+        .navbar, .sidebar, .report-header-bar, form, .btn {
+            display: none !important;
+        }
+        .report-container {
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .card {
+            box-shadow: none !important;
+            border: 1px solid #ddd !important;
+        }
+    }
+</style>

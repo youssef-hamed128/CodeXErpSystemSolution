@@ -34,7 +34,11 @@
             <tr>
               <td><div style="font-weight:600;color:var(--text-primary);">@item.Name</div></td>
               <td dir="ltr" style="text-align:right;">@item.Phone</td><td>@item.Address</td><td class="numeric" style="color:var(--danger);font-weight:700;">@item.Balance.ToString("N2")</td><td>@( (item.UpdatedAt.HasValue && item.UpdatedAt.Value.Year > 1) ? item.UpdatedAt.Value.ToString("yyyy-MM-dd") : (item.CreatedAt.Year > 1 ? item.CreatedAt.ToString("yyyy-MM-dd") : "-") )</td><td><span class="badge @(item.IsDeleted ? "badge-danger" : "badge-success")">@(item.IsDeleted ? "متوقف" : "نشط")</span></td>
-              <td class="table-actions"><button class="action-btn edit" onclick="openEditModal(@item.Id, '@item.Name', '@item.Phone', '', '@item.Address')"><i class="fas fa-edit"></i></button><button class="action-btn delete" onclick="deleteRecord(@item.Id)"><i class="fas fa-trash"></i></button></td>
+              <td class="table-actions">
+                <a class="action-btn view" href="~/Reports/SupplierStatement?supplierId=@item.Id" title="كشف حساب تفصيلي"><i class="fas fa-money-check-alt"></i></a>
+                <button class="action-btn edit" onclick="openEditModal(@item.Id, '@item.Name', '@item.Phone', '', '@item.Address')"><i class="fas fa-edit"></i></button>
+                <button class="action-btn delete" onclick="deleteRecord(@item.Id)"><i class="fas fa-trash"></i></button>
+              </td>
             </tr>
 }
           </tbody>

@@ -40,6 +40,7 @@
               <th data-sort="dueDate">تاريخ الاستحقاق <i class="fas fa-sort sort-icon"></i></th>
               <th data-sort="total">الإجمالي <i class="fas fa-sort sort-icon"></i></th>
               <th data-sort="paid">المدفوع <i class="fas fa-sort sort-icon"></i></th>
+              <th data-sort="remaining">المتبقي <i class="fas fa-sort sort-icon"></i></th>
               <th data-sort="status">الحالة <i class="fas fa-sort sort-icon"></i></th>
               <th class="center">الإجراءات</th>
             </tr>
@@ -56,18 +57,37 @@
                       <td>@item.Date.ToString("yyyy-MM-dd")</td>
                       <td>@item.DueDate.ToString("yyyy-MM-dd")</td>
                       <td class="numeric">@item.TotalAmount.ToString("N2")</td>
-                      <td class="numeric" style="color:var(--text-muted);">0.00</td>
+                      <td class="numeric">
+                          @if(item.PaidAmount > 0) {
+                              <span style="color:#28a745; font-weight:700;">@item.PaidAmount.ToString("N2")</span>
+                          } else {
+                              <span style="color:var(--text-muted);">0.00</span>
+                          }
+                      </td>
+                      <td class="numeric">
+                          @if (item.RemainingAmount > 0.01m)
+                          {
+                              <span style="color:#dc3545; font-weight:700;">@item.RemainingAmount.ToString("N2")</span>
+                          }
+                          else
+                          {
+                              <span style="color:#28a745; font-weight:600;">0.00</span>
+                          }
+                      </td>
                       <td id="statusTd_@item.Id">
-                          <div style="display: flex; align-items: center; gap: 8px;">
-                              @if(item.Status == CodeXErpSystem.DAL.Entites.Enums.InvoiceStatus.Paid) {
+                          <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                              @if(item.Status == CodeXErpSystem.DAL.Entites.Enums.InvoiceStatus.Paid || item.RemainingAmount <= 0.01m) {
                                   <span class="badge badge-success" style="background-color:#28a745; color:white;">مدفوعة</span>
-                              } else if (item.Status == CodeXErpSystem.DAL.Entites.Enums.InvoiceStatus.Partial) {
+                              } else if (item.Status == CodeXErpSystem.DAL.Entites.Enums.InvoiceStatus.Partial || (item.PaidAmount > 0.01m && item.RemainingAmount > 0.01m)) {
                                   <span class="badge badge-info" style="background-color:#17a2b8; color:white;">مدفوعة جزئياً</span>
                               } else {
                                   <span class="badge badge-warning" style="background-color:#ffc107; color:black;">غير مدفوعة</span>
                               }
-                              <button type="button" class="btn btn-sm btn-ghost p-1" onclick="openStatusModal(@item.Id, @((int)item.Status))" title="تعديل الحالة">
+                              <button type="button" class="btn btn-sm btn-ghost p-1" onclick="openStatusModal(@item.Id, @((int)item.Status), @item.PaidAmount, @item.TotalAmount)" title="تعديل الحالة أو المبلغ المدفوع">
                                   <i class="fas fa-edit" style="color: var(--primary);"></i>
+                              </button>
+                              <button type="button" class="btn btn-sm btn-ghost p-1" onclick="openPaymentModal(@item.Id, '@item.InvoiceNumber', @item.TotalAmount, @item.PaidAmount)" title="تسجيل/تعديل المبلغ المدفوع">
+                                  <i class="fas fa-hand-holding-usd" style="color: #28a745; font-size: 1.15em;"></i>
                               </button>
                           </div>
                       </td>
@@ -82,7 +102,8 @@
             <tr style="background: var(--bg-hover); font-weight: 700;">
               <td colspan="5" style="padding: var(--spacing-3) var(--spacing-4); text-align:right;">المجموع الكلي للصفحة</td>
               <td class="numeric" style="padding: var(--spacing-3) var(--spacing-4);">@(Model != null ? Model.Sum(x => x.TotalAmount).ToString("N2") : "0.00")</td>
-              <td class="numeric" style="padding: var(--spacing-3) var(--spacing-4); color:var(--success);">0.00</td>
+              <td class="numeric" style="padding: var(--spacing-3) var(--spacing-4); color:var(--success);">@(Model != null ? Model.Sum(x => x.Status == CodeXErpSystem.DAL.Entites.Enums.InvoiceStatus.Paid ? x.TotalAmount : x.PaidAmount).ToString("N2") : "0.00")</td>
+              <td class="numeric" style="padding: var(--spacing-3) var(--spacing-4); color:#dc3545;">@(Model != null ? Model.Sum(x => Math.Max(0, x.TotalAmount - (x.Status == CodeXErpSystem.DAL.Entites.Enums.InvoiceStatus.Paid ? x.TotalAmount : x.PaidAmount))).ToString("N2") : "0.00")</td>
               <td colspan="2"></td>
             </tr>
           </tfoot>
@@ -110,6 +131,13 @@
                         <option value="1">مدفوعة بالكامل</option>
                     </select>
                 </div>
+                <div class="form-group" id="partialAmountGroup" style="display:none; margin-top: 15px;">
+                    <label class="form-label" style="color:#17a2b8; font-weight:bold;">
+                        <i class="fas fa-coins me-1"></i> المبلغ المدفوع جزئياً (ج.م)
+                    </label>
+                    <input type="number" step="0.01" id="modalPaidAmountInput" class="form-control" placeholder="أدخل المبلغ المدفوع من الفاتورة" style="border: 2px solid #17a2b8; border-radius: 6px;" />
+                    <small class="text-muted d-block mt-1" id="modalTotalHint"></small>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="closeModal('statusModal')">إلغاء</button>
@@ -118,29 +146,162 @@
         </div>
     </div>
 
+    <!-- Payment Recording Modal -->
+    <div class="modal-overlay" id="paymentModal">
+        <div class="modal-content" style="max-width: 420px;">
+            <div class="modal-header" style="background-color: #f8f9fa;">
+                <h2><i class="fas fa-hand-holding-usd" style="color: #28a745;"></i> تسجيل الدفعة المستلمة</h2>
+                <button type="button" class="close-btn" onclick="closeModal('paymentModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body p-4">
+                <input type="hidden" id="payInvoiceId" />
+                <div class="mb-2 d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                    <span class="text-muted">رقم الفاتورة:</span>
+                    <strong id="payInvoiceNumber" class="text-primary fs-6"></strong>
+                </div>
+                <div class="mb-2 d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                    <span class="text-muted">إجمالي الفاتورة:</span>
+                    <strong id="payInvoiceTotal" class="text-dark fs-6"></strong>
+                </div>
+                <div class="mb-2 d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                    <span class="text-muted">المدفوع سابقاً:</span>
+                    <strong id="payInvoicePaid" class="text-success fs-6">0.00 ج.م</strong>
+                </div>
+                <div class="mb-3 d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                    <span class="text-muted">المتبقي الحالي:</span>
+                    <strong id="payInvoiceRemaining" class="text-danger fs-6">0.00 ج.م</strong>
+                </div>
+                <div class="form-group my-3">
+                    <label class="form-label fw-bold">مبلغ السداد الإضافي / الجديد (ج.م):</label>
+                    <input type="number" step="0.01" id="payAmountInput" class="form-control form-control-lg text-center fw-bold" style="border: 2px solid #28a745; font-size: 1.25rem; color: #28a745;" placeholder="0.00" oninput="updatePaymentPreview()" />
+                </div>
+                <div class="p-3 rounded" style="background-color: #e8f5e9; border: 1px solid #c8e6c9;">
+                    <div class="d-flex justify-content-between mb-1 small">
+                        <span class="text-muted">إجمالي المدفوع بعد الإضافة:</span>
+                        <strong id="previewNewPaid" class="text-success fw-bold">0.00 ج.م</strong>
+                    </div>
+                    <div class="d-flex justify-content-between small">
+                        <span class="text-muted">المتبقي بعد الإضافة:</span>
+                        <strong id="previewNewRemaining" class="text-danger fw-bold">0.00 ج.م</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('paymentModal')">إلغاء</button>
+                <button type="button" class="btn btn-success" onclick="savePayment()">
+                    <i class="fas fa-check me-1"></i> حفظ الدفعة
+                </button>
+            </div>
+        </div>
+    </div>
+
 @section Scripts {
     <script>
-        function openStatusModal(invoiceId, currentStatus) {
+        let currentInvoiceTotal = 0;
+
+        function openStatusModal(invoiceId, currentStatus, currentPaid, totalAmount) {
             document.getElementById('statusInvoiceId').value = invoiceId;
             document.getElementById('newStatusSelect').value = currentStatus;
+            currentInvoiceTotal = totalAmount || 0;
+            const input = document.getElementById('modalPaidAmountInput');
+            if (input) {
+                input.value = currentPaid || '';
+            }
+            togglePartialInput();
             openModal('statusModal');
+        }
+
+        document.getElementById('newStatusSelect').addEventListener('change', togglePartialInput);
+
+        function togglePartialInput() {
+            const statusVal = parseInt(document.getElementById('newStatusSelect').value);
+            const grp = document.getElementById('partialAmountGroup');
+            const hint = document.getElementById('modalTotalHint');
+            if (statusVal === 3) {
+                grp.style.display = 'block';
+                hint.innerText = 'إجمالي قيمة الفاتورة: ' + currentInvoiceTotal.toLocaleString() + ' ج.م';
+            } else {
+                grp.style.display = 'none';
+            }
         }
 
         function saveStatus() {
             const invoiceId = document.getElementById('statusInvoiceId').value;
             const newStatus = parseInt(document.getElementById('newStatusSelect').value);
+            let paidAmount = null;
+            if (newStatus === 3) {
+                paidAmount = parseFloat(document.getElementById('modalPaidAmountInput').value) || 0;
+            } else if (newStatus === 1) {
+                paidAmount = currentInvoiceTotal;
+            } else if (newStatus === 2) {
+                paidAmount = 0;
+            }
 
             $.ajax({
                 url: '/api/InvoiceApi/UpdateStatus',
                 type: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify({ invoiceId: invoiceId, newStatus: newStatus }),
+                data: JSON.stringify({ invoiceId: invoiceId, newStatus: newStatus, paidAmount: paidAmount }),
                 success: function(res) {
                     if (res.success) {
                         showToast(res.message, 'success');
                         closeModal('statusModal');
-                        // Reload page to reflect changes or update UI dynamically
-                        setTimeout(() => location.reload(), 1000);
+                        setTimeout(() => location.reload(), 800);
+                    } else {
+                        showToast(res.message || 'حدث خطأ', 'error');
+                    }
+                },
+                error: function(err) {
+                    showToast('حدث خطأ أثناء الاتصال بالخادم', 'error');
+                }
+            });
+        }
+
+        let currentInvoiceTotalVal = 0;
+        let currentInvoicePaidVal = 0;
+
+        function openPaymentModal(invoiceId, invoiceNumber, totalAmount, currentPaid) {
+            document.getElementById('payInvoiceId').value = invoiceId;
+            document.getElementById('payInvoiceNumber').innerText = invoiceNumber;
+            
+            currentInvoiceTotalVal = parseFloat(totalAmount) || 0;
+            currentInvoicePaidVal = parseFloat(currentPaid) || 0;
+
+            document.getElementById('payInvoiceTotal').innerText = currentInvoiceTotalVal.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' ج.م';
+            document.getElementById('payInvoicePaid').innerText = currentInvoicePaidVal.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' ج.م';
+            
+            let remaining = Math.max(0, currentInvoiceTotalVal - currentInvoicePaidVal);
+            document.getElementById('payInvoiceRemaining').innerText = remaining.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' ج.م';
+
+            document.getElementById('payAmountInput').value = '';
+            updatePaymentPreview();
+            openModal('paymentModal');
+        }
+
+        function updatePaymentPreview() {
+            const addedAmt = parseFloat(document.getElementById('payAmountInput').value) || 0;
+            const newPaid = currentInvoicePaidVal + addedAmt;
+            const newRemaining = Math.max(0, currentInvoiceTotalVal - newPaid);
+            
+            document.getElementById('previewNewPaid').innerText = newPaid.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' ج.م';
+            document.getElementById('previewNewRemaining').innerText = newRemaining.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' ج.م';
+        }
+
+        function savePayment() {
+            const invoiceId = document.getElementById('payInvoiceId').value;
+            const addedAmt = parseFloat(document.getElementById('payAmountInput').value) || 0;
+            const newPaid = currentInvoicePaidVal + addedAmt;
+
+            $.ajax({
+                url: '/api/InvoiceApi/RecordPayment',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ invoiceId: parseInt(invoiceId), paidAmount: newPaid }),
+                success: function(res) {
+                    if (res.success) {
+                        showToast(res.message, 'success');
+                        closeModal('paymentModal');
+                        setTimeout(() => location.reload(), 800);
                     } else {
                         showToast(res.message || 'حدث خطأ', 'error');
                     }

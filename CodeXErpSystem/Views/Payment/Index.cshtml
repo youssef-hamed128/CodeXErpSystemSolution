@@ -24,7 +24,7 @@
         </div>
         <div class="table-responsive">
           <table class="data-table">
-            <thead><tr><th>رقم السند</th><th>التاريخ</th><th>العميل</th><th>المبلغ</th><th>طريقة الدفع</th><th>المرجع</th><th>الحالة</th><th class="center">الإجراءات</th></tr></thead>
+            <thead><tr><th>رقم السند</th><th>التاريخ</th><th>العميل</th><th>المبلغ</th><th>طريقة الدفع</th><th>الوصف / الملاحظات</th><th>الحالة</th><th class="center">الإجراءات</th></tr></thead>
             <tbody>
 @foreach(var item in Model.Where(m => m.CustomerId != null || (m.SupplierId == null && m.Reference == null))) {
             <tr>
@@ -40,7 +40,11 @@
               </td>
               <td>@item.Reference</td>
               <td><span class="badge badge-success">مكتمل</span></td>
-              <td class="table-actions"><button class="action-btn edit" onclick="openEditModal(@item.Id, '@item.ReceiptNumber', '@item.Date.ToString("yyyy-MM-dd")', @item.Amount, '@item.PaymentMethod', '@(item.Reference ?? "")', @(item.CustomerId?.ToString() ?? "null"), @(item.SupplierId?.ToString() ?? "null"))"><i class="fas fa-edit"></i></button><button class="action-btn delete" onclick="deleteRecord(@item.Id)"><i class="fas fa-trash"></i></button></td>
+              <td class="table-actions">
+                <a href="/Payment/Print/@item.Id" target="_blank" class="action-btn view" title="طباعة السند" style="background:#e0e7ff; color:#4f46e5; display:inline-flex; align-items:center; justify-content:center; padding:6px; border-radius:6px; margin-left:4px;"><i class="fas fa-print"></i></a>
+                <button class="action-btn edit" onclick="openEditModal(@item.Id, '@item.ReceiptNumber', '@item.Date.ToString("yyyy-MM-dd")', @item.Amount, '@item.PaymentMethod', '@(item.Reference ?? "")', @(item.CustomerId?.ToString() ?? "null"), @(item.SupplierId?.ToString() ?? "null"))"><i class="fas fa-edit"></i></button>
+                <button class="action-btn delete" onclick="deleteRecord(@item.Id)"><i class="fas fa-trash"></i></button>
+              </td>
             </tr>
 }
             </tbody>
@@ -59,7 +63,7 @@
         </div>
         <div class="table-responsive">
           <table class="data-table">
-            <thead><tr><th>رقم السند</th><th>التاريخ</th><th>المورد</th><th>المبلغ</th><th>طريقة الدفع</th><th>رقم الفاتورة (المرجع)</th><th>الحالة</th><th class="center">الإجراءات</th></tr></thead>
+            <thead><tr><th>رقم السند</th><th>التاريخ</th><th>المورد</th><th>المبلغ</th><th>طريقة الدفع</th><th>الوصف / الملاحظات</th><th>الحالة</th><th class="center">الإجراءات</th></tr></thead>
             <tbody>
 @foreach(var item in Model.Where(m => m.SupplierId != null || (m.CustomerId == null && m.Reference != null))) {
             <tr>
@@ -75,7 +79,11 @@
               </td>
               <td>@item.Reference</td>
               <td><span class="badge badge-success">مكتمل</span></td>
-              <td class="table-actions"><button class="action-btn edit" onclick="openEditModal(@item.Id, '@item.ReceiptNumber', '@item.Date.ToString("yyyy-MM-dd")', @item.Amount, '@item.PaymentMethod', '@(item.Reference ?? "")', @(item.CustomerId?.ToString() ?? "null"), @(item.SupplierId?.ToString() ?? "null"))"><i class="fas fa-edit"></i></button><button class="action-btn delete" onclick="deleteRecord(@item.Id)"><i class="fas fa-trash"></i></button></td>
+              <td class="table-actions">
+                <a href="/Payment/Print/@item.Id" target="_blank" class="action-btn view" title="طباعة السند" style="background:#e0e7ff; color:#4f46e5; display:inline-flex; align-items:center; justify-content:center; padding:6px; border-radius:6px; margin-left:4px;"><i class="fas fa-print"></i></a>
+                <button class="action-btn edit" onclick="openEditModal(@item.Id, '@item.ReceiptNumber', '@item.Date.ToString("yyyy-MM-dd")', @item.Amount, '@item.PaymentMethod', '@(item.Reference ?? "")', @(item.CustomerId?.ToString() ?? "null"), @(item.SupplierId?.ToString() ?? "null"))"><i class="fas fa-edit"></i></button>
+                <button class="action-btn delete" onclick="deleteRecord(@item.Id)"><i class="fas fa-trash"></i></button>
+              </td>
             </tr>
 }
             </tbody>
@@ -116,7 +124,7 @@
               <option value="Check">شيك</option>
             </select>
           </div>
-          <div class="form-group" style="grid-column:span 2;"><label class="form-label">المرجع / ملاحظات</label><input type="text" class="form-control" name="Reference"></div>
+          <div class="form-group" style="grid-column:span 2;"><label class="form-label">الوصف / الملاحظات</label><input type="text" class="form-control" name="Reference" placeholder="أدخل وصف أو ملاحظات عن السند (اختياري)..."></div>
         </div>
       </div>
       <div class="modal-footer">

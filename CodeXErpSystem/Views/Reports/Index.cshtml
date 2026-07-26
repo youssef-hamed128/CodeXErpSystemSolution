@@ -10,11 +10,18 @@
       <button class="tab" data-tab="sales">تقارير المبيعات</button>
       <button class="tab" data-tab="inventory">تقارير المخزون</button>
       <button class="tab" data-tab="tax">التقارير الضريبية</button>
+      <button class="tab" data-tab="statements">كشوفات الحساب (عملاء وموردين)</button>
     </div>
 
     <!-- Financial Reports -->
     <div class="tab-panel active" id="financial">
       <div class="grid-3">
+        <div class="card" style="padding:var(--spacing-5); border-top: 4px solid #10b981;">
+          <div style="font-size:24px;color:#10b981;margin-bottom:var(--spacing-3);"><i class="fas fa-balance-scale-right"></i></div>
+          <h3 style="font-size:var(--fs-lg);font-weight:700;margin-bottom:var(--spacing-2);">تقرير أرصدة ومديونيات العملاء والموردين</h3>
+          <p style="font-size:var(--fs-sm);color:var(--text-secondary);margin-bottom:var(--spacing-4);">تقرير مجمع وشامل يعرض اسم كل عميل وعليه كام، واسم كل مورد وله كام، مع إجماليات المديونيات وحالة السداد.</p>
+          <button class="btn btn-success btn-sm" style="width:100%; font-weight:700;" onclick="window.location.href='@Url.Action("DebtsReport", "Reports")'"><i class="fas fa-file-alt me-1"></i> عرض تقرير المديونيات</button>
+        </div>
         <div class="card" style="padding:var(--spacing-5);">
           <div style="font-size:24px;color:var(--primary);margin-bottom:var(--spacing-3);"><i class="fas fa-balance-scale"></i></div>
           <h3 style="font-size:var(--fs-lg);font-weight:700;margin-bottom:var(--spacing-2);">الميزانية العمومية</h3>
@@ -80,6 +87,30 @@
           <h3 style="font-size:var(--fs-lg);font-weight:700;margin-bottom:var(--spacing-2);">إقرار ضريبة القيمة المضافة</h3>
           <p style="font-size:var(--fs-sm);color:var(--text-secondary);margin-bottom:var(--spacing-4);">  يشمل إقرار القيمة المضافة</p>
           <button class="btn btn-outline-primary btn-sm" style="width:100%;" onclick="window.location.href='@Url.Action("View", "Reports", new { id = "zatca_tax" })'">إنشاء الإقرار <i class="fas fa-arrow-left" style="margin-right:8px;"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statements Reports -->
+    <div class="tab-panel" id="statements">
+      <div class="grid-3">
+        <div class="card" style="padding:var(--spacing-5); border-top: 4px solid #10b981;">
+          <div style="font-size:24px;color:#10b981;margin-bottom:var(--spacing-3);"><i class="fas fa-balance-scale-right"></i></div>
+          <h3 style="font-size:var(--fs-lg);font-weight:700;margin-bottom:var(--spacing-2);">تقرير أرصدة ومديونيات العملاء والموردين</h3>
+          <p style="font-size:var(--fs-sm);color:var(--text-secondary);margin-bottom:var(--spacing-4);">تقرير مجمع وشامل يعرض اسم كل عميل وعليه كام، واسم كل مورد وله كام، مع إجماليات المديونيات وحالة السداد.</p>
+          <button class="btn btn-success btn-sm" style="width:100%; font-weight:700;" onclick="window.location.href='@Url.Action("DebtsReport", "Reports")'"><i class="fas fa-file-alt me-1"></i> عرض تقرير المديونيات</button>
+        </div>
+        <div class="card" style="padding:var(--spacing-5); border-top: 4px solid var(--primary);">
+          <div style="font-size:24px;color:var(--primary);margin-bottom:var(--spacing-3);"><i class="fas fa-user-tie"></i></div>
+          <h3 style="font-size:var(--fs-lg);font-weight:700;margin-bottom:var(--spacing-2);">كشف حساب عميل تفصيلي</h3>
+          <p style="font-size:var(--fs-sm);color:var(--text-secondary);margin-bottom:var(--spacing-4);">تقرير شامل ومفصل لكل عميل يعرض الفواتير، الدفعات الجزئية، المتبقي لكل فاتورة، وسندات القبض.</p>
+          <button class="btn btn-primary btn-sm" style="width:100%;" onclick="window.location.href='@Url.Action("CustomerStatement", "Reports")'"><i class="fas fa-file-invoice-dollar me-1"></i> عرض كشف حساب العميل</button>
+        </div>
+        <div class="card" style="padding:var(--spacing-5); border-top: 4px solid var(--danger);">
+          <div style="font-size:24px;color:var(--danger);margin-bottom:var(--spacing-3);"><i class="fas fa-truck"></i></div>
+          <h3 style="font-size:var(--fs-lg);font-weight:700;margin-bottom:var(--spacing-2);">كشف حساب مورد تفصيلي</h3>
+          <p style="font-size:var(--fs-sm);color:var(--text-secondary);margin-bottom:var(--spacing-4);">تقرير شامل ومفصل لكل مورد يعرض فواتير المشتريات، الدفعات الجزئية، المتبقي لكل فاتورة، وسندات الصرف.</p>
+          <button class="btn btn-danger btn-sm" style="width:100%;" onclick="window.location.href='@Url.Action("SupplierStatement", "Reports")'"><i class="fas fa-money-check-alt me-1"></i> عرض كشف حساب المورد</button>
         </div>
       </div>
     </div>

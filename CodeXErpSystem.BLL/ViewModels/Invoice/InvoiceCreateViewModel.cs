@@ -29,6 +29,8 @@ namespace CodeXErpSystem.BLL.ViewModels.Invoice
         public decimal DiscountAmount { get; set; }
         public decimal TaxPercentage { get; set; } = 15;
         public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.Cash;
+        public InvoiceStatus Status { get; set; } = InvoiceStatus.Unpaid;
+        public decimal PaidAmount { get; set; }
         public string? Notes { get; set; }
         public string? AttachmentUrl { get; set; }
         public List<InvoiceItemCreateViewModel> Items { get; set; } = new();

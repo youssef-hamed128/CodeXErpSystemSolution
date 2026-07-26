@@ -18,6 +18,9 @@ namespace CodeXErpSystem.DAL.Entites
         public decimal SubTotal { get; set; }
         public decimal TaxAmount { get; set; } = 0;
         public decimal TotalAmount { get; set; }
+        public decimal PaidAmount { get; set; } = 0;
+        [NotMapped]
+        public decimal RemainingAmount => TotalAmount - PaidAmount;
         public InvoiceStatus Status { get; set; }
         public string? Note { get; set; }
         public decimal DiscountAmount { get; set; } = 0;

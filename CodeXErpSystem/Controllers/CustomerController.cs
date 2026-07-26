@@ -15,7 +15,14 @@ namespace CodeXErpSystem.Controllers
             _customerService = customerService;
         }
 
-        public async Task<IActionResult> Index() { var model = await _customerService.GetAllAsync(); ViewBag.TotalCustomers = model.Count(); ViewBag.ActiveCustomers = model.Count(); ViewBag.TotalBalance = model.Sum(c => c.Balance); return View(model); }
+        public async Task<IActionResult> Index()
+        {
+            var model = (await _customerService.GetAllAsync()).ToList();
+            ViewBag.TotalCustomers = model.Count;
+            ViewBag.ActiveCustomers = model.Count(c => !c.IsDeleted);
+            ViewBag.TotalBalance = model.Sum(c => c.Balance);
+            return View(model);
+        }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromForm] CodeXErpSystem.BLL.ViewModels.Customers.CustomerViewModel model)

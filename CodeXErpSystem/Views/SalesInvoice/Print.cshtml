@@ -218,13 +218,21 @@
                 <span>الإجمالي الفرعي:</span>
                 <span>@Model.SubTotal.ToString("N2") ج.م</span>
             </div>
-            @if(Model.DiscountAmount > 0)
-            {
-                <div class="total-row" style="color:#ef4444;">
-                    <span>الخصم:</span>
-                    <span>- @Model.DiscountAmount.ToString("N2") ج.م</span>
-                </div>
-            }
+            <div class="total-row" style="color:@(Model.DiscountAmount > 0 ? "#ef4444" : "#64748b"); font-weight: 700;">
+                <span>
+                    الخصم
+                    @if (Model.DiscountPercentage > 0)
+                    {
+                        <span>(نسبة @Model.DiscountPercentage.ToString("G2")%)</span>
+                    }
+                    else if (Model.DiscountAmount > 0)
+                    {
+                        <span>(مبلغ ثابت)</span>
+                    }
+                    :
+                </span>
+                <span>@(Model.DiscountAmount > 0 ? "- " : "")@Model.DiscountAmount.ToString("N2") ج.م</span>
+            </div>
             <div class="total-row">
                 <span>إجمالي ضريبة القيمة المضافة:</span>
                 <span>@Model.TaxAmount.ToString("N2") ج.م</span>
@@ -232,6 +240,31 @@
             <div class="total-row grand-total">
                 <span>الإجمالي الكلي:</span>
                 <span>@Model.TotalAmount.ToString("N2") ج.م</span>
+            </div>
+            <div class="total-row" style="font-weight: 700; color: #16a34a; font-size: 16px;">
+                <span>المبلغ المدفوع:</span>
+                <span>@Model.PaidAmount.ToString("N2") ج.م</span>
+            </div>
+            <div class="total-row" style="font-weight: 800; color: #dc2626; font-size: 18px; border-top: 1px dashed #cbd5e1; padding-top: 8px;">
+                <span>المتبقي (غير المسدد):</span>
+                <span>@Math.Max(0, Model.TotalAmount - Model.PaidAmount).ToString("N2") ج.م</span>
+            </div>
+            <div class="total-row" style="margin-top: 10px;">
+                <span>حالة الفاتورة:</span>
+                <span>
+                    @if (Model.Status == CodeXErpSystem.DAL.Entites.Enums.InvoiceStatus.Paid)
+                    {
+                        <strong style="color: #16a34a;">مدفوعة بالكامل</strong>
+                    }
+                    else if (Model.Status == CodeXErpSystem.DAL.Entites.Enums.InvoiceStatus.Partial)
+                    {
+                        <strong style="color: #d97706;">مدفوعة جزئياً</strong>
+                    }
+                    else
+                    {
+                        <strong style="color: #dc2626;">غير مدفوعة</strong>
+                    }
+                </span>
             </div>
         </div>
 

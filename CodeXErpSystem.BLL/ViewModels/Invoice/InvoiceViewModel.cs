@@ -35,6 +35,13 @@ namespace CodeXErpSystem.BLL.ViewModels.Invoice
 
         public decimal TaxAmount { get; set; }
         public decimal TotalAmount { get; set; }
+        private decimal _paidAmount;
+        public decimal PaidAmount 
+        { 
+            get => Status == InvoiceStatus.Paid && _paidAmount == 0 ? TotalAmount : _paidAmount;
+            set => _paidAmount = value;
+        }
+        public decimal RemainingAmount => Math.Max(0, TotalAmount - PaidAmount);
         public InvoiceStatus Status { get; set; }
         public string StatusDisplay => Status switch
         {

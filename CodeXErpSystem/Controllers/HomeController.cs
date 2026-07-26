@@ -33,15 +33,13 @@ namespace CodeXErpSystem.Controllers
             ViewBag.SalesCount     = salesInvoices.Count;
             ViewBag.PurchaseCount  = purchaseInvoices.Count;
 
-            // ذمم مدينة = فواتير مبيعات غير مدفوعة
+            // ذمم مدينة = المتبقي من إجمالي فواتير البيع
             ViewBag.TotalReceivable = salesInvoices
-                .Where(i => i.Status != InvoiceStatus.Paid)
-                .Sum(i => i.TotalAmount);
+                .Sum(i => Math.Max(0, i.TotalAmount - i.PaidAmount));
 
-            // ذمم دائنة = فواتير مشتريات غير مدفوعة
+            // ذمم دائنة = المتبقي من إجمالي فواتير المشتريات
             ViewBag.TotalPayable = purchaseInvoices
-                .Where(i => i.Status != InvoiceStatus.Paid)
-                .Sum(i => i.TotalAmount);
+                .Sum(i => Math.Max(0, i.TotalAmount - i.PaidAmount));
 
             // أحدث 8 عمليات
             var recent = allInvoices

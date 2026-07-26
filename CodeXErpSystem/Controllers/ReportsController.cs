@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using CodeXErpSystem.DAL.Repository.Inetrfaces;
 using CodeXErpSystem.BLL.ViewModels.Reports;
@@ -334,15 +334,309 @@ namespace CodeXErpSystem.Controllers
             return View(model);
         }
 
+        public async Task<IActionResult> CustomerStatement(int? customerId, DateTime? startDate, DateTime? endDate)
+        {
+            var customers = await _unitOfWork.GetRepository<Customer>().FindAsync(c => !c.IsDeleted);
+            ViewBag.Customers = customers.OrderBy(c => c.Name).Select(c => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = c.Name,
+                Selected = customerId.HasValue && c.Id == customerId.Value
+            }).ToList();
+
+            var model = new CustomerStatementViewModel
+            {
+                StartDate = startDate,
+                EndDate = endDate
+            };
+
+            if (!customerId.HasValue || customerId.Value <= 0)
+                return View(model);
+
+            var selectedCustomerId = customerId.Value;
+
+            var customer = await _unitOfWork.GetRepository<Customer>().GetById(selectedCustomerId);
+            if (customer == null)
+                return View(model);
+
+            model.CustomerId = customer.Id;
+            model.CustomerName = customer.Name;
+            model.Phone = customer.Phone;
+            model.Address = customer.Address;
+            model.TaxNumber = customer.TaxNumber;
+            model.CustomerCurrentBalance = customer.Balance ?? 0;
+
+            var invoices = await _unitOfWork.GetRepository<Invoice>().FindAsync(
+                i => i.CustomerId == selectedCustomerId && i.Type == CodeXErpSystem.DAL.Entites.Enums.InvoiceType.Sales,
+                includeProperties: "Payments");
+
+            if (startDate.HasValue)
+                invoices = invoices.Where(i => i.Date >= startDate.Value);
+            if (endDate.HasValue)
+                invoices = invoices.Where(i => i.Date <= endDate.Value);
+
+            foreach (var inv in invoices.OrderBy(i => i.Date))
+            {
+                decimal paid = 0;
+                if (inv.Status == CodeXErpSystem.DAL.Entites.Enums.InvoiceStatus.Paid || inv.PaidAmount >= inv.TotalAmount - 0.01m)
+                {
+                    paid = inv.TotalAmount;
+                }
+                else if (inv.PaidAmount > 0)
+                {
+                    paid = inv.PaidAmount;
+                }
+                else if (inv.Payments != null && inv.Payments.Any())
+                {
+                    paid = inv.Payments.Sum(p => p.Amount);
+                }
+
+                var rem = inv.TotalAmount - paid;
+                string statusText = "غير مسدد";
+                if (rem <= 0.01m) statusText = "مدفوع بالكامل";
+                else if (paid > 0.01m) statusText = "سداد جزئي";
+
+                model.Invoices.Add(new StatementInvoiceItem
+                {
+                    InvoiceId = inv.Id,
+                    InvoiceNumber = inv.InvoiceNumber,
+                    Date = inv.Date,
+                    TotalAmount = inv.TotalAmount,
+                    PaidAmount = paid,
+                    RemainingAmount = rem > 0 ? rem : 0,
+                    Status = statusText,
+                    Note = inv.Note
+                });
+            }
+
+            var receipts = await _unitOfWork.GetRepository<Payment>().FindAsync(
+                p => p.CustomerId == selectedCustomerId,
+                includeProperties: "Invoice");
+
+            if (startDate.HasValue)
+                receipts = receipts.Where(p => p.Date >= startDate.Value);
+            if (endDate.HasValue)
+                receipts = receipts.Where(p => p.Date <= endDate.Value);
+
+            foreach (var rec in receipts.OrderBy(r => r.Date))
+            {
+                string methodText = rec.PaymentMethod == CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.Cash ? "نقدي" :
+                                    rec.PaymentMethod == CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.BankTransfer ? "تحويل بنكي" :
+                                    rec.PaymentMethod == CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.Check ? "شيك" : "أخرى";
+
+                model.Receipts.Add(new StatementPaymentItem
+                {
+                    PaymentId = rec.Id,
+                    ReceiptNumber = rec.ReceiptNumber,
+                    Date = rec.Date,
+                    Amount = rec.Amount,
+                    PaymentMethodName = methodText,
+                    LinkedInvoiceNumber = rec.Invoice != null ? rec.Invoice.InvoiceNumber : "دفعة عامة",
+                    Reference = rec.Reference
+                });
+            }
+
+            model.TotalInvoicesAmount = model.Invoices.Sum(i => i.TotalAmount);
+            model.TotalPaidAmount = model.Invoices.Sum(i => i.PaidAmount);
+            model.TotalRemainingAmount = model.Invoices.Sum(i => i.RemainingAmount);
+
+            return View(model);
+        }
+
+        public async Task<IActionResult> SupplierStatement(int? supplierId, DateTime? startDate, DateTime? endDate)
+        {
+            var suppliers = await _unitOfWork.GetRepository<Supplier>().FindAsync(s => !s.IsDeleted);
+            ViewBag.Suppliers = suppliers.OrderBy(s => s.Name).Select(s => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+            {
+                Value = s.Id.ToString(),
+                Text = s.Name,
+                Selected = supplierId.HasValue && s.Id == supplierId.Value
+            }).ToList();
+
+            var model = new SupplierStatementViewModel
+            {
+                StartDate = startDate,
+                EndDate = endDate
+            };
+
+            if (!supplierId.HasValue || supplierId.Value <= 0)
+                return View(model);
+
+            var selectedSupplierId = supplierId.Value;
+
+            var supplier = await _unitOfWork.GetRepository<Supplier>().GetById(selectedSupplierId);
+            if (supplier == null)
+                return View(model);
+
+            model.SupplierId = supplier.Id;
+            model.SupplierName = supplier.Name;
+            model.Phone = supplier.Phone;
+            model.Address = supplier.Address;
+            model.TaxNumber = supplier.TaxNumber;
+            model.SupplierCurrentBalance = supplier.Balance ?? 0;
+
+            var invoices = await _unitOfWork.GetRepository<Invoice>().FindAsync(
+                i => i.SupplierId == selectedSupplierId && i.Type == CodeXErpSystem.DAL.Entites.Enums.InvoiceType.Purchase,
+                includeProperties: "Payments");
+
+            if (startDate.HasValue)
+                invoices = invoices.Where(i => i.Date >= startDate.Value);
+            if (endDate.HasValue)
+                invoices = invoices.Where(i => i.Date <= endDate.Value);
+
+            foreach (var inv in invoices.OrderBy(i => i.Date))
+            {
+                decimal paid = 0;
+                if (inv.Status == CodeXErpSystem.DAL.Entites.Enums.InvoiceStatus.Paid || inv.PaidAmount >= inv.TotalAmount - 0.01m)
+                {
+                    paid = inv.TotalAmount;
+                }
+                else if (inv.PaidAmount > 0)
+                {
+                    paid = inv.PaidAmount;
+                }
+                else if (inv.Payments != null && inv.Payments.Any())
+                {
+                    paid = inv.Payments.Sum(p => p.Amount);
+                }
+
+                var rem = inv.TotalAmount - paid;
+                string statusText = "غير مسدد";
+                if (rem <= 0.01m) statusText = "مدفوع بالكامل";
+                else if (paid > 0.01m) statusText = "سداد جزئي";
+
+                model.Invoices.Add(new StatementInvoiceItem
+                {
+                    InvoiceId = inv.Id,
+                    InvoiceNumber = inv.InvoiceNumber,
+                    Date = inv.Date,
+                    TotalAmount = inv.TotalAmount,
+                    PaidAmount = paid,
+                    RemainingAmount = rem > 0 ? rem : 0,
+                    Status = statusText,
+                    Note = inv.Note
+                });
+            }
+
+            var payments = await _unitOfWork.GetRepository<Payment>().FindAsync(
+                p => p.SupplierId == selectedSupplierId,
+                includeProperties: "Invoice");
+
+            if (startDate.HasValue)
+                payments = payments.Where(p => p.Date >= startDate.Value);
+            if (endDate.HasValue)
+                payments = payments.Where(p => p.Date <= endDate.Value);
+
+            foreach (var pay in payments.OrderBy(p => p.Date))
+            {
+                string methodText = pay.PaymentMethod == CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.Cash ? "نقدي" :
+                                    pay.PaymentMethod == CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.BankTransfer ? "تحويل بنكي" :
+                                    pay.PaymentMethod == CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.Check ? "شيك" : "أخرى";
+
+                model.Payments.Add(new StatementPaymentItem
+                {
+                    PaymentId = pay.Id,
+                    ReceiptNumber = pay.ReceiptNumber,
+                    Date = pay.Date,
+                    Amount = pay.Amount,
+                    PaymentMethodName = methodText,
+                    LinkedInvoiceNumber = pay.Invoice != null ? pay.Invoice.InvoiceNumber : "دفعة عامة",
+                    Reference = pay.Reference
+                });
+            }
+
+            model.TotalInvoicesAmount = model.Invoices.Sum(i => i.TotalAmount);
+            model.TotalPaidAmount = model.Invoices.Sum(i => i.PaidAmount);
+            model.TotalRemainingAmount = model.Invoices.Sum(i => i.RemainingAmount);
+
+            return View(model);
+        }
+
+        public async Task<IActionResult> DebtsReport()
+        {
+            var customers = await _unitOfWork.GetRepository<Customer>().FindAsync(includeProperties: "Invoices,Payments");
+            var suppliers = await _unitOfWork.GetRepository<Supplier>().FindAsync(includeProperties: "Invoices,Payments");
+
+            var model = new DebtsReportViewModel();
+
+            foreach (var cust in customers)
+            {
+                var validInvoices = cust.Invoices.Where(i => i.Type == CodeXErpSystem.DAL.Entites.Enums.InvoiceType.Sales).ToList();
+                decimal totalInv = validInvoices.Sum(i => i.TotalAmount);
+                decimal totalPaid = validInvoices.Sum(i => i.PaidAmount);
+                decimal rem = totalInv - totalPaid;
+
+                if (cust.Balance != rem)
+                {
+                    cust.Balance = rem;
+                    _unitOfWork.GetRepository<Customer>().Update(cust);
+                }
+
+                string status = "خالص (بدون مديونية)";
+                if (rem > 0.01m) status = "مدين لنا";
+                else if (rem < -0.01m) status = "رصيد دائن للعميل";
+
+                model.Customers.Add(new CustomerDebtItem
+                {
+                    CustomerId = cust.Id,
+                    CustomerName = cust.Name,
+                    Phone = cust.Phone,
+                    TotalInvoices = totalInv,
+                    TotalPaid = totalPaid,
+                    RemainingBalance = rem,
+                    Status = status
+                });
+            }
+
+            foreach (var sup in suppliers)
+            {
+                var validInvoices = sup.Invoices.Where(i => i.Type == CodeXErpSystem.DAL.Entites.Enums.InvoiceType.Purchase).ToList();
+                decimal totalInv = validInvoices.Sum(i => i.TotalAmount);
+                decimal totalPaid = validInvoices.Sum(i => i.PaidAmount);
+                decimal rem = totalInv - totalPaid;
+
+                if (sup.Balance != rem)
+                {
+                    sup.Balance = rem;
+                    _unitOfWork.GetRepository<Supplier>().Update(sup);
+                }
+
+                string status = "خالص (بدون مستحقات)";
+                if (rem > 0.01m) status = "مستحق له (دائن)";
+                else if (rem < -0.01m) status = "رصيد مدين للمورد";
+
+                model.Suppliers.Add(new SupplierDebtItem
+                {
+                    SupplierId = sup.Id,
+                    SupplierName = sup.Name,
+                    Phone = sup.Phone,
+                    TotalInvoices = totalInv,
+                    TotalPaid = totalPaid,
+                    RemainingBalance = rem,
+                    Status = status
+                });
+            }
+
+            await _unitOfWork.CompleteAsync();
+
+            model.TotalCustomerDebts = model.Customers.Where(c => c.RemainingBalance > 0).Sum(c => c.RemainingBalance);
+            model.TotalSupplierPayables = model.Suppliers.Where(s => s.RemainingBalance > 0).Sum(s => s.RemainingBalance);
+
+            return View(model);
+        }
+
         [ActionName("View")]
         public IActionResult ReportView(string id)
         {
+            if (id == "debts_report") return RedirectToAction("DebtsReport");
             if (id == "income_statement") return RedirectToAction("IncomeStatement");
             if (id == "trial_balance") return RedirectToAction("TrialBalance");
             if (id == "low_stock") return RedirectToAction("LowStock");
             if (id == "sales_by_customer") return RedirectToAction("SalesByCustomer");
             if (id == "sales_by_product") return RedirectToAction("SalesByProduct");
             if (id == "zatca_tax") return RedirectToAction("ZatcaTax");
+            if (id == "customer_statement") return RedirectToAction("CustomerStatement");
+            if (id == "supplier_statement") return RedirectToAction("SupplierStatement");
 
             return View("View");
         }

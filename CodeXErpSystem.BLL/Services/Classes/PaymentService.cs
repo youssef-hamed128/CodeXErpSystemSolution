@@ -5,7 +5,8 @@ using CodeXErpSystem.DAL.Repository.Inetrfaces;
 using AutoMapper;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using System;
+using CodeXErpSystem.DAL.Entites.Enums;
 using CodeXErpSystem.BLL.ViewModels.Payments;
 
 namespace CodeXErpSystem.BLL.Services.Classes
@@ -27,6 +28,13 @@ namespace CodeXErpSystem.BLL.Services.Classes
             return _mapper.Map<IEnumerable<PaymentViewModel>>(entities);
         }
 
+        public async Task<PaymentViewModel?> GetByIdAsync(int id)
+        {
+            var entities = await _unitOfWork.GetRepository<Payment>().FindAsync(p => p.Id == id, includeProperties: "Customer,Supplier,Invoice");
+            var entity = entities.FirstOrDefault();
+            return _mapper.Map<PaymentViewModel?>(entity);
+        }
+
         public async Task CreateAsync(PaymentViewModel model)
         {
             var entity = _mapper.Map<Payment>(model);
@@ -40,7 +48,7 @@ namespace CodeXErpSystem.BLL.Services.Classes
             var maxNumber = existingPayments.Any() ? existingPayments.Max(p => int.TryParse(p.ReceiptNumber, out int n) ? n : 0) : 1000;
             entity.ReceiptNumber = (maxNumber + 1).ToString();
 
-            // Adjust Balance
+            // Adjust Balance and Allocate Payment to Invoices
             if (entity.CustomerId.HasValue)
             {
                 var customer = await _unitOfWork.GetRepository<Customer>().GetById(entity.CustomerId.Value);
@@ -48,6 +56,26 @@ namespace CodeXErpSystem.BLL.Services.Classes
                 {
                     customer.Balance = (customer.Balance ?? 0) - entity.Amount;
                     _unitOfWork.GetRepository<Customer>().Update(customer);
+                }
+
+                var invoices = (await _unitOfWork.GetRepository<Invoice>().FindAsync(i => i.CustomerId == entity.CustomerId.Value && i.Status != InvoiceStatus.Paid)).ToList();
+                var targetInvoices = invoices.Where(i => !string.IsNullOrEmpty(entity.Reference) && entity.Reference.Contains(i.InvoiceNumber)).ToList();
+                if (!targetInvoices.Any()) targetInvoices = invoices.OrderBy(i => i.Date).ToList();
+
+                decimal rem = entity.Amount;
+                foreach (var inv in targetInvoices)
+                {
+                    if (rem <= 0) break;
+                    decimal invRem = inv.TotalAmount - inv.PaidAmount;
+                    if (invRem > 0)
+                    {
+                        decimal pay = Math.Min(rem, invRem);
+                        inv.PaidAmount += pay;
+                        rem -= pay;
+                        if (inv.PaidAmount >= inv.TotalAmount - 0.01m) inv.Status = InvoiceStatus.Paid;
+                        else if (inv.PaidAmount > 0.01m) inv.Status = InvoiceStatus.Partial;
+                        _unitOfWork.GetRepository<Invoice>().Update(inv);
+                    }
                 }
             }
             else if (entity.SupplierId.HasValue)
@@ -57,6 +85,26 @@ namespace CodeXErpSystem.BLL.Services.Classes
                 {
                     supplier.Balance = (supplier.Balance ?? 0) + entity.Amount;
                     _unitOfWork.GetRepository<Supplier>().Update(supplier);
+                }
+
+                var invoices = (await _unitOfWork.GetRepository<Invoice>().FindAsync(i => i.SupplierId == entity.SupplierId.Value && i.Status != InvoiceStatus.Paid)).ToList();
+                var targetInvoices = invoices.Where(i => !string.IsNullOrEmpty(entity.Reference) && entity.Reference.Contains(i.InvoiceNumber)).ToList();
+                if (!targetInvoices.Any()) targetInvoices = invoices.OrderBy(i => i.Date).ToList();
+
+                decimal rem = entity.Amount;
+                foreach (var inv in targetInvoices)
+                {
+                    if (rem <= 0) break;
+                    decimal invRem = inv.TotalAmount - inv.PaidAmount;
+                    if (invRem > 0)
+                    {
+                        decimal pay = Math.Min(rem, invRem);
+                        inv.PaidAmount += pay;
+                        rem -= pay;
+                        if (inv.PaidAmount >= inv.TotalAmount - 0.01m) inv.Status = InvoiceStatus.Paid;
+                        else if (inv.PaidAmount > 0.01m) inv.Status = InvoiceStatus.Partial;
+                        _unitOfWork.GetRepository<Invoice>().Update(inv);
+                    }
                 }
             }
 
@@ -148,6 +196,19 @@ namespace CodeXErpSystem.BLL.Services.Classes
                         customer.Balance = (customer.Balance ?? 0) + existingPayment.Amount;
                         _unitOfWork.GetRepository<Customer>().Update(customer);
                     }
+
+                    var invoices = (await _unitOfWork.GetRepository<Invoice>().FindAsync(i => i.CustomerId == existingPayment.CustomerId.Value && i.PaidAmount > 0)).OrderByDescending(i => i.Date).ToList();
+                    decimal remToRevert = existingPayment.Amount;
+                    foreach (var inv in invoices)
+                    {
+                        if (remToRevert <= 0) break;
+                        decimal revert = Math.Min(remToRevert, inv.PaidAmount);
+                        inv.PaidAmount -= revert;
+                        remToRevert -= revert;
+                        if (inv.PaidAmount <= 0.01m) inv.Status = InvoiceStatus.Unpaid;
+                        else inv.Status = InvoiceStatus.Partial;
+                        _unitOfWork.GetRepository<Invoice>().Update(inv);
+                    }
                 }
                 else if (existingPayment.SupplierId.HasValue)
                 {
@@ -156,6 +217,19 @@ namespace CodeXErpSystem.BLL.Services.Classes
                     {
                         supplier.Balance = (supplier.Balance ?? 0) - existingPayment.Amount; // Revert by subtracting the old amount
                         _unitOfWork.GetRepository<Supplier>().Update(supplier);
+                    }
+
+                    var invoices = (await _unitOfWork.GetRepository<Invoice>().FindAsync(i => i.SupplierId == existingPayment.SupplierId.Value && i.PaidAmount > 0)).OrderByDescending(i => i.Date).ToList();
+                    decimal remToRevert = existingPayment.Amount;
+                    foreach (var inv in invoices)
+                    {
+                        if (remToRevert <= 0) break;
+                        decimal revert = Math.Min(remToRevert, inv.PaidAmount);
+                        inv.PaidAmount -= revert;
+                        remToRevert -= revert;
+                        if (inv.PaidAmount <= 0.01m) inv.Status = InvoiceStatus.Unpaid;
+                        else inv.Status = InvoiceStatus.Partial;
+                        _unitOfWork.GetRepository<Invoice>().Update(inv);
                     }
                 }
                 _unitOfWork.GetRepository<Payment>().Delete(id);
