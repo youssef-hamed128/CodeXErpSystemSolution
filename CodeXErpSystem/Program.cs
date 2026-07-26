@@ -53,6 +53,40 @@ namespace CodeXErpSystem
 
             var app = builder.Build();
 
+            // Ensure Default Cash Customer ("نقدي") exists
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<CodeXDbContext>();
+                try
+                {
+                    dbContext.Database.ExecuteSqlRaw(@"
+                        IF NOT EXISTS (SELECT * FROM sys.columns WHERE Name = N'PaymentMethod' AND Object_ID = Object_ID(N'Invoices'))
+                        BEGIN
+                            ALTER TABLE [Invoices] ADD [PaymentMethod] INT NOT NULL DEFAULT 1;
+                        END
+                        IF NOT EXISTS (SELECT * FROM sys.columns WHERE Name = N'PaidAmount' AND Object_ID = Object_ID(N'Invoices'))
+                        BEGIN
+                            ALTER TABLE [Invoices] ADD [PaidAmount] DECIMAL(18,2) NOT NULL DEFAULT 0;
+                        END
+                    ");
+                }
+                catch { }
+
+                if (!dbContext.Customers.Any(c => c.Name == "نقدي"))
+                {
+                    dbContext.Customers.Add(new CodeXErpSystem.DAL.Entites.Customer
+                    {
+                        Name = "نقدي",
+                        Phone = "0000000000",
+                        Address = "عميل نقدي افتراضي",
+                        Balance = 0,
+                        CreditLimit = 0,
+                        IsDeleted = false
+                    });
+                    dbContext.SaveChanges();
+                }
+            }
+
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {

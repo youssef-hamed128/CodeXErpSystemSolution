@@ -83,8 +83,16 @@ namespace CodeXErpSystem.BLL.Services.Classes
                 }
                 invoice.TaxAmount = invoice.Items.Sum(i => i.TaxAmount);
                 invoice.TotalAmount = (invoice.SubTotal - invoice.DiscountAmount) + invoice.TaxAmount;
+                invoice.PaymentMethod = model.PaymentMethod;
 
-                if (invoice.Status == InvoiceStatus.Paid || (invoice.PaidAmount >= invoice.TotalAmount && invoice.TotalAmount > 0))
+                if (model.PaymentMethod == PaymentMethod.BalanceDeduction)
+                {
+                    decimal deductAmt = (model.PaidAmount > 0) ? model.PaidAmount : invoice.TotalAmount;
+                    if (deductAmt > invoice.TotalAmount) deductAmt = invoice.TotalAmount;
+                    invoice.PaidAmount = deductAmt;
+                    invoice.Status = (deductAmt >= invoice.TotalAmount - 0.01m) ? InvoiceStatus.Paid : (deductAmt > 0 ? InvoiceStatus.Partial : InvoiceStatus.Unpaid);
+                }
+                else if (invoice.Status == InvoiceStatus.Paid || (invoice.PaidAmount >= invoice.TotalAmount && invoice.TotalAmount > 0))
                 {
                     invoice.Status = InvoiceStatus.Paid;
                     invoice.PaidAmount = invoice.TotalAmount;
@@ -102,7 +110,7 @@ namespace CodeXErpSystem.BLL.Services.Classes
                 unitOfWork.GetRepository<Invoice>().Add(invoice);
 
                 // إنشاء سند فقط للفواتير المدفوعة جزئياً
-                if (invoice.Status == InvoiceStatus.Partial && invoice.PaidAmount > 0)
+                if (invoice.Status == InvoiceStatus.Partial && invoice.PaidAmount > 0 && model.PaymentMethod != PaymentMethod.BalanceDeduction)
                 {
                     var existingPayments = await unitOfWork.GetRepository<Payment>().GetAll(false);
                     var maxNumber = existingPayments.Any() ? existingPayments.Max(p => int.TryParse(p.ReceiptNumber, out int n) ? n : 0) : 1000;
@@ -161,9 +169,17 @@ namespace CodeXErpSystem.BLL.Services.Classes
                     var customer = await unitOfWork.GetRepository<Customer>().GetById(model.CustomerId.Value,ct);
                     if (customer != null)
                     {
-                        decimal remAmount = invoice.TotalAmount - invoice.PaidAmount;
-                        if (model.Type == InvoiceType.Sales) customer.Balance += remAmount;
-                        else if (model.Type == InvoiceType.SalesReturn) customer.Balance -= remAmount;
+                        if (model.PaymentMethod == PaymentMethod.BalanceDeduction)
+                        {
+                            if (model.Type == InvoiceType.Sales) customer.Balance = (customer.Balance ?? 0) + invoice.TotalAmount;
+                            else if (model.Type == InvoiceType.SalesReturn) customer.Balance = (customer.Balance ?? 0) - invoice.TotalAmount;
+                        }
+                        else
+                        {
+                            decimal remAmount = invoice.TotalAmount - invoice.PaidAmount;
+                            if (model.Type == InvoiceType.Sales) customer.Balance = (customer.Balance ?? 0) + remAmount;
+                            else if (model.Type == InvoiceType.SalesReturn) customer.Balance = (customer.Balance ?? 0) - remAmount;
+                        }
                         unitOfWork.GetRepository<Customer>().Update(customer);
                     }
                 }
@@ -172,13 +188,46 @@ namespace CodeXErpSystem.BLL.Services.Classes
                     var supplier = await unitOfWork.GetRepository<Supplier>().GetById(model.SupplierId.Value, ct);
                     if (supplier != null)
                     {
-                        decimal remAmount = invoice.TotalAmount - invoice.PaidAmount;
-                        if(model.Type == InvoiceType.Purchase) supplier.Balance += remAmount;
-                        else if (model.Type == InvoiceType.PurchaseReturn) supplier.Balance -= remAmount;
+                        if (model.PaymentMethod == PaymentMethod.BalanceDeduction)
+                        {
+                            if (model.Type == InvoiceType.Purchase) supplier.Balance = (supplier.Balance ?? 0) + invoice.TotalAmount;
+                            else if (model.Type == InvoiceType.PurchaseReturn) supplier.Balance = (supplier.Balance ?? 0) - invoice.TotalAmount;
+                        }
+                        else
+                        {
+                            decimal remAmount = invoice.TotalAmount - invoice.PaidAmount;
+                            if (model.Type == InvoiceType.Purchase) supplier.Balance = (supplier.Balance ?? 0) + remAmount;
+                            else if (model.Type == InvoiceType.PurchaseReturn) supplier.Balance = (supplier.Balance ?? 0) - remAmount;
+                        }
                         unitOfWork.GetRepository<Supplier>().Update(supplier);
                     }
                 }
+
                 await unitOfWork.CompleteAsync(ct);
+
+                // إنشاء سند في جدول السندات فقط في حالة السداد الجزئي (مدفوعة جزئياً) بعد حفظ الفاتورة لضمان وجود InvoiceId
+                if (invoice.PaidAmount > 0.01m && invoice.PaidAmount < invoice.TotalAmount - 0.01m)
+                {
+                    var allPayments = await unitOfWork.GetRepository<Payment>().GetAll(false, ct);
+                    var maxNumber = allPayments.Any() ? allPayments.Max(p => int.TryParse(p.ReceiptNumber, out int n) ? n : 0) : 1000;
+                    string nextReceiptNum = (maxNumber + 1).ToString();
+
+                    var partialPaymentReceipt = new Payment
+                    {
+                        ReceiptNumber = nextReceiptNum,
+                        Date = DateTime.Now,
+                        Amount = invoice.PaidAmount,
+                        PaymentMethod = CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.Cash,
+                        Reference = $"سداد جزئي عند إنشاء فاتورة رقم {invoice.InvoiceNumber}",
+                        InvoiceId = invoice.Id,
+                        CustomerId = invoice.CustomerId,
+                        SupplierId = invoice.SupplierId,
+                        CreatedBy = userId
+                    };
+                    unitOfWork.GetRepository<Payment>().Add(partialPaymentReceipt);
+                    await unitOfWork.CompleteAsync(ct);
+                }
+
                 await unitOfWork.CommitTransactionAsync(ct);
                 return mapper.Map<InvoiceViewModel>(invoice);
                 

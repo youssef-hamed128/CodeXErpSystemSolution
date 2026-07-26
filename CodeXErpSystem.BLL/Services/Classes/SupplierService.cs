@@ -22,12 +22,14 @@ namespace CodeXErpSystem.BLL.Services.Classes
 
         public async Task<IEnumerable<CodeXErpSystem.BLL.ViewModels.Suppliers.SupplierViewModel>> GetAllAsync()
         {
-            var entities = await _unitOfWork.GetRepository<Supplier>().FindAsync(includeProperties: "Invoices");
-            foreach (var sup in entities)
+            var entities = await _unitOfWork.GetRepository<Supplier>().GetAll(false);
+            var result = _mapper.Map<IEnumerable<CodeXErpSystem.BLL.ViewModels.Suppliers.SupplierViewModel>>(entities).ToList();
+            var entitiesList = entities.ToList();
+            for (int i = 0; i < entitiesList.Count; i++)
             {
-                sup.Balance = sup.Invoices.Where(i => i.Type == CodeXErpSystem.DAL.Entites.Enums.InvoiceType.Purchase).Sum(i => i.TotalAmount - i.PaidAmount);
+                result[i].Balance = entitiesList[i].Balance ?? 0;
             }
-            return _mapper.Map<IEnumerable<CodeXErpSystem.BLL.ViewModels.Suppliers.SupplierViewModel>>(entities);
+            return result;
         }
 
         public async Task CreateAsync(SupplierViewModel model)

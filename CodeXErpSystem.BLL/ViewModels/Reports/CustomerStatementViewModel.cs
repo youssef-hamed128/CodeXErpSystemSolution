@@ -32,6 +32,7 @@ namespace CodeXErpSystem.BLL.ViewModels.Reports
         public decimal PaidAmount { get; set; }
         public decimal RemainingAmount { get; set; }
         public string Status { get; set; } = string.Empty;
+        public string PaymentMethodDisplay { get; set; } = "نقدي";
         public string? Note { get; set; }
     }
 

@@ -48,7 +48,17 @@ namespace CodeXErpSystem.BLL.ViewModels.Invoice
             InvoiceStatus.Unpaid => "غير مدفوعة",
             InvoiceStatus.Partial => "مدفوعة جزئياً",
             InvoiceStatus.Paid => "مدفوعة بالكامل",
-            _ => Status.ToString()
+        };
+        public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.Cash;
+        public string PaymentMethodDisplay => PaymentMethod switch
+        {
+            PaymentMethod.Cash => "نقدي",
+            PaymentMethod.Credit => "آجل (ذمم)",
+            PaymentMethod.BankTransfer => "تحويل بنكي",
+            PaymentMethod.CreaditCard => "بطاقة ائتمان",
+            PaymentMethod.Check => "شيك",
+            PaymentMethod.BalanceDeduction => Type == InvoiceType.Purchase || Type == InvoiceType.PurchaseReturn ? "خصم من رصيد المورد" : "خصم من رصيد العميل",
+            _ => PaymentMethod.ToString()
         };
         public string? Notes { get; set; }
         public string? AttachmentUrl { get; set; }

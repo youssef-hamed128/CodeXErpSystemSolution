@@ -53,7 +53,11 @@
               <td class="table-actions">
                 <a class="action-btn view" href="~/Reports/CustomerStatement?customerId=@item.Id" title="كشف حساب تفصيلي"><i class="fas fa-file-invoice-dollar"></i></a>
                 <button class="action-btn edit" onclick="openEditModal(@item.Id, '@item.Name', '@item.Phone', '', '@item.Address', '@item.TaxNumber', '@item.CreditLimit')"><i class="fas fa-edit"></i></button>
+                @if (item.Name != "نقدي") {
                 <button class="action-btn delete" onclick="deleteRecord(@item.Id)"><i class="fas fa-trash"></i></button>
+                } else {
+                <button class="action-btn" style="opacity:0.3; cursor:not-allowed;" title="عميل افتراضي ثابت لا يمكن حذفه" disabled><i class="fas fa-lock"></i></button>
+                }
               </td>
             </tr>
 }

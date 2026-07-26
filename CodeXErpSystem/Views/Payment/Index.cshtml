@@ -81,7 +81,6 @@
               <td><span class="badge badge-success">مكتمل</span></td>
               <td class="table-actions">
                 <a href="/Payment/Print/@item.Id" target="_blank" class="action-btn view" title="طباعة السند" style="background:#e0e7ff; color:#4f46e5; display:inline-flex; align-items:center; justify-content:center; padding:6px; border-radius:6px; margin-left:4px;"><i class="fas fa-print"></i></a>
-                <button class="action-btn edit" onclick="openEditModal(@item.Id, '@item.ReceiptNumber', '@item.Date.ToString("yyyy-MM-dd")', @item.Amount, '@item.PaymentMethod', '@(item.Reference ?? "")', @(item.CustomerId?.ToString() ?? "null"), @(item.SupplierId?.ToString() ?? "null"))"><i class="fas fa-edit"></i></button>
                 <button class="action-btn delete" onclick="deleteRecord(@item.Id)"><i class="fas fa-trash"></i></button>
               </td>
             </tr>
@@ -115,6 +114,22 @@
             </select>
           </div>
 
+          <div id="partyBalanceCard" style="display:none; grid-column:span 2; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px 16px; margin-top:4px; margin-bottom:4px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+              <div>
+                <span id="balanceLabelDisplay" style="font-size:12px; color:#64748b; font-weight:600; display:block;">الرصيد الحالي:</span>
+                <span id="currentBalanceDisplay" style="font-size:16px; font-weight:700; color:var(--primary);">0.00 ج.م</span>
+              </div>
+              <div>
+                <span style="font-size:12px; color:#64748b; font-weight:600; display:block;">المطلوب سداده (من الفواتير):</span>
+                <span id="requiredAmountDisplay" style="font-size:16px; font-weight:700; color:#d97706;">0.00 ج.م</span>
+              </div>
+            </div>
+            <div id="overpaymentWarning" style="display:none; margin-top:8px; padding-top:8px; border-top:1px dashed #cbd5e1; font-size:12px; color:#2563eb; font-weight:600;">
+              <i class="fas fa-info-circle"></i> تنبيه: المبلغ المدخل أكبر من المطلوب سداده (سيتم حفظ الزيادة في رصيد العميل كرصيد دائن).
+            </div>
+          </div>
+
           <div class="form-group"><label class="form-label required">المبلغ</label><input type="number" class="form-control" name="Amount" step="0.01" min="0" required></div>
           <div class="form-group"><label class="form-label required">طريقة الدفع</label>
             <select class="form-select" name="PaymentMethod" required>
@@ -137,9 +152,64 @@
 
 @section Scripts {
 <script>
+    let currentRequiredAmount = 0;
+
+    function fetchPartyBalanceInfo(id, type) {
+        if (!id) {
+            document.getElementById('partyBalanceCard').style.display = 'none';
+            currentRequiredAmount = 0;
+            checkOverpayment();
+            return;
+        }
+        $.get('/Payment/GetPartyBalanceInfo', { id: id, type: type }, function(res) {
+            if (res && res.success) {
+                document.getElementById('partyBalanceCard').style.display = 'block';
+                let bal = res.balance;
+                let req = res.requiredAmount;
+                currentRequiredAmount = req;
+
+                let balHtml = '';
+                if (bal > 0.01) {
+                    balHtml = `<span style="color:#dc2626;">${bal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ج.م (متبقي عليه)</span>`;
+                } else if (bal < -0.01) {
+                    balHtml = `<span style="color:#2563eb;">${Math.abs(bal).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ج.م (رصيد دائن له)</span>`;
+                } else {
+                    balHtml = `<span style="color:#059669;">0.00 ج.م (خالص)</span>`;
+                }
+                document.getElementById('currentBalanceDisplay').innerHTML = balHtml;
+                document.getElementById('requiredAmountDisplay').innerHTML = req.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' ج.م';
+
+                checkOverpayment();
+            }
+        });
+    }
+
+    function checkOverpayment() {
+        let amount = parseFloat(document.querySelector('input[name="Amount"]').value) || 0;
+        let warningEl = document.getElementById('overpaymentWarning');
+        if (amount > currentRequiredAmount && currentRequiredAmount >= 0 && document.getElementById('partyBalanceCard').style.display !== 'none' && amount > 0) {
+            warningEl.style.display = 'block';
+        } else {
+            warningEl.style.display = 'none';
+        }
+    }
+
+    document.getElementById('customerSelect').addEventListener('change', function() {
+        fetchPartyBalanceInfo(this.value, 'Customer');
+    });
+
+    document.getElementById('supplierSelect').addEventListener('change', function() {
+        fetchPartyBalanceInfo(this.value, 'Supplier');
+    });
+
+    document.querySelector('input[name="Amount"]').addEventListener('input', checkOverpayment);
+
     function openAddPaymentModal(type) {
         document.getElementById('paymentForm').reset();
         document.getElementById('paymentId').value = 0;
+        document.getElementById('partyBalanceCard').style.display = 'none';
+        currentRequiredAmount = 0;
+        checkOverpayment();
         
         let title = type === 'Supplier' ? '<i class="fas fa-money-check-alt"></i> إضافة سند صرف (لمورد)' : '<i class="fas fa-money-check-alt"></i> إضافة سند قبض (من عميل)';
         document.getElementById('paymentModalTitle').innerHTML = title;
@@ -161,35 +231,6 @@
             document.getElementById('supplierSelect').value = '';
         }
         
-        openModal('addPaymentModal');
-    }
-
-    function openEditModal(id, receiptNumber, date, amount, paymentMethod, reference, customerId, supplierId) {
-        document.getElementById('paymentForm').reset();
-        document.getElementById('paymentId').value = id;
-        document.getElementById('paymentModalTitle').innerHTML = '<i class="fas fa-edit"></i> تعديل السند';
-        document.querySelector('input[name="ReceiptNumber"]').value = receiptNumber;
-        document.querySelector('input[name="Date"]').value = date;
-        document.querySelector('input[name="Amount"]').value = amount;
-        document.querySelector('select[name="PaymentMethod"]').value = paymentMethod;
-        document.querySelector('input[name="Reference"]').value = reference;
-
-        if (supplierId) {
-            document.getElementById('customerGroup').style.display = 'none';
-            document.getElementById('supplierGroup').style.display = 'block';
-            document.getElementById('customerSelect').required = false;
-            document.getElementById('customerSelect').value = '';
-            document.getElementById('supplierSelect').required = true;
-            document.getElementById('supplierSelect').value = supplierId;
-        } else {
-            document.getElementById('customerGroup').style.display = 'block';
-            document.getElementById('supplierGroup').style.display = 'none';
-            document.getElementById('customerSelect').required = true;
-            document.getElementById('supplierSelect').required = false;
-            document.getElementById('supplierSelect').value = '';
-            document.getElementById('customerSelect').value = customerId || '';
-        }
-
         openModal('addPaymentModal');
     }
 

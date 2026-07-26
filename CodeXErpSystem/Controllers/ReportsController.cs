@@ -396,6 +396,17 @@ namespace CodeXErpSystem.Controllers
                 if (rem <= 0.01m) statusText = "مدفوع بالكامل";
                 else if (paid > 0.01m) statusText = "سداد جزئي";
 
+                string pmDisplay = inv.PaymentMethod switch
+                {
+                    CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.Cash => "نقدي",
+                    CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.Credit => "آجل (ذمم)",
+                    CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.BankTransfer => "تحويل بنكي",
+                    CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.CreaditCard => "بطاقة ائتمان",
+                    CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.Check => "شيك",
+                    CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.BalanceDeduction => "خصم من رصيد العميل",
+                    _ => "نقدي"
+                };
+
                 model.Invoices.Add(new StatementInvoiceItem
                 {
                     InvoiceId = inv.Id,
@@ -405,6 +416,7 @@ namespace CodeXErpSystem.Controllers
                     PaidAmount = paid,
                     RemainingAmount = rem > 0 ? rem : 0,
                     Status = statusText,
+                    PaymentMethodDisplay = pmDisplay,
                     Note = inv.Note
                 });
             }
@@ -437,8 +449,8 @@ namespace CodeXErpSystem.Controllers
             }
 
             model.TotalInvoicesAmount = model.Invoices.Sum(i => i.TotalAmount);
-            model.TotalPaidAmount = model.Invoices.Sum(i => i.PaidAmount);
-            model.TotalRemainingAmount = model.Invoices.Sum(i => i.RemainingAmount);
+            model.TotalRemainingAmount = model.CustomerCurrentBalance;
+            model.TotalPaidAmount = model.TotalInvoicesAmount - model.CustomerCurrentBalance;
 
             return View(model);
         }
@@ -505,6 +517,17 @@ namespace CodeXErpSystem.Controllers
                 if (rem <= 0.01m) statusText = "مدفوع بالكامل";
                 else if (paid > 0.01m) statusText = "سداد جزئي";
 
+                string pmDisplay = inv.PaymentMethod switch
+                {
+                    CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.Cash => "نقدي",
+                    CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.Credit => "آجل (ذمم)",
+                    CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.BankTransfer => "تحويل بنكي",
+                    CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.CreaditCard => "بطاقة ائتمان",
+                    CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.Check => "شيك",
+                    CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.BalanceDeduction => "خصم من رصيد المورد",
+                    _ => "نقدي"
+                };
+
                 model.Invoices.Add(new StatementInvoiceItem
                 {
                     InvoiceId = inv.Id,
@@ -514,6 +537,7 @@ namespace CodeXErpSystem.Controllers
                     PaidAmount = paid,
                     RemainingAmount = rem > 0 ? rem : 0,
                     Status = statusText,
+                    PaymentMethodDisplay = pmDisplay,
                     Note = inv.Note
                 });
             }
@@ -546,8 +570,8 @@ namespace CodeXErpSystem.Controllers
             }
 
             model.TotalInvoicesAmount = model.Invoices.Sum(i => i.TotalAmount);
-            model.TotalPaidAmount = model.Invoices.Sum(i => i.PaidAmount);
-            model.TotalRemainingAmount = model.Invoices.Sum(i => i.RemainingAmount);
+            model.TotalRemainingAmount = model.SupplierCurrentBalance;
+            model.TotalPaidAmount = model.TotalInvoicesAmount - model.SupplierCurrentBalance;
 
             return View(model);
         }
@@ -563,14 +587,8 @@ namespace CodeXErpSystem.Controllers
             {
                 var validInvoices = cust.Invoices.Where(i => i.Type == CodeXErpSystem.DAL.Entites.Enums.InvoiceType.Sales).ToList();
                 decimal totalInv = validInvoices.Sum(i => i.TotalAmount);
-                decimal totalPaid = validInvoices.Sum(i => i.PaidAmount);
-                decimal rem = totalInv - totalPaid;
-
-                if (cust.Balance != rem)
-                {
-                    cust.Balance = rem;
-                    _unitOfWork.GetRepository<Customer>().Update(cust);
-                }
+                decimal rem = cust.Balance ?? 0;
+                decimal totalPaid = totalInv - rem;
 
                 string status = "خالص (بدون مديونية)";
                 if (rem > 0.01m) status = "مدين لنا";
@@ -592,14 +610,8 @@ namespace CodeXErpSystem.Controllers
             {
                 var validInvoices = sup.Invoices.Where(i => i.Type == CodeXErpSystem.DAL.Entites.Enums.InvoiceType.Purchase).ToList();
                 decimal totalInv = validInvoices.Sum(i => i.TotalAmount);
-                decimal totalPaid = validInvoices.Sum(i => i.PaidAmount);
-                decimal rem = totalInv - totalPaid;
-
-                if (sup.Balance != rem)
-                {
-                    sup.Balance = rem;
-                    _unitOfWork.GetRepository<Supplier>().Update(sup);
-                }
+                decimal rem = sup.Balance ?? 0;
+                decimal totalPaid = totalInv - rem;
 
                 string status = "خالص (بدون مستحقات)";
                 if (rem > 0.01m) status = "مستحق له (دائن)";
@@ -616,8 +628,6 @@ namespace CodeXErpSystem.Controllers
                     Status = status
                 });
             }
-
-            await _unitOfWork.CompleteAsync();
 
             model.TotalCustomerDebts = model.Customers.Where(c => c.RemainingBalance > 0).Sum(c => c.RemainingBalance);
             model.TotalSupplierPayables = model.Suppliers.Where(s => s.RemainingBalance > 0).Sum(s => s.RemainingBalance);

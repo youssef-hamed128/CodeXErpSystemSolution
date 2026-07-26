@@ -18,6 +18,8 @@ namespace CodeXErpSystem.DAL.Entites.Enums
         [Display(Name = "بطاقة ائتمان")]
         CreaditCard,
         [Display(Name = "شيك")]
-        Check
+        Check,
+        [Display(Name = "خصم من رصيد العميل / المورد")]
+        BalanceDeduction = 6
     }
 }

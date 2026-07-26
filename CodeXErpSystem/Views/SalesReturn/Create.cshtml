@@ -48,9 +48,53 @@
 
               <div class="form-group" style="grid-column: span 2;">
                 <label class="form-label required">العميل</label>
-                <select class="form-control" asp-for="CustomerId" asp-items="ViewBag.Customers" required>
+                <select class="form-control" asp-for="CustomerId" asp-items="ViewBag.Customers" id="CustomerId" required>
                     <option value="">-- اختر العميل --</option>
                 </select>
+                <div id="customerBalanceInfo" style="display:none; margin-top:10px; padding:12px 15px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; font-size:0.95rem; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <span style="color:#166534; font-weight:600;"><i class="fas fa-wallet me-1"></i> الرصيد المتاح للعميل: </span>
+                            <span id="customerAvailableVal" style="font-weight:700; color:#166534;"></span>
+                        </div>
+                        <div>
+                            <span style="color:#991b1b; font-weight:600;"><i class="fas fa-file-invoice-dollar me-1"></i> الديون (المطلوب سداده): </span>
+                            <span id="customerDebtsVal" style="font-weight:700; color:#991b1b;"></span>
+                        </div>
+                        <div>
+                            <span style="color:#475569; font-weight:600;"><i class="fas fa-scale-balanced me-1"></i> الرصيد الحالي: </span>
+                            <span id="customerBalanceVal" style="font-weight:700;"></span>
+                        </div>
+                    </div>
+                </div>
+                <div id="balanceDeductionPreview" style="display:none; margin-top:12px; padding:15px; background:#eff6ff; border:2px solid #3b82f6; border-radius:10px; font-size:0.95rem; box-shadow:0 4px 10px rgba(59,130,246,0.1);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #bfdbfe; padding-bottom:10px; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+                        <div style="font-weight:800; color:#1e40af; font-size:1.05rem;">
+                            <i class="fas fa-money-check-alt me-1"></i> شاشة الدفع: خصم من رصيد العميل
+                        </div>
+                        <div>
+                            <span style="color:#166534; font-weight:700;">الرصيد المتاح للخصم: </span>
+                            <span id="previewAvailableBal" style="font-weight:800; color:#15803d; font-size:1.05rem;"></span>
+                        </div>
+                    </div>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:15px; align-items:center;">
+                        <div style="background:#fff; padding:10px 12px; border-radius:8px; border:1px solid #dbeafe;">
+                            <label style="display:block; font-size:12px; font-weight:700; color:#1e40af; margin-bottom:4px;">المبلغ المراد خصمه من الرصيد:</label>
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <input type="number" id="deductionAmountInput" class="form-control" style="font-weight:800; color:#2563eb; text-align:center; font-size:15px;" step="0.01" min="0" placeholder="0.00" oninput="calculateBalanceDeduction()" />
+                                <button type="button" class="btn btn-sm btn-outline-primary" style="white-space:nowrap; font-weight:700; font-size:11px;" onclick="setFullDeductionAmount()" title="خصم كامل قيمة الفاتورة">كامل الفاتورة</button>
+                            </div>
+                        </div>
+                        <div style="background:#fff; padding:10px 12px; border-radius:8px; border:1px solid #dbeafe;">
+                            <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:4px;">المتبقي من الرصيد المتاح:</label>
+                            <span id="previewRemainingBalance" style="font-weight:800; font-size:15px;"></span>
+                        </div>
+                        <div style="background:#fff; padding:10px 12px; border-radius:8px; border:1px solid #dbeafe;">
+                            <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:4px;">المتبقي من الفاتورة (غير مسدد):</label>
+                            <span id="previewRemainingInvoice" style="font-weight:800; font-size:15px;"></span>
+                        </div>
+                    </div>
+                </div>
               </div>
 
               <div class="form-group" style="grid-column: span 2;">
@@ -371,5 +415,111 @@
         }).fail(function(err) {
             showToast('حدث خطأ أثناء استرداد الفاتورة', 'error');
         });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const custSelect = document.getElementById('CustomerId');
+        if (custSelect) {
+            custSelect.addEventListener('change', function() {
+                const id = this.value;
+                const infoDiv = document.getElementById('customerBalanceInfo');
+                if (!id) {
+                    infoDiv.style.display = 'none';
+                    return;
+                }
+                $.get('/Payment/GetPartyBalanceInfo', { id: id, type: 'Customer' }, function(res) {
+                    if (res && res.success) {
+                        infoDiv.style.display = 'block';
+                        let bal = res.balance;
+                        window.currentCustomerBalance = bal;
+                        let req = res.requiredAmount;
+                        let avail = bal < -0.01 ? Math.abs(bal) : 0;
+                        let debts = bal > 0.01 ? bal : 0;
+
+                        document.getElementById('customerAvailableVal').innerHTML = `<span style="color:#166534;">${avail.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ج.م ${avail > 0 ? '(رصيد دائن متاح)' : ''}</span>`;
+                        document.getElementById('customerDebtsVal').innerHTML = `<span style="color:#dc2626;">${debts.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ج.م ${debts > 0 ? '(مديونية عليه)' : ''}</span>`;
+                        document.getElementById('customerBalanceVal').innerHTML = formatBalHtml(bal);
+                        updateBalanceDeductionPreview();
+                    }
+                });
+            });
+        }
+
+        const pmSelect = document.getElementById('PaymentMethod');
+        if (pmSelect) {
+            pmSelect.addEventListener('change', updateBalanceDeductionPreview);
+        }
+    });
+
+    function updateBalanceDeductionPreview() {
+        const pm = document.getElementById('PaymentMethod')?.value;
+        const previewBox = document.getElementById('balanceDeductionPreview');
+        if (!previewBox) return;
+
+        if (pm === '6' && window.currentCustomerBalance !== undefined) {
+            previewBox.style.display = 'block';
+            let currentBal = window.currentCustomerBalance || 0;
+            let availBal = currentBal < -0.01 ? Math.abs(currentBal) : 0;
+            let grandTotal = parseFloat(document.getElementById('invoiceGrandTotal')?.innerText) || 0;
+
+            document.getElementById('previewAvailableBal').innerHTML = `${availBal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ج.م`;
+
+            let deductInput = document.getElementById('deductionAmountInput');
+            if (deductInput && (!deductInput.value || parseFloat(deductInput.value) === 0)) {
+                deductInput.value = grandTotal.toFixed(2);
+            }
+            calculateBalanceDeduction();
+        } else {
+            previewBox.style.display = 'none';
+        }
+    }
+
+    function setFullDeductionAmount() {
+        let grandTotal = parseFloat(document.getElementById('invoiceGrandTotal')?.innerText) || 0;
+        let deductInput = document.getElementById('deductionAmountInput');
+        if (deductInput) {
+            deductInput.value = grandTotal.toFixed(2);
+            calculateBalanceDeduction();
+        }
+    }
+
+    function calculateBalanceDeduction() {
+        let currentBal = window.currentCustomerBalance || 0;
+        let availBal = currentBal < -0.01 ? Math.abs(currentBal) : 0;
+        let grandTotal = parseFloat(document.getElementById('invoiceGrandTotal')?.innerText) || 0;
+        let deductAmt = parseFloat(document.getElementById('deductionAmountInput')?.value) || 0;
+
+        if (deductAmt > grandTotal && grandTotal > 0) {
+            deductAmt = grandTotal;
+            document.getElementById('deductionAmountInput').value = grandTotal.toFixed(2);
+        }
+        if (deductAmt < 0) deductAmt = 0;
+
+        let remBal = availBal - deductAmt;
+        let remInv = grandTotal - deductAmt;
+
+        let remBalEl = document.getElementById('previewRemainingBalance');
+        if (remBal >= 0) {
+            remBalEl.innerHTML = `<span style="color:#059669;">${remBal.toLocaleString('en-US', {minimumFractionDigits: 2})} ج.م (متاح)</span>`;
+        } else {
+            remBalEl.innerHTML = `<span style="color:#dc2626;">0.00 ج.م <small>(تجاوز المتاح بـ ${Math.abs(remBal).toLocaleString('en-US', {minimumFractionDigits: 2})} ج.م)</small></span>`;
+        }
+
+        let remInvEl = document.getElementById('previewRemainingInvoice');
+        if (remInv <= 0.01) {
+            remInvEl.innerHTML = `<span style="color:#059669;">0.00 ج.م (مغطاة بالكامل)</span>`;
+        } else {
+            remInvEl.innerHTML = `<span style="color:#dc2626;">${remInv.toLocaleString('en-US', {minimumFractionDigits: 2})} ج.م (غير مسدد)</span>`;
+        }
+    }
+
+    function formatBalHtml(bal) {
+        if (bal > 0.01) {
+            return `<span style="color:#dc2626;">${bal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ج.م (متبقي عليه)</span>`;
+        } else if (bal < -0.01) {
+            return `<span style="color:#2563eb;">${Math.abs(bal).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ج.م (رصيد دائن له)</span>`;
+        } else {
+            return `<span style="color:#059669;">0.00 ج.م (خالص)</span>`;
+        }
     }
 </script>

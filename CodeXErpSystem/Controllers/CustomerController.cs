@@ -63,8 +63,15 @@ namespace CodeXErpSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            await _customerService.DeleteAsync(id);
-            return Json(new { success = true, message = "Customer deleted successfully" });
+            try
+            {
+                await _customerService.DeleteAsync(id);
+                return Json(new { success = true, message = "تم حذف العميل بنجاح" });
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
     }
 }

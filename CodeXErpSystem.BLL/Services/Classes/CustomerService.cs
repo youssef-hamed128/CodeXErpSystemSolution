@@ -22,19 +22,31 @@ namespace CodeXErpSystem.BLL.Services.Classes
 
         public async Task<IEnumerable<CodeXErpSystem.BLL.ViewModels.Customers.CustomerViewModel>> GetAllAsync()
         {
-            var entities = await _unitOfWork.GetRepository<Customer>().FindAsync(includeProperties: "Invoices");
-            var result = _mapper.Map<IEnumerable<CodeXErpSystem.BLL.ViewModels.Customers.CustomerViewModel>>(entities).ToList();
-
-            // نحسب الرصيد الحالي من الفواتير الفعلية بعد الماپنج
+            var entities = await _unitOfWork.GetRepository<Customer>().GetAll(false);
             var entitiesList = entities.ToList();
-            for (int i = 0; i < entitiesList.Count; i++)
+
+            var cashCustomer = entitiesList.FirstOrDefault(c => c.Name == "نقدي");
+            if (cashCustomer == null)
             {
-                var cust = entitiesList[i];
-                result[i].Balance = cust.Invoices
-                    .Where(inv => inv.Type == CodeXErpSystem.DAL.Entites.Enums.InvoiceType.Sales)
-                    .Sum(inv => inv.TotalAmount - inv.PaidAmount);
+                cashCustomer = new Customer
+                {
+                    Name = "نقدي",
+                    Phone = "0000000000",
+                    Address = "عميل نقدي افتراضي",
+                    Balance = 0,
+                    CreditLimit = 0,
+                    IsDeleted = false
+                };
+                _unitOfWork.GetRepository<Customer>().Add(cashCustomer);
+                await _unitOfWork.CompleteAsync();
+                entitiesList.Add(cashCustomer);
             }
 
+            var result = _mapper.Map<IEnumerable<CodeXErpSystem.BLL.ViewModels.Customers.CustomerViewModel>>(entitiesList).ToList();
+            for (int i = 0; i < entitiesList.Count; i++)
+            {
+                result[i].Balance = entitiesList[i].Balance ?? 0;
+            }
             return result;
         }
 
@@ -56,6 +68,12 @@ namespace CodeXErpSystem.BLL.Services.Classes
 
         public async Task UpdateAsync(CustomerViewModel model)
         {
+            var existingTarget = await _unitOfWork.GetRepository<Customer>().GetById(model.Id);
+            if (existingTarget != null && existingTarget.Name == "نقدي" && model.Name != "نقدي")
+            {
+                throw new System.InvalidOperationException("لا يمكن تغيير اسم العميل الافتراضي (نقدي).");
+            }
+
             var existingName = await _unitOfWork.GetRepository<Customer>().FindAsync(c => c.Name == model.Name && c.Id != model.Id);
             if (existingName.Any()) throw new System.InvalidOperationException("اسم العميل مكرر مع عميل آخر.");
 
@@ -72,6 +90,12 @@ namespace CodeXErpSystem.BLL.Services.Classes
 
         public async Task DeleteAsync(int id)
         {
+            var target = await _unitOfWork.GetRepository<Customer>().GetById(id);
+            if (target != null && target.Name == "نقدي")
+            {
+                throw new System.InvalidOperationException("لا يمكن حذف العميل الافتراضي (نقدي).");
+            }
+
             _unitOfWork.GetRepository<Customer>().Delete(id);
             await _unitOfWork.CompleteAsync();
         }

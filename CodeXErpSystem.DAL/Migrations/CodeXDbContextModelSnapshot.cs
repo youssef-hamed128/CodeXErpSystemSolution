@@ -327,6 +327,12 @@ namespace CodeXErpSystem.DAL.Migrations
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<decimal>("PaidAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("int");
+
                     b.Property<string>("ReferenceNumber")
                         .HasColumnType("nvarchar(max)");
 

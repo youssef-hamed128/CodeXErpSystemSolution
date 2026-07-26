@@ -152,6 +152,9 @@
         <p>عرض تفصيلي لأرصدة ومديونيات كافة العملاء والموردين وحالة الحسابات</p>
     </div>
     <div class="no-print" style="display:flex; gap:10px;">
+        <button class="btn btn-success" onclick="exportDebtsToExcel()" style="background:#10b981; border-color:#10b981; color:#fff; font-weight:700;">
+            <i class="fas fa-file-excel me-1"></i> تصدير إكسيل (Excel Sheet)
+        </button>
         <button class="btn btn-outline-primary" onclick="window.print()">
             <i class="fas fa-print me-1"></i> طباعة التقرير
         </button>
@@ -205,7 +208,8 @@
                     <th>رقم الهاتف</th>
                     <th>إجمالي الفواتير الصادرة</th>
                     <th>إجمالي المسدد</th>
-                    <th>الرصيد المتبقي عليه (المديونية)</th>
+                    <th>المتبقي عليه (الديون)</th>
+                    <th>الرصيد الحالي</th>
                     <th>حالة الحساب</th>
                     <th class="no-print">إجراءات</th>
                 </tr>
@@ -226,11 +230,20 @@
                             <td class="amount-cell">
                                 @if (c.RemainingBalance > 0.01m) {
                                     <span style="color:#dc2626;">@c.RemainingBalance.ToString("N2") ج.م</span>
+                                } else {
+                                    <span style="color:#64748b;">0.00 ج.م</span>
+                                }
+                            </td>
+                            <td class="amount-cell">
+                                @if (c.RemainingBalance > 0.01m) {
+                                    <span style="color:#dc2626; font-weight:800;">@c.RemainingBalance.ToString("N2") ج.م</span>
+                                    <br/><small style="color:#dc2626; font-size:11px; font-weight:600;">مديونية عليه</small>
                                 } else if (c.RemainingBalance < -0.01m) {
                                     <span style="color:#2563eb; font-weight:800;">@Math.Abs(c.RemainingBalance).ToString("N2") ج.م</span>
-                                    <br/><small style="color:#2563eb; font-size:11px; font-weight:600;">⬆ رصيد دائن للعميل</small>
+                                    <br/><small style="color:#2563eb; font-size:11px; font-weight:600;">رصيد دائن للعميل</small>
                                 } else {
-                                    <span style="color:#059669;">0.00 ج.م</span>
+                                    <span style="color:#059669; font-weight:800;">0.00 ج.م</span>
+                                    <br/><small style="color:#059669; font-size:11px; font-weight:600;">خالص</small>
                                 }
                             </td>
                             <td>
@@ -248,7 +261,7 @@
                 else
                 {
                     <tr>
-                        <td colspan="8" class="text-center py-4 text-muted">لا يوجد عملاء مسجلين حتى الآن</td>
+                        <td colspan="9" class="text-center py-4 text-muted">لا يوجد عملاء مسجلين حتى الآن</td>
                     </tr>
                 }
             </tbody>
@@ -273,7 +286,8 @@
                     <th>رقم الهاتف</th>
                     <th>إجمالي فواتير المشتريات</th>
                     <th>إجمالي المسدد له</th>
-                    <th>الرصيد المتبقي له (المستحق)</th>
+                    <th>المطلوب سداده للمورد (الديون)</th>
+                    <th>الرصيد الحالي</th>
                     <th>حالة الحساب</th>
                     <th class="no-print">إجراءات</th>
                 </tr>
@@ -294,11 +308,20 @@
                             <td class="amount-cell">
                                 @if (s.RemainingBalance > 0.01m) {
                                     <span style="color:#dc2626;">@s.RemainingBalance.ToString("N2") ج.م</span>
+                                } else {
+                                    <span style="color:#64748b;">0.00 ج.م</span>
+                                }
+                            </td>
+                            <td class="amount-cell">
+                                @if (s.RemainingBalance > 0.01m) {
+                                    <span style="color:#dc2626; font-weight:800;">@s.RemainingBalance.ToString("N2") ج.م</span>
+                                    <br/><small style="color:#dc2626; font-size:11px; font-weight:600;">مستحق للمورد</small>
                                 } else if (s.RemainingBalance < -0.01m) {
                                     <span style="color:#2563eb; font-weight:800;">@Math.Abs(s.RemainingBalance).ToString("N2") ج.م</span>
-                                    <br/><small style="color:#2563eb; font-size:11px; font-weight:600;">⬆ رصيد مدين للمورد (زيادة دفع)</small>
+                                    <br/><small style="color:#2563eb; font-size:11px; font-weight:600;">رصيد دائن لك</small>
                                 } else {
-                                    <span style="color:#059669;">0.00 ج.م</span>
+                                    <span style="color:#059669; font-weight:800;">0.00 ج.م</span>
+                                    <br/><small style="color:#059669; font-size:11px; font-weight:600;">خالص</small>
                                 }
                             </td>
                             <td>
@@ -316,10 +339,47 @@
                 else
                 {
                     <tr>
-                        <td colspan="8" class="text-center py-4 text-muted">لا يوجد موردين مسجلين حتى الآن</td>
+                        <td colspan="9" class="text-center py-4 text-muted">لا يوجد موردين مسجلين حتى الآن</td>
                     </tr>
                 }
             </tbody>
         </table>
     </div>
 </div>
+
+@section Scripts {
+<script>
+function exportDebtsToExcel() {
+    var dataType = 'application/vnd.ms-excel;charset=utf-8';
+    var tables = document.querySelectorAll('.debt-table');
+    var combinedHtml = '<h2 style="text-align:center;font-family:Tahoma;">تقرير المديونيات الشامل</h2>';
+    combinedHtml += '<h3 style="font-family:Tahoma;color:#2563eb;">جدول مديونيات وأرصدة العملاء</h3>';
+    if(tables[0]) {
+        var clone1 = tables[0].cloneNode(true);
+        clone1.querySelectorAll('.no-print').forEach(el => el.remove());
+        clone1.setAttribute('border', '1');
+        clone1.style.borderCollapse = 'collapse';
+        combinedHtml += clone1.outerHTML;
+    }
+    combinedHtml += '<br/><br/><h3 style="font-family:Tahoma;color:#ef4444;">جدول مستحقات وأرصدة الموردين</h3>';
+    if(tables[1]) {
+        var clone2 = tables[1].cloneNode(true);
+        clone2.querySelectorAll('.no-print').forEach(el => el.remove());
+        clone2.setAttribute('border', '1');
+        clone2.style.borderCollapse = 'collapse';
+        combinedHtml += clone2.outerHTML;
+    }
+
+    var template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>تقرير المديونيات</x:Name><x:WorksheetOptions><x:DisplayRightToLeft/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--><style>table { border-collapse: collapse; width: 100%; } th, td { border: 1px solid #999; padding: 8px; text-align: center; font-family: Tahoma; } th { background-color: #f1f5f9; font-weight: bold; }</style></head><body dir="rtl">' + combinedHtml + '</body></html>';
+
+    var blob = new Blob(['\uFEFF' + template], { type: dataType });
+    var url = URL.createObjectURL(blob);
+    var downloadLink = document.createElement("a");
+    downloadLink.href = url;
+    downloadLink.download = 'تقرير_المديونيات_الشامل.xls';
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+}
+</script>
+}

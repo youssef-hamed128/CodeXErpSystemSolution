@@ -14,6 +14,12 @@
             <p class="text-muted mb-0">تقرير شامل لحركة فواتير المشتريات، الدفعات الجزئية، وسندات الصرف</p>
         </div>
         <div class="d-flex gap-2">
+            @if (Model.SupplierId > 0)
+            {
+                <button onclick="exportSupplierStatementToExcel()" class="btn btn-success" style="background:#10b981; border-color:#10b981; color:#fff; font-weight:700;">
+                    <i class="fas fa-file-excel me-1"></i> تصدير إكسيل (Excel)
+                </button>
+            }
             <button onclick="window.print()" class="btn btn-outline-secondary">
                 <i class="fas fa-print me-1"></i> طباعة كشف الحساب
             </button>
@@ -126,6 +132,7 @@
                             <tr>
                                 <th class="py-3">رقم الفاتورة</th>
                                 <th class="py-3">التاريخ</th>
+                                <th class="py-3">طريقة الدفع</th>
                                 <th class="py-3">إجمالي الفاتورة</th>
                                 <th class="py-3 text-success">المدفوع من الفاتورة</th>
                                 <th class="py-3 text-danger">المتبقي (غير مسدد)</th>
@@ -143,6 +150,7 @@
                                     <tr>
                                         <td class="fw-bold text-primary">@inv.InvoiceNumber</td>
                                         <td>@inv.Date.ToString("yyyy-MM-dd")</td>
+                                        <td><span class="badge bg-light text-primary border px-2 py-1">@inv.PaymentMethodDisplay</span></td>
                                         <td class="fw-bold">@inv.TotalAmount.ToString("N2") ج.م</td>
                                         <td class="fw-bold text-success">@inv.PaidAmount.ToString("N2") ج.م</td>
                                         <td class="fw-bold @(inv.RemainingAmount > 0 ? "text-danger" : "text-muted")">
@@ -286,7 +294,42 @@
         }
         .card {
             box-shadow: none !important;
-            border: 1px solid #ddd !important;
-        }
     }
 </style>
+
+@section Scripts {
+<script>
+function exportSupplierStatementToExcel() {
+    var dataType = 'application/vnd.ms-excel;charset=utf-8';
+    var tables = document.querySelectorAll('.table');
+    var combinedHtml = '<h2 style="text-align:center;font-family:Tahoma;">كشف حساب مورد تفصيلي - @(Model.SupplierName ?? "")</h2>';
+    combinedHtml += '<h3 style="font-family:Tahoma;color:#ef4444;">سجل فواتير المشتريات</h3>';
+    if(tables[0]) {
+        var clone1 = tables[0].cloneNode(true);
+        clone1.querySelectorAll('.no-print').forEach(el => el.remove());
+        clone1.setAttribute('border', '1');
+        clone1.style.borderCollapse = 'collapse';
+        combinedHtml += clone1.outerHTML;
+    }
+    combinedHtml += '<br/><br/><h3 style="font-family:Tahoma;color:#059669;">سجل سندات الصرف والدفعات المسددة</h3>';
+    if(tables[1]) {
+        var clone2 = tables[1].cloneNode(true);
+        clone2.querySelectorAll('.no-print').forEach(el => el.remove());
+        clone2.setAttribute('border', '1');
+        clone2.style.borderCollapse = 'collapse';
+        combinedHtml += clone2.outerHTML;
+    }
+
+    var template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>كشف الحساب</x:Name><x:WorksheetOptions><x:DisplayRightToLeft/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--><style>table { border-collapse: collapse; width: 100%; } th, td { border: 1px solid #999; padding: 8px; text-align: center; font-family: Tahoma; } th { background-color: #f1f5f9; font-weight: bold; }</style></head><body dir="rtl">' + combinedHtml + '</body></html>';
+
+    var blob = new Blob(['\uFEFF' + template], { type: dataType });
+    var url = URL.createObjectURL(blob);
+    var downloadLink = document.createElement("a");
+    downloadLink.href = url;
+    downloadLink.download = 'كشف_حساب_المورد.xls';
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+}
+</script>
+}

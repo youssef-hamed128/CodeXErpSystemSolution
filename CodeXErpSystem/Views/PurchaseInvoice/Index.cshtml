@@ -231,6 +231,14 @@
             let paidAmount = null;
             if (newStatus === 3) {
                 paidAmount = parseFloat(document.getElementById('modalPaidAmountInput').value) || 0;
+                if (paidAmount <= 0) {
+                    showToast('يرجى إدخال مبلغ صحيح أكبر من الصفر', 'error');
+                    return;
+                }
+                if (paidAmount > currentInvoiceTotal + 0.01) {
+                    showToast('لا يمكن سداد مبلغ أكبر من إجمالي الفاتورة (' + currentInvoiceTotal.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' ج.م)', 'error');
+                    return;
+                }
             } else if (newStatus === 1) {
                 paidAmount = currentInvoiceTotal;
             } else if (newStatus === 2) {
@@ -273,7 +281,9 @@
             let remaining = Math.max(0, currentInvoiceTotalVal - currentInvoicePaidVal);
             document.getElementById('payInvoiceRemaining').innerText = remaining.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' ج.م';
 
-            document.getElementById('payAmountInput').value = '';
+            const input = document.getElementById('payAmountInput');
+            input.value = '';
+            input.max = remaining;
             updatePaymentPreview();
             openModal('paymentModal');
         }
@@ -290,6 +300,17 @@
         function savePayment() {
             const invoiceId = document.getElementById('payInvoiceId').value;
             const addedAmt = parseFloat(document.getElementById('payAmountInput').value) || 0;
+            const remaining = Math.max(0, currentInvoiceTotalVal - currentInvoicePaidVal);
+
+            if (addedAmt <= 0) {
+                showToast('يرجى إدخال مبلغ سداد صحيح أكبر من الصفر', 'error');
+                return;
+            }
+            if (addedAmt > remaining + 0.01) {
+                showToast('لا يمكن إضافة مبلغ سداد أكبر من المبلغ المتبقي على الفاتورة (' + remaining.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' ج.م)', 'error');
+                return;
+            }
+
             const newPaid = currentInvoicePaidVal + addedAmt;
 
             $.ajax({

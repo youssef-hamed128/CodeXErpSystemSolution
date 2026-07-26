@@ -22,6 +22,7 @@ namespace CodeXErpSystem.DAL.Entites
         [NotMapped]
         public decimal RemainingAmount => TotalAmount - PaidAmount;
         public InvoiceStatus Status { get; set; }
+        public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.Cash;
         public string? Note { get; set; }
         public decimal DiscountAmount { get; set; } = 0;
         public decimal DiscountPercentage { get; set; } = 0;

@@ -67,6 +67,10 @@ namespace CodeXErpSystem.Controllers
                 }
                 else if (request.PaidAmount.HasValue)
                 {
+                    if (request.PaidAmount.Value > invoice.TotalAmount + 0.01m)
+                    {
+                        return BadRequest(new { success = false, message = $"لا يمكن إدخال مبلغ أكبر من إجمالي الفاتورة ({invoice.TotalAmount:N2} ج.م)" });
+                    }
                     invoice.PaidAmount = request.PaidAmount.Value;
                 }
 
@@ -95,6 +99,12 @@ namespace CodeXErpSystem.Controllers
                 if (invoice == null)
                     return NotFound(new { success = false, message = "الفاتورة غير موجودة" });
 
+                if (request.PaidAmount > invoice.TotalAmount + 0.01m)
+                {
+                    decimal rem = Math.Max(0, invoice.TotalAmount - invoice.PaidAmount);
+                    return BadRequest(new { success = false, message = $"لا يمكن إضافة مبلغ سداد أكبر من المبلغ المتبقي على الفاتورة ({rem:N2} ج.م)" });
+                }
+
                 decimal oldPaid = invoice.PaidAmount;
                 invoice.PaidAmount = request.PaidAmount;
                 if (invoice.PaidAmount >= invoice.TotalAmount - 0.01m)
@@ -119,25 +129,7 @@ namespace CodeXErpSystem.Controllers
 
         private async Task CreateReceiptForPaymentAsync(Invoice invoice, decimal incrementalAmount)
         {
-            if (incrementalAmount <= 0.001m) return;
-
-            var allPayments = await _unitOfWork.GetRepository<Payment>().GetAll(false);
-            var maxNumber = allPayments.Any() ? allPayments.Max(p => int.TryParse(p.ReceiptNumber, out int n) ? n : 0) : 1000;
-            string nextReceiptNum = (maxNumber + 1).ToString();
-
-            var newReceipt = new Payment
-            {
-                ReceiptNumber = nextReceiptNum,
-                Date = DateTime.Now,
-                Amount = incrementalAmount,
-                PaymentMethod = CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.Cash,
-                Reference = $"سداد من المتبقي - فاتورة رقم {invoice.InvoiceNumber}",
-                InvoiceId = invoice.Id,
-                CustomerId = invoice.CustomerId,
-                SupplierId = invoice.SupplierId,
-                CreatedBy = "Admin"
-            };
-            _unitOfWork.GetRepository<Payment>().Add(newReceipt);
+            if (Math.Abs(incrementalAmount) <= 0.001m) return;
 
             if (invoice.CustomerId.HasValue)
             {
@@ -153,9 +145,30 @@ namespace CodeXErpSystem.Controllers
                 var supplier = await _unitOfWork.GetRepository<Supplier>().GetById(invoice.SupplierId.Value);
                 if (supplier != null)
                 {
-                    supplier.Balance = (supplier.Balance ?? 0) + incrementalAmount;
+                    supplier.Balance = (supplier.Balance ?? 0) - incrementalAmount;
                     _unitOfWork.GetRepository<Supplier>().Update(supplier);
                 }
+            }
+
+            if (incrementalAmount > 0.01m)
+            {
+                var allPayments = await _unitOfWork.GetRepository<Payment>().GetAll(false);
+                var maxNumber = allPayments.Any() ? allPayments.Max(p => int.TryParse(p.ReceiptNumber, out int n) ? n : 0) : 1000;
+                string nextReceiptNum = (maxNumber + 1).ToString();
+
+                var newReceipt = new Payment
+                {
+                    ReceiptNumber = nextReceiptNum,
+                    Date = DateTime.Now,
+                    Amount = incrementalAmount,
+                    PaymentMethod = CodeXErpSystem.DAL.Entites.Enums.PaymentMethod.Cash,
+                    Reference = $"سداد من الفاتورة رقم {invoice.InvoiceNumber}",
+                    InvoiceId = invoice.Id,
+                    CustomerId = invoice.CustomerId,
+                    SupplierId = invoice.SupplierId,
+                    CreatedBy = "Admin"
+                };
+                _unitOfWork.GetRepository<Payment>().Add(newReceipt);
             }
         }
     }

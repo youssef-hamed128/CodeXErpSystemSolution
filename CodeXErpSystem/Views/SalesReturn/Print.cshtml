@@ -1,4 +1,4 @@
-@model CodeXErpSystem.BLL.ViewModels.Invoice.InvoiceViewModel
+﻿@model CodeXErpSystem.BLL.ViewModels.Invoice.InvoiceViewModel
 @{ Layout = null; }
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -6,6 +6,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>طباعة إشعار مرتجع مبيعات #@Model.InvoiceNumber</title>
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico?v=20260726_6">
+    <link rel="shortcut icon" type="image/x-icon" href="~/favicon.ico?v=20260726_6">
+    <link rel="icon" type="image/png" sizes="32x32" href="~/favicon.png?v=20260726_6">
+    <link rel="apple-touch-icon" href="~/favicon.png?v=20260726_6">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
@@ -176,6 +180,7 @@
                 <div class="detail-row"><span>رقم الإشعار:</span> <span dir="ltr">#@Model.InvoiceNumber</span></div>
                 <div class="detail-row"><span>رقم الفاتورة الأصلية:</span> <span dir="ltr">@(Model.ReferenceNumber != null ? "#" + Model.ReferenceNumber : "غير متوفر")</span></div>
                 <div class="detail-row"><span>تاريخ الإصدار:</span> @Model.Date.ToString("yyyy-MM-dd")</div>
+                <div class="detail-row"><span>طريقة الدفع:</span> <strong style="color: #1e40af;">@Model.PaymentMethodDisplay</strong></div>
             </div>
         </div>
 
