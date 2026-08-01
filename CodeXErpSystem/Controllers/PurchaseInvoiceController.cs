@@ -33,16 +33,59 @@ namespace CodeXErpSystem.Controllers
         {
             var invoices = await _unitOfWork.GetRepository<Invoice>().FindAsync(
                 i => i.Type == InvoiceType.Purchase, includeProperties: "Supplier", orderBy: q => q.OrderByDescending(x => x.Id));
-            
-            return View(_mapper.Map<IEnumerable<InvoiceViewModel>>(invoices));
+
+            var returnInvoices = await _unitOfWork.GetRepository<Invoice>().FindAsync(
+                i => i.Type == InvoiceType.PurchaseReturn && !string.IsNullOrEmpty(i.ReferenceNumber));
+
+            var returnGrouped = returnInvoices.Where(r => r.ReferenceNumber != null)
+                                              .GroupBy(r => r.ReferenceNumber!)
+                                              .ToDictionary(g => g.Key, g => g.Count());
+
+            var models = _mapper.Map<IEnumerable<InvoiceViewModel>>(invoices).ToList();
+            foreach (var model in models)
+            {
+                if (!string.IsNullOrEmpty(model.InvoiceNumber) && returnGrouped.ContainsKey(model.InvoiceNumber))
+                {
+                    model.HasReturn = true;
+                    model.ReturnCount = returnGrouped[model.InvoiceNumber];
+                }
+            }
+
+            return View(models);
         }
 
         [HttpGet]
         public async Task<IActionResult> Create()
         {
+            var cashSupplier = (await _unitOfWork.GetRepository<Supplier>().FindAsync(s => s.Name == "مورد نقدي" && !s.IsDeleted)).FirstOrDefault();
+            if (cashSupplier == null)
+            {
+                cashSupplier = new Supplier
+                {
+                    Name = "مورد نقدي",
+                    Phone = "-",
+                    Email = "cash@supplier.com",
+                    Address = "مورد نقدي",
+                    Balance = 0,
+                    CreatedBy = "System"
+                };
+                _unitOfWork.GetRepository<Supplier>().Add(cashSupplier);
+                await _unitOfWork.CompleteAsync();
+            }
+
             await PrepareDropdownsAsync();
             var model = new InvoiceCreateViewModel { Type = InvoiceType.Purchase, Date = DateTime.UtcNow };
             model.InvoiceNumber = await _invoiceService.GenerateInvoiceNumberAsync(InvoiceType.Purchase);
+            var mainWarehouse = (await _unitOfWork.GetRepository<Warehouse>().FindAsync(w => w.Name == "المخزن الرئيسي" && !w.IsDeleted)).FirstOrDefault()
+                                ?? (await _unitOfWork.GetRepository<Warehouse>().FindAsync(w => !w.IsDeleted)).FirstOrDefault();
+            if (mainWarehouse != null)
+            {
+                model.WarehouseId = mainWarehouse.Id;
+            }
+            if (cashSupplier != null)
+            {
+                model.SupplierId = cashSupplier.Id;
+            }
             return View(model);
         }
 
@@ -61,6 +104,18 @@ namespace CodeXErpSystem.Controllers
             ModelState.Remove("AttachmentUrl");
             ModelState.Remove("Notes");
             ModelState.Remove("PaidAmount");
+            ModelState.Remove("Type");
+            ModelState.Remove("CustomerId");
+            ModelState.Remove("SupplierId");
+            ModelState.Remove("ReferenceNumber");
+            ModelState.Remove("Status");
+            ModelState.Remove("PaymentMethod");
+
+            var keysToRemove = ModelState.Keys.Where(k => k.Contains("SalePrice") || k.Contains("UnitPrice") || k.Contains("Quantity") || k.Contains("DiscountAmount") || k.Contains("DiscountPercentage") || k.Contains("TaxPercentage")).ToList();
+            foreach (var key in keysToRemove)
+            {
+                ModelState.Remove(key);
+            }
 
             if (ModelState.IsValid)
             {
@@ -106,14 +161,23 @@ namespace CodeXErpSystem.Controllers
         {
             var suppliers = await _unitOfWork.GetRepository<Supplier>().FindAsync();
             var warehouses = await _unitOfWork.GetRepository<Warehouse>().FindAsync();
-            var products = await _unitOfWork.GetRepository<Product>().FindAsync();
+            var products = await _unitOfWork.GetRepository<Product>().FindAsync(includeProperties: "StockQuantities");
             var categories = await _unitOfWork.GetRepository<ProductCategory>().FindAsync();
 
             ViewBag.Suppliers = new SelectList(suppliers, "Id", "Name");
             ViewBag.Warehouses = new SelectList(warehouses, "Id", "Name");
             ViewBag.Categories = new SelectList(categories, "Id", "Name");
             ViewBag.Products = new SelectList(products, "Id", "Name");
-            ViewBag.ProductsList = products;
+            ViewBag.ProductsList = products.Select(p => new {
+                p.Id,
+                p.Name,
+                p.CategoryId,
+                p.SalePrice,
+                p.PurchasePrice,
+                p.UnitOfMeasure,
+                AvailableQty = p.StockQuantities != null ? p.StockQuantities.Sum(s => s.Quantity) : 0,
+                StockByWarehouse = p.StockQuantities != null ? p.StockQuantities.Select(sq => new { sq.WarehouseId, sq.Quantity }).ToList() : null
+            }).ToList();
         }
     }
 }

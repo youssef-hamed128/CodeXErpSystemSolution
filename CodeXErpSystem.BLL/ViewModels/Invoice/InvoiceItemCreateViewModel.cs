@@ -1,4 +1,4 @@
-﻿using CodeXErpSystem.BLL.ViewModels.Settings;
+using CodeXErpSystem.BLL.ViewModels.Settings;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -16,6 +16,7 @@ namespace CodeXErpSystem.BLL.ViewModels.Invoice
         public decimal Quantity { get; set; }
         [Range(0, double.MaxValue, ErrorMessage = "السعر يجب أن يكون موجباً")]
         public decimal UnitPrice { get; set; }
+        public decimal? SalePrice { get; set; }
     }
     // ============================================
     // نموذج مخصص لطباعة وعرض الفاتورة بالكامل (ببيانات الشركة)

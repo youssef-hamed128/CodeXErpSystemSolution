@@ -17,4 +17,8 @@
     <ProjectReference Include="..\CodeXErpSystem.BLL\CodeXErpSystem.BLL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\NewFolder\" />
+  </ItemGroup>
+
 </Project>

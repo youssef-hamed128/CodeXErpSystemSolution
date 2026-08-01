@@ -1,5 +1,6 @@
 using CodeXErpSystem.BLL.Services.Interfaces;
 using CodeXErpSystem.DAL.Entites;
+using CodeXErpSystem.DAL.Entites.Enums;
 using CodeXErpSystem.DAL.Repository.Inetrfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -35,7 +36,54 @@ namespace CodeXErpSystem.Controllers
                 if (invoice == null)
                     return NotFound(new { success = false, message = "الفاتورة غير موجودة" });
 
-                return Ok(new { success = true, data = invoice });
+                var returnInvoices = await _unitOfWork.GetRepository<Invoice>().FindAsync(
+                    i => i.ReferenceNumber == invoiceNumber && (i.Type == InvoiceType.SalesReturn || i.Type == InvoiceType.PurchaseReturn),
+                    includeProperties: "Items");
+
+                var returnedQtyMap = returnInvoices
+                    .Where(r => r.Items != null)
+                    .SelectMany(r => r.Items)
+                    .GroupBy(item => item.ProductId)
+                    .ToDictionary(g => g.Key, g => g.Sum(x => x.Quantity));
+
+                var itemsWithRemaining = invoice.Items.Select(item => {
+                    decimal returnedQty = returnedQtyMap.ContainsKey(item.ProductId) ? returnedQtyMap[item.ProductId] : 0;
+                    decimal remainingQty = Math.Max(0, item.Quantity - returnedQty);
+                    return new {
+                        id = item.Id,
+                        productId = item.ProductId,
+                        productName = item.ProductName,
+                        unitMeasure = item.UnitOfMeasure,
+                        quantity = item.Quantity,
+                        returnedQuantity = returnedQty,
+                        remainingQuantity = remainingQty,
+                        unitPrice = item.UnitPrice,
+                        total = item.Total
+                    };
+                });
+
+                var resultData = new {
+                    id = invoice.Id,
+                    invoiceNumber = invoice.InvoiceNumber,
+                    type = (int)invoice.Type,
+                    typeDisplay = invoice.TypeDisplay,
+                    customerId = invoice.CustomerId,
+                    customerName = invoice.CustomerName,
+                    supplierId = invoice.SupplierId,
+                    supplierName = invoice.SupplierName,
+                    date = invoice.Date,
+                    dueDate = invoice.DueDate,
+                    totalAmount = invoice.TotalAmount,
+                    paidAmount = invoice.PaidAmount,
+                    remainingAmount = invoice.RemainingAmount,
+                    statusDisplay = invoice.StatusDisplay,
+                    paymentMethodDisplay = invoice.PaymentMethodDisplay,
+                    hasReturns = returnInvoices.Any(),
+                    returnCount = returnInvoices.Count(),
+                    items = itemsWithRemaining
+                };
+
+                return Ok(new { success = true, data = resultData });
             }
             catch (Exception ex)
             {

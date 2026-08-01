@@ -25,5 +25,7 @@ namespace CodeXErpSystem.BLL.ViewModels.Products
         public bool HasStockTracking { get; set; } = true;
         public string? UnitOfMeasure { get; set; }
         public decimal MinStockLevel { get; set; } = 1;
+        public decimal InitialQuantity { get; set; } = 0;
+        public int? WarehouseId { get; set; }
     }
 }

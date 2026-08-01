@@ -19,7 +19,7 @@ namespace CodeXErpSystem.Controllers
         public async Task<IActionResult> Index()
         {
             var repo = _unitOfWork.GetRepository<CodeXErpSystem.DAL.Entites.ApplicationUser>();
-            var users = await repo.FindAsync(null, "Role");
+            var users = await repo.FindAsync(u => true, "Role");
             
             var roles = await _unitOfWork.GetRepository<CodeXErpSystem.DAL.Entites.Role>().FindAsync();
             ViewBag.Roles = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(roles, "Id", "Name");

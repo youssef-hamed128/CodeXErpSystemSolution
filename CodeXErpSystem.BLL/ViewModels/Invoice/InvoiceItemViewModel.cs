@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +12,7 @@ namespace CodeXErpSystem.BLL.ViewModels.Invoice
         public int ProductId { get; set; }
         public string? ProductName { get; set; }
         public string? ProductCode { get; set; }
+        public string? UnitOfMeasure { get; set; }
         public decimal Quantity { get; set; }
         public decimal UnitPrice { get; set; }
         public decimal TaxAmount { get; set; }

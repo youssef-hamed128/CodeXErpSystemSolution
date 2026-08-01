@@ -206,23 +206,65 @@
 
     $('#transferForm').on('submit', function (e) {
         e.preventDefault();
-        var data = {};
-        $(this).serializeArray().forEach(item => {
-            data[item.name] = item.value;
+        
+        let fromWh = $('select[name="FromWarehouseId"]').val();
+        let toWh = $('select[name="ToWarehouseId"]').val();
+        
+        if (!fromWh || !toWh) {
+            showToast('الرجاء اختيار مستودع المصدر ومستودع الوجهة', 'error');
+            return;
+        }
+        if (fromWh === toWh) {
+            showToast('لا يمكن التحويل لنفس المستودع! الرجاء اختيار مستودع وجهة مختلف', 'error');
+            return;
+        }
+
+        let transferItems = [];
+        $('#transferItemsBody tr').each(function() {
+            let prodId = $(this).find('.product-select').val();
+            let qty = $(this).find('input[type="number"]').val();
+            if (prodId && qty && parseFloat(qty) > 0) {
+                transferItems.push({
+                    ProductId: parseInt(prodId),
+                    TransferredQuantity: parseFloat(qty)
+                });
+            }
         });
 
-        var url = data.Id == 0 ? '/StockTransfer/Create' : '/StockTransfer/Edit';
+        if (transferItems.length === 0) {
+            showToast('الرجاء اختيار منتج واحد على الأقل وإدخال كمية التحويل', 'error');
+            return;
+        }
+
+        var payload = {
+            Id: parseInt($('#TransferId').val() || 0),
+            TransferDate: $('#transferDate').val() || new Date().toISOString().split('T')[0],
+            ReferenceNumber: $('input[name="ReferenceNumber"]').val(),
+            SourceWarehouseId: parseInt(fromWh),
+            DestWarehouseId: parseInt(toWh),
+            FromWarehouseId: parseInt(fromWh),
+            ToWarehouseId: parseInt(toWh),
+            Notes: $('textarea[name="Notes"]').val() || '',
+            TransferItems: transferItems
+        };
+
+        var url = payload.Id == 0 ? '/StockTransfer/Create' : '/StockTransfer/Edit';
         
         $.ajax({
             url: url,
             type: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify(data),
+            data: JSON.stringify(payload),
             success: function (res) {
                 if (res.success) {
-                    showToast(res.message, 'success');
+                    showToast(res.message || 'تم تحويل المخزون بنجاح', 'success');
                     setTimeout(() => window.location.href = '../Product/Index', 1500);
+                } else {
+                    showToast(res.message || 'فشلت عملية التحويل', 'error');
                 }
+            },
+            error: function (xhr) {
+                showToast('حدث خطأ أثناء الاتصال بالخادم', 'error');
             }
         });
     });

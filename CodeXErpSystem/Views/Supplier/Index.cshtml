@@ -37,7 +37,11 @@
               <td class="table-actions">
                 <a class="action-btn view" href="~/Reports/SupplierStatement?supplierId=@item.Id" title="كشف حساب تفصيلي"><i class="fas fa-money-check-alt"></i></a>
                 <button class="action-btn edit" onclick="openEditModal(@item.Id, '@item.Name', '@item.Phone', '', '@item.Address')"><i class="fas fa-edit"></i></button>
-                <button class="action-btn delete" onclick="deleteRecord(@item.Id)"><i class="fas fa-trash"></i></button>
+                @if (item.Name != "مورد نقدي") {
+                    <button class="action-btn delete" onclick="deleteRecord(@item.Id)" title="حذف المورد"><i class="fas fa-trash"></i></button>
+                } else {
+                    <span class="badge" style="background:#e2e8f0; color:#475569; font-size:11px; font-weight:700; display:inline-flex; align-items:center; gap:3px;" title="مورد نقدي ثابت للنظام لا يمكن حذفه"><i class="fas fa-lock"></i> ثابت</span>
+                }
               </td>
             </tr>
 }
@@ -57,7 +61,7 @@
           <div class="form-group"><label class="form-label required">اسم المورد</label><input type="text" class="form-control" name="Name" required></div>
           <div class="form-group"><label class="form-label required">رقم الهاتف</label><input type="tel" class="form-control" name="Phone" dir="ltr" required></div>
           <div class="form-group"><label class="form-label">الرقم الضريبي</label><input type="text" class="form-control" name="TaxNumber" dir="ltr"></div>
-          <div class="form-group"><label class="form-label">شروط الدفع</label><select class="form-select"><option value="cash">نقداً</option><option value="net30">بعد 30 يوم</option></select></div>
+          <div class="form-group"><label class="form-label">شروط الدفع</label><select class="form-select"><option value="cash">نقداً</option><option value="net30">أجل</option></select></div>
           <div class="form-group" style="grid-column:span 2;"><label class="form-label">العنوان</label><textarea class="form-control" name="Address" rows="2"></textarea></div>
         </div>
       </div>

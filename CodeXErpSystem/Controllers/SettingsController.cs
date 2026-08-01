@@ -75,21 +75,21 @@ namespace CodeXErpSystem.Controllers
                 string filePath = Path.Combine(backupsFolder, fileName);
 
                 string connStr = _config.GetConnectionString("DefaultConnection") ?? "";
-                
+
                 // Using raw ADO.NET to avoid EF Core timeout on large backups
                 using (var conn = new Microsoft.Data.SqlClient.SqlConnection(connStr))
                 {
                     await conn.OpenAsync();
                     using (var cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = $"BACKUP DATABASE [CodeXERP] TO DISK = '{filePath}' WITH FORMAT, INIT, COMPRESSION;";
+                        cmd.CommandText = $"BACKUP DATABASE [CodeXERP] TO DISK = '{filePath}' WITH FORMAT, INIT;";
                         cmd.CommandTimeout = 300; // 5 minutes
                         await cmd.ExecuteNonQueryAsync();
                     }
                 }
 
                 byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
-                
+
                 // Optionally delete the file from server after reading into memory
                 System.IO.File.Delete(filePath);
 
@@ -100,6 +100,7 @@ namespace CodeXErpSystem.Controllers
                 return Json(new { success = false, message = "حدث خطأ أثناء النسخ الاحتياطي: " + ex.Message });
             }
         }
+
     }
 }
 

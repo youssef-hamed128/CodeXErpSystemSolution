@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using CodeXErpSystem.BLL.Services.Interfaces;
@@ -22,8 +23,20 @@ namespace CodeXErpSystem.BLL.Services.Classes
 
         public IEnumerable<WarehouseViewModel> GetAllWarehouses()
         {
-            var entities = _unitOfWork.GetRepository<Warehouse>().GetAll(false).Result;
-            return _mapper.Map<IEnumerable<WarehouseViewModel>>(entities);
+            var entities = _unitOfWork.GetRepository<Warehouse>().FindAsync(includeProperties: "StockQuantities,StockQuantities.Product").Result;
+            var viewModels = _mapper.Map<IEnumerable<WarehouseViewModel>>(entities).ToList();
+
+            foreach (var vm in viewModels)
+            {
+                var entity = entities.FirstOrDefault(e => e.Id == vm.Id);
+                if (entity != null && entity.StockQuantities != null)
+                {
+                    vm.TotalQuantity = entity.StockQuantities.Sum(sq => sq.Quantity);
+                    vm.TotalInventoryValue = entity.StockQuantities.Sum(sq => sq.Quantity * (sq.Product?.PurchasePrice ?? 0));
+                }
+            }
+
+            return viewModels;
         }
 
         public async Task CreateAsync(WarehouseViewModel model)

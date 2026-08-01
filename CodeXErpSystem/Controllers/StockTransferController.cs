@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using CodeXErpSystem.BLL.Services.Interfaces;
 
@@ -23,8 +23,15 @@ namespace CodeXErpSystem.Controllers
         [HttpPost]
         public async System.Threading.Tasks.Task<IActionResult> Create([FromBody] CodeXErpSystem.BLL.ViewModels.Warehouses.StockTransferViewModel model)
         {
-            await _stockTransferService.CreateAsync(model);
-            return Json(new { success = true, message = "Stock Transfer created successfully." });
+            try
+            {
+                await _stockTransferService.CreateAsync(model);
+                return Json(new { success = true, message = "تم تحويل المخزون بين المستودعات بنجاح." });
+            }
+            catch (System.Exception ex)
+            {
+                return Json(new { success = false, message = ex.InnerException?.Message ?? ex.Message });
+            }
         }
 
         [HttpPost]

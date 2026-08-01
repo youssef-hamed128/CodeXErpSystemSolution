@@ -20,6 +20,7 @@ namespace CodeXErpSystem.BLL.ViewModels.Warehouses
         public string? Address { get => Location; set => Location = value; }
         public bool IsActive { get; set; } = true;
         public decimal TotalInventoryValue { get; set; }
+        public decimal TotalQuantity { get; set; }
         public string BgColor { get; set; } = "var(--bg-surface)";
         public string TextColor { get; set; } = "var(--text-main)";
         public string IconClass { get; set; } = "fa-warehouse";

@@ -29,20 +29,30 @@ namespace CodeXErpSystem.BLL.Services.Classes
             foreach (var vm in viewModels)
             {
                 var entity = entities.FirstOrDefault(e => e.Id == vm.Id);
-                if (entity != null && entity.StockQuantities.Any())
+                if (entity != null && entity.StockQuantities != null && entity.StockQuantities.Any())
                 {
-                    vm.WarehouseName = string.Join(", ", entity.StockQuantities.Select(sq => sq.Warehouse?.Name).Where(n => !string.IsNullOrEmpty(n)).Distinct());
+                    var activeStocks = entity.StockQuantities.Where(sq => sq.Quantity > 0).ToList();
+                    if (activeStocks.Any())
+                    {
+                        var whNames = activeStocks.Select(sq => sq.Warehouse?.Name).Where(n => !string.IsNullOrEmpty(n)).Distinct().ToList();
+                        vm.WarehouseName = string.Join(", ", whNames);
+                    }
+                    else
+                    {
+                        var whNames = entity.StockQuantities.Select(sq => sq.Warehouse?.Name).Where(n => !string.IsNullOrEmpty(n)).Distinct().ToList();
+                        vm.WarehouseName = whNames.Any() ? string.Join(", ", whNames) : "المخزن الرئيسي";
+                    }
                     vm.AvailableQuantity = entity.StockQuantities.Sum(sq => sq.Quantity);
-                    if (vm.AvailableQuantity == 0) vm.Status = "نفذت الكمية";
-                    else if (vm.AvailableQuantity <= vm.MinQuantity) vm.Status = "منخفض";
-                    else vm.Status = "متاح";
                 }
                 else
                 {
-                    vm.WarehouseName = "غير محدد";
+                    vm.WarehouseName = "المخزن الرئيسي";
                     vm.AvailableQuantity = 0;
-                    vm.Status = "نفذت الكمية";
                 }
+
+                if (vm.AvailableQuantity == 0) vm.Status = "نفذت الكمية";
+                else if (vm.AvailableQuantity <= vm.MinQuantity) vm.Status = "منخفض";
+                else vm.Status = "متاح";
             }
             return viewModels;
         }
@@ -60,6 +70,39 @@ namespace CodeXErpSystem.BLL.Services.Classes
             var entity = _mapper.Map<Product>(model);
             _unitOfWork.GetRepository<Product>().Add(entity);
             await _unitOfWork.CompleteAsync();
+
+            Warehouse? mainWarehouse = null;
+            if (model.WarehouseId.HasValue && model.WarehouseId.Value > 0)
+            {
+                mainWarehouse = (await _unitOfWork.GetRepository<Warehouse>().FindAsync(w => w.Id == model.WarehouseId.Value && !w.IsDeleted)).FirstOrDefault();
+            }
+            if (mainWarehouse == null)
+            {
+                mainWarehouse = (await _unitOfWork.GetRepository<Warehouse>().FindAsync(w => w.Name == "المخزن الرئيسي" && !w.IsDeleted)).FirstOrDefault()
+                                ?? (await _unitOfWork.GetRepository<Warehouse>().FindAsync(w => !w.IsDeleted)).FirstOrDefault();
+            }
+            if (mainWarehouse != null && model.InitialQuantity > 0)
+            {
+                var sq = new StockQuantity
+                {
+                    ProductId = entity.Id,
+                    WarehouseId = mainWarehouse.Id,
+                    Quantity = model.InitialQuantity
+                };
+                _unitOfWork.GetRepository<StockQuantity>().Add(sq);
+
+                var st = new StockTransaction
+                {
+                    ProductId = entity.Id,
+                    DestWarehouseId = mainWarehouse.Id,
+                    Quantity = model.InitialQuantity,
+                    Type = DAL.Entites.Enums.StockTransactionType.In,
+                    Note = "رصيد افتتاحي عند إضافة المنتج",
+                    Date = System.DateTime.UtcNow
+                };
+                _unitOfWork.GetRepository<StockTransaction>().Add(st);
+                await _unitOfWork.CompleteAsync();
+            }
         }
 
         public async Task UpdateAsync(CodeXErpSystem.BLL.ViewModels.Products.ProductCreateViewModel model)
@@ -75,6 +118,69 @@ namespace CodeXErpSystem.BLL.Services.Classes
             var entity = _mapper.Map<Product>(model);
             _unitOfWork.GetRepository<Product>().Update(entity);
             await _unitOfWork.CompleteAsync();
+
+            if (model.InitialQuantity >= 0)
+            {
+                Warehouse? mainWarehouse = null;
+                if (model.WarehouseId.HasValue && model.WarehouseId.Value > 0)
+                {
+                    mainWarehouse = (await _unitOfWork.GetRepository<Warehouse>().FindAsync(w => w.Id == model.WarehouseId.Value && !w.IsDeleted)).FirstOrDefault();
+                }
+                if (mainWarehouse == null)
+                {
+                    mainWarehouse = (await _unitOfWork.GetRepository<Warehouse>().FindAsync(w => w.Name == "المخزن الرئيسي" && !w.IsDeleted)).FirstOrDefault()
+                                        ?? (await _unitOfWork.GetRepository<Warehouse>().FindAsync(w => !w.IsDeleted)).FirstOrDefault();
+                }
+                if (mainWarehouse != null)
+                {
+                    var sqList = await _unitOfWork.GetRepository<StockQuantity>().FindAsync(s => s.ProductId == model.Id && s.WarehouseId == mainWarehouse.Id);
+                    var sq = sqList.FirstOrDefault();
+                    if (sq != null)
+                    {
+                        if (sq.Quantity != model.InitialQuantity)
+                        {
+                            decimal diff = model.InitialQuantity - sq.Quantity;
+                            sq.Quantity = model.InitialQuantity;
+                            _unitOfWork.GetRepository<StockQuantity>().Update(sq);
+
+                            var st = new StockTransaction
+                            {
+                                ProductId = model.Id,
+                                DestWarehouseId = diff >= 0 ? mainWarehouse.Id : null,
+                                SourceWarehouseId = diff < 0 ? mainWarehouse.Id : null,
+                                Quantity = System.Math.Abs(diff),
+                                Type = diff >= 0 ? DAL.Entites.Enums.StockTransactionType.In : DAL.Entites.Enums.StockTransactionType.Out,
+                                Note = "تعديل الرصيد الافتتاحي للمنتج",
+                                Date = System.DateTime.UtcNow
+                            };
+                            _unitOfWork.GetRepository<StockTransaction>().Add(st);
+                            await _unitOfWork.CompleteAsync();
+                        }
+                    }
+                    else if (model.InitialQuantity > 0)
+                    {
+                        sq = new StockQuantity
+                        {
+                            ProductId = model.Id,
+                            WarehouseId = mainWarehouse.Id,
+                            Quantity = model.InitialQuantity
+                        };
+                        _unitOfWork.GetRepository<StockQuantity>().Add(sq);
+
+                        var st = new StockTransaction
+                        {
+                            ProductId = model.Id,
+                            DestWarehouseId = mainWarehouse.Id,
+                            Quantity = model.InitialQuantity,
+                            Type = DAL.Entites.Enums.StockTransactionType.In,
+                            Note = "رصيد افتتاحي للمنتج",
+                            Date = System.DateTime.UtcNow
+                        };
+                        _unitOfWork.GetRepository<StockTransaction>().Add(st);
+                        await _unitOfWork.CompleteAsync();
+                    }
+                }
+            }
         }
 
         public async Task DeleteAsync(int id)

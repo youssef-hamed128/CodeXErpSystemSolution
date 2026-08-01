@@ -23,6 +23,7 @@
                     <tr>
                         <th>كود المنتج</th>
                         <th>اسم المنتج</th>
+                        <th>المستودع</th>
                         <th>الكمية الحالية</th>
                         <th>الحالة</th>
                     </tr>
@@ -33,6 +34,9 @@
                         <tr>
                             <td dir="ltr" style="text-align:right;">@item.Code</td>
                             <td style="padding-right:20px;">@item.Name</td>
+                            <td>
+                                <span class="badge badge-info" style="background:rgba(23, 162, 184, 0.15); color:var(--info); font-weight:700;">@item.WarehouseName</span>
+                            </td>
                             <td class="numeric">@item.Quantity</td>
                             <td>
                                 @if (item.Quantity == 0)
@@ -49,7 +53,7 @@
                     @if (!Model.Any())
                     {
                         <tr>
-                            <td colspan="4" class="center">لا توجد نواقص في المخزون حالياً. جميع المنتجات متوفرة.</td>
+                            <td colspan="5" class="center">لا توجد نواقص في المخزون حالياً. جميع المنتجات متوفرة.</td>
                         </tr>
                     }
                 </tbody>

@@ -22,6 +22,22 @@ namespace CodeXErpSystem.BLL.Services.Classes
 
         public async Task<IEnumerable<CodeXErpSystem.BLL.ViewModels.Suppliers.SupplierViewModel>> GetAllAsync()
         {
+            var cashSupplier = (await _unitOfWork.GetRepository<Supplier>().FindAsync(s => s.Name == "مورد نقدي" && !s.IsDeleted)).FirstOrDefault();
+            if (cashSupplier == null)
+            {
+                cashSupplier = new Supplier
+                {
+                    Name = "مورد نقدي",
+                    Phone = "-",
+                    Email = "cash@supplier.com",
+                    Address = "مورد نقدي",
+                    Balance = 0,
+                    CreatedBy = "System"
+                };
+                _unitOfWork.GetRepository<Supplier>().Add(cashSupplier);
+                await _unitOfWork.CompleteAsync();
+            }
+
             var entities = await _unitOfWork.GetRepository<Supplier>().GetAll(false);
             var result = _mapper.Map<IEnumerable<CodeXErpSystem.BLL.ViewModels.Suppliers.SupplierViewModel>>(entities).ToList();
             var entitiesList = entities.ToList();
@@ -50,6 +66,12 @@ namespace CodeXErpSystem.BLL.Services.Classes
 
         public async Task UpdateAsync(SupplierViewModel model)
         {
+            var currentSupplier = await _unitOfWork.GetRepository<Supplier>().GetById(model.Id);
+            if (currentSupplier != null && currentSupplier.Name == "مورد نقدي" && model.Name != "مورد نقدي")
+            {
+                throw new System.InvalidOperationException("لا يمكن تغيير اسم المورد النقدي الثابت للنظام.");
+            }
+
             var existingName = await _unitOfWork.GetRepository<Supplier>().FindAsync(s => s.Name == model.Name && s.Id != model.Id);
             if (existingName.Any()) throw new System.InvalidOperationException("اسم المورد مكرر مع مورد آخر.");
 
@@ -66,6 +88,11 @@ namespace CodeXErpSystem.BLL.Services.Classes
 
         public async Task DeleteAsync(int id)
         {
+            var supplier = await _unitOfWork.GetRepository<Supplier>().GetById(id);
+            if (supplier != null && supplier.Name == "مورد نقدي")
+            {
+                throw new System.InvalidOperationException("لا يمكن حذف المورد النقدي الثابت للنظام.");
+            }
             _unitOfWork.GetRepository<Supplier>().Delete(id);
             await _unitOfWork.CompleteAsync();
         }

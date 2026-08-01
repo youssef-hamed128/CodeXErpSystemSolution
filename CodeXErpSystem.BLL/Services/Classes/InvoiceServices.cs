@@ -109,26 +109,6 @@ namespace CodeXErpSystem.BLL.Services.Classes
                 }
                 unitOfWork.GetRepository<Invoice>().Add(invoice);
 
-                // إنشاء سند فقط للفواتير المدفوعة جزئياً
-                if (invoice.Status == InvoiceStatus.Partial && invoice.PaidAmount > 0 && model.PaymentMethod != PaymentMethod.BalanceDeduction)
-                {
-                    var existingPayments = await unitOfWork.GetRepository<Payment>().GetAll(false);
-                    var maxNumber = existingPayments.Any() ? existingPayments.Max(p => int.TryParse(p.ReceiptNumber, out int n) ? n : 0) : 1000;
-                    string nextReceiptNum = (maxNumber + 1).ToString();
-
-                    unitOfWork.GetRepository<Payment>().Add(new Payment
-                    {
-                        ReceiptNumber = nextReceiptNum,
-                        Date = invoice.Date,
-                        Amount = invoice.PaidAmount,
-                        PaymentMethod = PaymentMethod.Cash,
-                        Reference = $"سداد جزئي - فاتورة رقم {invoice.InvoiceNumber}",
-                        Invoice = invoice,
-                        CustomerId = model.CustomerId,
-                        SupplierId = model.SupplierId,
-                        CreatedBy = userId
-                    });
-                }
                 //--------------------- تحديث المخزون
                 foreach (var item in invoice.Items)
                 {
@@ -136,7 +116,7 @@ namespace CodeXErpSystem.BLL.Services.Classes
                     bool isStockAddition = model.Type == InvoiceType.Purchase || model.Type == InvoiceType.SalesReturn;
                     if (stock == null)
                     {
-                        if (!isStockAddition) throw new Exception("الصنف غير موجود المخزن");
+                        if (!isStockAddition) throw new InvalidOperationException("تنبيه: الصنف غير موجود في المخزون (الرصيد: 0)");
                         stock = new StockQuantity { ProductId = item.ProductId, WarehouseId = model.WarehouseId, Quantity = item.Quantity, CreatedBy = userId };
                         unitOfWork.GetRepository<StockQuantity>().Add(stock);
                     }
@@ -146,8 +126,10 @@ namespace CodeXErpSystem.BLL.Services.Classes
                             stock.Quantity += item.Quantity;
                         else
                         {
+                            if (stock.Quantity <= 0)
+                                throw new InvalidOperationException("تنبيه: الصنف غير موجود في المخزون (الرصيد: 0)");
                             if (stock.Quantity < item.Quantity)
-                                throw new Exception("رصيد المخزن لا يكفي");
+                                throw new InvalidOperationException($"الكمية المدخلة أكبر من الكمية المتوفرة في المخزون (المتوفر: {stock.Quantity})");
                             stock.Quantity -= item.Quantity;
                         }
                         unitOfWork.GetRepository<StockQuantity>().Update(stock);
@@ -162,6 +144,21 @@ namespace CodeXErpSystem.BLL.Services.Classes
                         ReferenceId = invoice.InvoiceNumber,
                         CreatedBy = userId
                     });
+
+                    if (model.Type == InvoiceType.Purchase)
+                    {
+                        var product = await unitOfWork.GetRepository<Product>().GetById(item.ProductId, ct);
+                        if (product != null)
+                        {
+                            product.PurchasePrice = item.UnitPrice;
+                            var modelItem = model.Items.FirstOrDefault(m => m.ProductId == item.ProductId);
+                            if (modelItem != null && modelItem.SalePrice.HasValue && modelItem.SalePrice.Value >= 0)
+                            {
+                                product.SalePrice = modelItem.SalePrice.Value;
+                            }
+                            unitOfWork.GetRepository<Product>().Update(product);
+                        }
+                    }
                 }
                 //--------------------------تحديث الارصده للعملاء و الموردين 
                 if (model.CustomerId.HasValue)
@@ -206,7 +203,7 @@ namespace CodeXErpSystem.BLL.Services.Classes
                 await unitOfWork.CompleteAsync(ct);
 
                 // إنشاء سند في جدول السندات فقط في حالة السداد الجزئي (مدفوعة جزئياً) بعد حفظ الفاتورة لضمان وجود InvoiceId
-                if (invoice.PaidAmount > 0.01m && invoice.PaidAmount < invoice.TotalAmount - 0.01m)
+                if (invoice.PaidAmount > 0.01m && invoice.PaidAmount < invoice.TotalAmount - 0.01m && model.PaymentMethod != PaymentMethod.BalanceDeduction)
                 {
                     var allPayments = await unitOfWork.GetRepository<Payment>().GetAll(false, ct);
                     var maxNumber = allPayments.Any() ? allPayments.Max(p => int.TryParse(p.ReceiptNumber, out int n) ? n : 0) : 1000;

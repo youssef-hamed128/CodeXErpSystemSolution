@@ -6,11 +6,9 @@
     <div class="page-header">
       <div class="page-header-left"><h1 class="page-title"><i class="fas fa-boxes" style="color:var(--info);"></i> المنتجات وإدارة المخزون</h1><p style="color:var(--text-muted);font-size:var(--fs-sm);margin-top:4px;">إدارة المنتجات والأصناف ومستويات المخزون</p></div>
       <div class="page-header-right">
-        <a href="~/Inventory/StockTransfer" class="btn btn-outline-secondary btn-sm"><i class="fas fa-exchange-alt"></i> تحويل مخزون</a>
-        <a href="~/Inventory/StockAdjustment" class="btn btn-outline-secondary btn-sm"><i class="fas fa-sliders-h"></i> تسوية المخزون</a>
         <button class="btn btn-outline-secondary btn-sm" onclick="exportToExcel('productsTable')"><i class="fas fa-file-excel"></i> Excel</button>
         <button class="btn btn-primary" onclick="openModal('addCategoryModal')"><i class="fas fa-tags"></i> إضافة مجموعة جديدة</button>
-        <button class="btn btn-info" onclick="openModal('addProductModal')"><i class="fas fa-plus"></i> منتج جديد</button>
+        <button class="btn btn-info" onclick="openNewProductModal()"><i class="fas fa-plus"></i> منتج جديد</button>
       </div>
     </div>
 
@@ -21,9 +19,9 @@
         <input type="text" class="form-control" placeholder="بحث بالاسم أو الكود (SKU)..." data-table-search-simple="productsTable" style="max-width:280px;">
         <select class="form-select" id="categoryFilter">
             <option value="">جميع الفئات</option>
-            @if (ViewBag.Categories != null)
+            @if (ViewBag.Categories is IEnumerable<CodeXErpSystem.DAL.Entites.ProductCategory> cats)
             {
-                foreach(var cat in ViewBag.Categories as IEnumerable<CodeXErpSystem.DAL.Entites.ProductCategory>)
+                foreach(var cat in cats)
                 {
                     <option value="@cat.Id">@cat.Name</option>
                 }
@@ -54,7 +52,7 @@
                   <td style="font-family:monospace;font-weight:600;color:var(--text-muted);">@product.SKU</td>
                   <td style="font-weight:500;">@product.ProductName</td>
                   <td>@product.Category</td>
-                  <td><span class="badge badge-info" style="background:rgba(23, 162, 184, 0.1); color:var(--info);">@product.WarehouseName</span></td>
+                  <td><span class="badge badge-info" style="background:rgba(23, 162, 184, 0.1); color:var(--info); font-weight:700;">@(string.IsNullOrWhiteSpace(product.WarehouseName) || product.WarehouseName == "غير محدد" ? "المخزن الرئيسي" : product.WarehouseName)</span></td>
                   <td>@product.Unit</td>
                   <td class="numeric">@product.UnitCost.ToString("N2")</td>
                   <td class="numeric" style="color:var(--success);font-weight:600;">@product.SalePrice.ToString("N2")</td>
@@ -62,7 +60,7 @@
                   <td class="numeric">@product.MinQuantity</td>
                   <td><span class="badge @badgeClass">@product.Status</span></td>
                   <td class="table-actions">
-                    <button class="action-btn edit" onclick="openEditModal(@product.Id, '@product.ProductName', '@product.SKU', '@product.CategoryId', '@product.UnitCost', '@product.SalePrice', '@product.MinQuantity', '@product.Unit', '@product.TaxRate', '@product.Barcode')"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn edit" onclick="openEditModal(@product.Id, '@product.ProductName', '@product.SKU', '@product.CategoryId', '@product.UnitCost', '@product.SalePrice', '@product.MinQuantity', '@product.Unit', '@product.TaxRate', '@product.Barcode', '@product.AvailableQuantity')"><i class="fas fa-edit"></i></button>
                     <button class="action-btn delete" onclick="deleteRecord(@product.Id)"><i class="fas fa-trash"></i></button>
                   </td>
                 </tr>
@@ -96,9 +94,9 @@
               <label class="form-label required">الفئة</label>
               <select class="form-select" name="CategoryId" required>
                   <option value="">-- اختر الفئة --</option>
-                  @if (ViewBag.Categories != null)
+                  @if (ViewBag.Categories is IEnumerable<CodeXErpSystem.DAL.Entites.ProductCategory> cats)
                   {
-                      foreach(var cat in ViewBag.Categories as IEnumerable<CodeXErpSystem.DAL.Entites.ProductCategory>)
+                      foreach(var cat in cats)
                       {
                           <option value="@cat.Id">@cat.Name</option>
                       }
@@ -118,6 +116,31 @@
           <div class="form-group"><label class="form-label required">سعر البيع</label><div class="input-group"><input type="number" class="form-control" name="SalePrice" value="0" min="0" step="0.01" required><span class="input-group-text">ج.م</span></div></div>
           <div class="form-group"><label class="form-label">نسبة الضريبة (%)</label><input type="number" class="form-control" name="TaxRate" value="0" min="0" max="100" step="0.01"></div>
           <div class="form-group"><label class="form-label">الحد الأدنى للتنبيه</label><input type="number" class="form-control" name="MinStockLevel" value="0" min="0"></div>
+          <div class="form-group" style="grid-column:span 2; background:#f8fafc; padding:16px; border-radius:12px; border:1px solid #e2e8f0;">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+              <div>
+                <label class="form-label" style="color:var(--primary); font-weight:700;"><i class="fas fa-boxes"></i> الرصيد الافتتاحي (الكمية الحالية)</label>
+                <input type="number" class="form-control" name="InitialQuantity" value="0" min="0" step="any" placeholder="0" style="font-weight:bold; font-size:15px; border:2px solid var(--primary-light);">
+              </div>
+              <div>
+                <label class="form-label required" style="color:#1e293b; font-weight:700;"><i class="fas fa-warehouse"></i> اختيار المخزن</label>
+                <select class="form-select" name="WarehouseId" id="modalWarehouseSelect" style="font-weight:700; font-size:14px; border:2px solid #cbd5e1;">
+                  @if (ViewBag.Warehouses is IEnumerable<CodeXErpSystem.DAL.Entites.Warehouse> whs)
+                  {
+                      foreach(var wh in whs)
+                      {
+                          <option value="@wh.Id" selected="@(wh.Name == "المخزن الرئيسي" ? "selected" : null)">@wh.Name</option>
+                      }
+                  }
+                  else
+                  {
+                      <option value="">-- المخزن الرئيسي --</option>
+                  }
+                </select>
+              </div>
+            </div>
+            <small style="color:var(--text-secondary); font-size:12px; display:block; margin-top:10px;"><i class="fas fa-info-circle me-1" style="color:var(--primary);"></i> تُضاف الكمية المدخلة مباشرة إلى رصيد الصنف في المخزن المختار دون الحاجة لعمل فاتورة مشتريات.</small>
+          </div>
         </div>
       </div>
     </div>
@@ -223,7 +246,28 @@
         });
     });
     
-    function openEditModal(id, name, code, categoryId, purchasePrice, salePrice, minStock, unit, taxRate, barcode) {
+    function resetWarehouseSelectToMain() {
+        let whSelect = document.getElementById('modalWarehouseSelect');
+        if (whSelect) {
+            let mainOpt = Array.from(whSelect.options).find(o => o.text.trim() === 'المخزن الرئيسي');
+            if (mainOpt) {
+                whSelect.value = mainOpt.value;
+            } else if (whSelect.options.length > 0) {
+                whSelect.selectedIndex = 0;
+            }
+        }
+    }
+
+    function openNewProductModal() {
+        document.getElementById('productForm').reset();
+        document.getElementById('productId').value = 0;
+        let initInput = document.querySelector('input[name="InitialQuantity"]');
+        if (initInput) initInput.value = 0;
+        resetWarehouseSelectToMain();
+        openModal('addProductModal');
+    }
+
+    function openEditModal(id, name, code, categoryId, purchasePrice, salePrice, minStock, unit, taxRate, barcode, availQty) {
         document.getElementById('productForm').reset();
         document.getElementById('productId').value = id;
         document.querySelector('input[name="Name"]').value = name;
@@ -231,12 +275,13 @@
         document.querySelector('input[name="PurchasePrice"]').value = purchasePrice;
         document.querySelector('input[name="SalePrice"]').value = salePrice;
         document.querySelector('input[name="MinStockLevel"]').value = minStock;
+        document.querySelector('input[name="InitialQuantity"]').value = availQty || 0;
         
         if (categoryId && categoryId !== 'null') document.querySelector('select[name="CategoryId"]').value = categoryId;
         if (unit && unit !== 'null') document.querySelector('select[name="UnitOfMeasure"]').value = unit;
         if (taxRate && taxRate !== 'null') document.querySelector('input[name="TaxRate"]').value = taxRate;
         if (barcode && barcode !== 'null' && barcode !== '') document.querySelector('input[name="Barcode"]').value = barcode;
-        
+        resetWarehouseSelectToMain();
         openModal('addProductModal');
     }
 

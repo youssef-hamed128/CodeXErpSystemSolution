@@ -62,6 +62,22 @@ namespace CodeXErpSystem.BLL.ViewModels.Invoice
         };
         public string? Notes { get; set; }
         public string? AttachmentUrl { get; set; }
+        public bool HasReturn { get; set; }
+        public int ReturnCount { get; set; }
+
+        public string PrintUrl => Type switch
+        {
+            InvoiceType.Sales => $"/SalesInvoice/Print/{Id}",
+            InvoiceType.Purchase => $"/PurchaseInvoice/Print/{Id}",
+            InvoiceType.SalesReturn => $"/SalesReturn/Print/{Id}",
+            InvoiceType.PurchaseReturn => $"/PurchaseReturn/Print/{Id}",
+            _ => "#"
+        };
+
+        public string? PartyName => (Type == InvoiceType.Sales || Type == InvoiceType.SalesReturn)
+            ? CustomerName
+            : SupplierName;
+
         public List<InvoiceItemViewModel> Items { get; set; } = new();
     }
 }

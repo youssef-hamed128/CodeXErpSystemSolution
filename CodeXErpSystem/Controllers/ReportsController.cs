@@ -196,19 +196,36 @@ namespace CodeXErpSystem.Controllers
 
         public async Task<IActionResult> InventoryReport()
         {
-            var products = await _unitOfWork.GetRepository<Product>().FindAsync(includeProperties: "StockQuantities");
+            var products = await _unitOfWork.GetRepository<Product>().FindAsync(includeProperties: "StockQuantities,StockQuantities.Warehouse");
+            var salesInvoices = await _unitOfWork.GetRepository<Invoice>().FindAsync(
+                i => i.Type == CodeXErpSystem.DAL.Entites.Enums.InvoiceType.Sales,
+                includeProperties: "Items");
+
+            var soldQtyByProduct = salesInvoices
+                .SelectMany(i => i.Items)
+                .GroupBy(item => item.ProductId)
+                .ToDictionary(g => g.Key, g => g.Sum(item => item.Quantity));
+
             var model = new InventoryReportViewModel();
 
             foreach (var p in products)
             {
-                var totalQty = p.StockQuantities.Sum(s => s.Quantity);
-                if (totalQty > 0)
+                var currentQty = p.StockQuantities.Sum(s => s.Quantity);
+                soldQtyByProduct.TryGetValue(p.Id, out var soldQty);
+
+                if (currentQty > 0 || soldQty > 0 || !p.IsDeleted)
                 {
+                    var activeStocks = p.StockQuantities.Where(sq => sq.Quantity > 0).ToList();
+                    var whNames = activeStocks.Any() 
+                        ? activeStocks.Select(sq => sq.Warehouse?.Name).Where(n => !string.IsNullOrEmpty(n)).Distinct().ToList()
+                        : p.StockQuantities.Select(sq => sq.Warehouse?.Name).Where(n => !string.IsNullOrEmpty(n)).Distinct().ToList();
                     var item = new InventoryItemReport
                     {
                         Code = p.Code,
                         Name = p.Name,
-                        Quantity = totalQty,
+                        WarehouseName = whNames.Any() ? string.Join(", ", whNames) : "المخزن الرئيسي",
+                        SoldQuantity = soldQty,
+                        Quantity = currentQty,
                         UnitCost = p.PurchasePrice ?? 0
                     };
                     model.Items.Add(item);
@@ -222,7 +239,7 @@ namespace CodeXErpSystem.Controllers
 
         public async Task<IActionResult> LowStock()
         {
-            var products = await _unitOfWork.GetRepository<Product>().FindAsync(includeProperties: "StockQuantities");
+            var products = await _unitOfWork.GetRepository<Product>().FindAsync(includeProperties: "StockQuantities,StockQuantities.Warehouse");
             var items = new List<InventoryItemReport>();
 
             foreach (var p in products)
@@ -230,10 +247,15 @@ namespace CodeXErpSystem.Controllers
                 var totalQty = p.StockQuantities.Sum(s => s.Quantity);
                 if (totalQty <= p.MinStockLevel)
                 {
+                    var activeStocks = p.StockQuantities.Where(sq => sq.Quantity > 0).ToList();
+                    var whNames = activeStocks.Any() 
+                        ? activeStocks.Select(sq => sq.Warehouse?.Name).Where(n => !string.IsNullOrEmpty(n)).Distinct().ToList()
+                        : p.StockQuantities.Select(sq => sq.Warehouse?.Name).Where(n => !string.IsNullOrEmpty(n)).Distinct().ToList();
                     items.Add(new InventoryItemReport
                     {
                         Code = p.Code,
                         Name = p.Name,
+                        WarehouseName = whNames.Any() ? string.Join(", ", whNames) : "المخزن الرئيسي",
                         Quantity = totalQty,
                         UnitCost = p.PurchasePrice ?? 0
                     });

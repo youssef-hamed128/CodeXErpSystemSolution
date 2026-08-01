@@ -1,3 +1,5 @@
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
 using CodeXErpSystem.BLL.Mapping;
 using CodeXErpSystem.BLL.Services.Classes;
 using CodeXErpSystem.BLL.Services.Interfaces;
@@ -85,6 +87,56 @@ namespace CodeXErpSystem
                     });
                     dbContext.SaveChanges();
                 }
+
+                if (!dbContext.Warehouses.Any(w => w.Name == "المخزن الرئيسي"))
+                {
+                    dbContext.Warehouses.Add(new CodeXErpSystem.DAL.Entites.Warehouse
+                    {
+                        Name = "المخزن الرئيسي",
+                        Location = "المقر الرئيسي",
+                        IsDeleted = false
+                    });
+                    dbContext.SaveChanges();
+                }
+
+                var mainWh = dbContext.Warehouses.FirstOrDefault(w => w.Name == "المخزن الرئيسي" && !w.IsDeleted) 
+                             ?? dbContext.Warehouses.FirstOrDefault(w => !w.IsDeleted);
+                if (mainWh != null)
+                {
+                    var productsWithoutStock = dbContext.Products
+                        .Where(p => !p.IsDeleted && !dbContext.StockQuantities.Any(sq => sq.ProductId == p.Id))
+                        .ToList();
+
+                    foreach (var prod in productsWithoutStock)
+                    {
+                        dbContext.StockQuantities.Add(new CodeXErpSystem.DAL.Entites.StockQuantity
+                        {
+                            ProductId = prod.Id,
+                            WarehouseId = mainWh.Id,
+                            Quantity = 0,
+                            CreatedBy = "System"
+                        });
+                    }
+                    if (productsWithoutStock.Any())
+                    {
+                        dbContext.SaveChanges();
+                    }
+                }
+
+                if (!dbContext.Suppliers.Any(s => s.Name == "مورد نقدي"))
+                {
+                    dbContext.Suppliers.Add(new CodeXErpSystem.DAL.Entites.Supplier
+                    {
+                        Name = "مورد نقدي",
+                        Phone = "-",
+                        Email = "cash@supplier.com",
+                        Address = "مورد نقدي ثابت",
+                        Balance = 0,
+                        IsDeleted = false,
+                        CreatedBy = "System"
+                    });
+                    dbContext.SaveChanges();
+                }
             }
 
             // Configure the HTTP request pipeline.
@@ -96,6 +148,18 @@ namespace CodeXErpSystem
             }
 
             app.UseHttpsRedirection();
+
+            var defaultCulture = new CultureInfo("ar-EG");
+            defaultCulture.NumberFormat.NumberDecimalSeparator = ".";
+            defaultCulture.NumberFormat.CurrencyDecimalSeparator = ".";
+            defaultCulture.NumberFormat.PercentDecimalSeparator = ".";
+            app.UseRequestLocalization(new RequestLocalizationOptions
+            {
+                DefaultRequestCulture = new RequestCulture(defaultCulture),
+                SupportedCultures = new[] { defaultCulture },
+                SupportedUICultures = new[] { defaultCulture }
+            });
+
             app.UseRouting();
 
             app.UseAuthentication();

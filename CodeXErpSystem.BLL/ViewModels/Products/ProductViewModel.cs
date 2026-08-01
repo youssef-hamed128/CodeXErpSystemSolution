@@ -36,7 +36,7 @@ namespace CodeXErpSystem.BLL.ViewModels.Products
         // Calculated properties
         public decimal AvailableQuantity { get; set; }
         public string Status { get; set; } = "متاح";
-        public string? WarehouseName { get; set; }
+        public string WarehouseName { get; set; } = "المخزن الرئيسي";
         
         public Dictionary<int, decimal> StockByWarehouse { get; set; } = new Dictionary<int, decimal>();
     }

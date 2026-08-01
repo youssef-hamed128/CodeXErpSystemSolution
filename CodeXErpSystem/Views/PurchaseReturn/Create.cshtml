@@ -98,9 +98,9 @@
               </div>
 
               <div class="form-group" style="grid-column: span 2;">
-                <label class="form-label required">المستودع</label>
+                <label class="form-label required">المخزن الرئيسي</label>
                 <select class="form-control" asp-for="WarehouseId" asp-items="ViewBag.Warehouses" required>
-                  <option value="">-- اختر المستودع --</option>
+                  <option value="">-- اختر المخزن --</option>
                 </select>
               </div>
             </div>
@@ -117,12 +117,12 @@
               <table class="invoice-items-table">
                 <thead>
                   <tr>
-                    <th style="width:25%;">المنتج / الخدمة</th>
+                    <th style="width:30%;">المنتج / الخدمة</th>
                     <th style="width:10%;">الوحدة</th>
-                    <th style="width:10%;">الكمية</th>
+                    <th style="width:15%;">الكمية</th>
                     <th style="width:15%;">سعر الوحدة</th>
-                    <th style="width:15%;">الإجمالي</th>
-                    <th style="width:5%;" class="center">حذف</th>
+                    <th style="width:20%;">الإجمالي</th>
+                    <th style="width:10%;" class="center">حذف</th>
                   </tr>
                 </thead>
                 <tbody id="lineItemsBody">
@@ -198,67 +198,220 @@
         
       </div>
 
-      <!-- أزرار الحفظ -->
-      <div class="invoice-action-bar no-print mt-3">
-        <button type="submit" class="btn btn-success">
-          <i class="fas fa-check-circle"></i> حفظ وترحيل الفاتورة
-        </button>
-        <a href="/PurchaseReturn/Index" class="btn btn-secondary">إلغاء</a>
+      <!-- أزرار الحفظ مع حالة السداد -->
+      <input type="hidden" name="Status" id="hiddenInvoiceStatus" value="" />
+      <input type="hidden" name="PaidAmount" id="hiddenInvoicePaidAmount" value="0" />
+
+      <!-- شريط الإجراءات الرئيسي -->
+      <div class="no-print mt-4" style="border-radius: 16px; overflow: hidden; box-shadow: 0 8px 25px rgba(30,64,175,0.10); border: 1.5px solid #c7d7fc;">
+        <div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i class="fas fa-clipboard-check" style="color:#bfdbfe; font-size:1.3rem;"></i>
+                <span style="color:#fff; font-weight:800; font-size:1.05rem;">حالة سداد مرتجع المشتريات</span>
+            </div>
+            <div id="statusBadgeDisplay" style="font-size:0.9rem; font-weight:700; padding:5px 14px; border-radius:20px; background:rgba(255,255,255,0.18); color:#fff;">لم يتم الاختيار بعد</div>
+        </div>
+
+        <div style="background:#fff; padding: 20px 24px;">
+            <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px;">
+                <button type="button" onclick="selectInvoiceStatus('1')" id="statusBtn1"
+                        style="flex:1; min-width:130px; padding:12px 8px; border-radius:12px; border:2px solid #d1d5db; background:#f9fafb; font-weight:700; font-size:0.95rem; color:#374151; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <i class="fas fa-check-circle" style="color:#10b981; font-size:1.2rem;"></i> مدفوعة بالكامل
+                </button>
+                <button type="button" onclick="selectInvoiceStatus('2')" id="statusBtn2"
+                        style="flex:1; min-width:130px; padding:12px 8px; border-radius:12px; border:2px solid #d1d5db; background:#f9fafb; font-weight:700; font-size:0.95rem; color:#374151; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <i class="fas fa-hourglass-half" style="color:#f59e0b; font-size:1.2rem;"></i> غير مدفوعة (آجل)
+                </button>
+                <button type="button" onclick="selectInvoiceStatus('3')" id="statusBtn3"
+                        style="flex:1; min-width:130px; padding:12px 8px; border-radius:12px; border:2px solid #d1d5db; background:#f9fafb; font-weight:700; font-size:0.95rem; color:#374151; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <i class="fas fa-coins" style="color:#8b5cf6; font-size:1.2rem;"></i> مدفوعة جزئياً
+                </button>
+            </div>
+
+            <div id="onpagePartialPaymentBox" style="display:none; margin-bottom:16px;">
+                <div style="background: linear-gradient(135deg,#fffbeb,#fef3c7); border:1.5px solid #fde68a; border-radius:12px; padding:16px 18px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+                        <span style="font-weight:700; color:#92400e; font-size:0.95rem;"><i class="fas fa-file-invoice me-1"></i> إجمالي المرتجع:</span>
+                        <span style="font-weight:900; font-size:1.1rem; color:#78350f;"><span id="onpageDisplayTotal">0.00</span> ج.م</span>
+                    </div>
+                    <label style="font-weight:700; color:#b45309; font-size:0.9rem; margin-bottom:6px; display:block;"><i class="fas fa-money-bill-wave me-1"></i> المبلغ المدفوع جزئياً (ج.م):</label>
+                    <input type="number" step="0.01" min="0" id="onpagePaidAmountInput" class="form-control"
+                           style="font-size:1.15rem; font-weight:800; text-align:center; color:#b45309; height:48px; border-radius:10px; border:2px solid #f59e0b; margin-bottom:10px;"
+                           placeholder="0.00" oninput="onPagePaidAmountInput(this.value)" />
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:#fee2e2; padding:10px 14px; border-radius:8px; border:1px solid #fecaca;">
+                        <span style="font-weight:700; color:#991b1b; font-size:0.9rem;"><i class="fas fa-hourglass-half me-1"></i> المبلغ المتبقي:</span>
+                        <span style="font-weight:900; font-size:1.05rem; color:#dc2626;"><span id="onpageDisplayRemaining">0.00</span> ج.م</span>
+                    </div>
+                    <div id="onpagePaidAmountError" style="display:none; background:#fef2f2; border:1.5px solid #ef4444; color:#b91c1c; padding:10px 14px; border-radius:8px; font-weight:700; font-size:0.88rem; margin-top:10px;">
+                        <i class="fas fa-exclamation-circle me-1"></i> المبلغ المدفوع أكبر من إجمالي المرتجع!
+                    </div>
+                    <div id="onpageAutoPaidAlert" style="display:none; background:#ecfdf5; border:1.5px solid #10b981; color:#065f46; padding:10px 14px; border-radius:8px; font-weight:700; font-size:0.88rem; margin-top:10px;">
+                        <i class="fas fa-check-circle me-1"></i> المبلغ يساوي الإجمالي، تم التحويل لـ (مدفوعة بالكامل) تلقائياً.
+                    </div>
+                </div>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:12px; padding-top:4px; border-top:1px solid #f1f5f9; margin-top:4px;">
+                <a href="/PurchaseReturn/Index" class="btn btn-secondary" style="padding:11px 22px; font-weight:700; border-radius:10px;"><i class="fas fa-times me-1"></i> إلغاء</a>
+                <button type="button" id="saveInvoiceBtn" class="btn btn-success" onclick="handleSaveInvoiceClick()"
+                        style="padding:11px 28px; font-weight:800; font-size:1.05rem; border-radius:10px; box-shadow:0 4px 14px rgba(16,185,129,0.25);">
+                    <i class="fas fa-check-circle me-1"></i> حفظ المرتجع
+                </button>
+            </div>
+        </div>
       </div>
     </form>
+
+<!-- نافذة عرض بيانات الفاتورة الأصلية (مرجعي) -->
+<div class="modal fade" id="originalInvoiceModal" tabindex="-1" role="dialog" aria-labelledby="originalInvoiceModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document" style="max-width: 850px;">
+    <div class="modal-content" style="border-radius: 14px; overflow: hidden; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+      <div class="modal-header" style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: #fff; padding: 18px 24px;">
+        <h5 class="modal-title" id="originalInvoiceModalLabel" style="font-weight: 700; font-size: 1.25rem;">
+          <i class="fas fa-file-invoice me-2"></i> بيانات الفاتورة الأصلية: <span id="modalInvNumber" style="color: #fef08a;"></span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
+      </div>
+      <div class="modal-body" style="padding: 24px; background: #f8fafc;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px;">
+          <div style="background: #fff; padding: 14px; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 2px 5px rgba(0,0,0,0.03);">
+            <div style="font-size: 12px; color: #64748b; font-weight: 700; margin-bottom: 4px;">العميل / المورد</div>
+            <div id="modalPartyName" style="font-size: 15px; font-weight: 800; color: #1e293b;">-</div>
+          </div>
+          <div style="background: #fff; padding: 14px; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 2px 5px rgba(0,0,0,0.03);">
+            <div style="font-size: 12px; color: #64748b; font-weight: 700; margin-bottom: 4px;">تاريخ الفاتورة</div>
+            <div id="modalInvDate" style="font-size: 15px; font-weight: 800; color: #1e293b;">-</div>
+          </div>
+          <div style="background: #fff; padding: 14px; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 2px 5px rgba(0,0,0,0.03);">
+            <div style="font-size: 12px; color: #64748b; font-weight: 700; margin-bottom: 4px;">إجمالي الفاتورة</div>
+            <div id="modalInvTotal" style="font-size: 15px; font-weight: 800; color: #2563eb;">0.00 ج.م</div>
+          </div>
+          <div style="background: #fff; padding: 14px; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 2px 5px rgba(0,0,0,0.03);">
+            <div style="font-size: 12px; color: #64748b; font-weight: 700; margin-bottom: 4px;">المدفوع / المتبقي</div>
+            <div style="font-size: 14px; font-weight: 800;"><span id="modalPaidAmount" style="color:#166534;">0.00</span> / <span id="modalRemAmount" style="color:#dc2626;">0.00</span></div>
+          </div>
+        </div>
+
+        <h6 style="font-weight: 700; color: #334155; margin-bottom: 12px;"><i class="fas fa-boxes me-2" style="color: #3b82f6;"></i> بنود الفاتورة الأصلية وموقف المرتجعات:</h6>
+        <div class="table-responsive" style="background: #fff; border-radius: 10px; border: 1px solid #e2e8f0; overflow: hidden;">
+          <table class="table table-hover mb-0" style="text-align: center; font-size: 0.95rem;">
+            <thead style="background: #f1f5f9; color: #475569; font-weight: 700;">
+              <tr>
+                <th>#</th>
+                <th style="text-align: right;">الصنف</th>
+                <th>الكمية الأصلية</th>
+                <th>مرتجع سابقاً</th>
+                <th>المتبقي للاسترجاع</th>
+                <th>سعر الوحدة</th>
+                <th>الإجمالي</th>
+                <th>الحالة</th>
+              </tr>
+            </thead>
+            <tbody id="modalItemsBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer" style="background: #fff; padding: 15px 24px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <a id="modalPrintLink" href="#" target="_blank" class="btn btn-outline-secondary" style="font-weight: 700;">
+            <i class="fas fa-print me-1"></i> طباعة / معاينة الفاتورة الأصلية
+          </a>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="font-weight: 600;">إغلاق</button>
+          <button type="button" class="btn btn-primary" onclick="importOriginalInvoiceItems()" style="font-weight: 700; padding: 8px 20px;">
+            <i class="fas fa-download me-1"></i> إدراج الأصناف في فاتورة المرتجع
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
     let rowIndex = 0;
     const productsData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.ProductsList ?? new object[]{}, new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles }));
 
-    document.addEventListener('DOMContentLoaded', function() {
-        addNewRow(); 
-    });
+    function initFirstRow() {
+        try {
+            var bodyEl = document.getElementById('lineItemsBody');
+            if (bodyEl && bodyEl.children.length === 0) {
+                addNewRow();
+            }
+        } catch(e) {
+            console.error('Error initializing first return row:', e);
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initFirstRow);
+    } else {
+        initFirstRow();
+    }
 
     function addNewRow() {
-        const categoryOptions = `@if(ViewBag.Categories != null) { foreach(var cat in ViewBag.Categories) { <option value="@cat.Value">@cat.Text</option> } }`;
-        const productsOptions = `@if(ViewBag.Products != null) { foreach(var item in ViewBag.Products) { <option value="@item.Value">@item.Text</option> } }`;
-        
-        const rowHtml = `
-            <tr id="row_${rowIndex}">
-                <td>
-                    <select class="form-control mb-1 category-select" onchange="filterProducts(this, ${rowIndex})">
-                        <option value="">-- كل المجموعات --</option>
-                        ${categoryOptions}
-                    </select>
-                    <select name="Items[${rowIndex}].ProductId" class="form-control product-select" onchange="fetchPrice(this, ${rowIndex})" required>
-                        <option value="">-- اختر صنف --</option>
-                        ${productsOptions}
-                    </select>
-                </td>
-                <td>
-                    <input type="text" id="unit_${rowIndex}" class="form-control" readonly style="background:#e9ecef; text-align:center;" value="-" />
-                </td>
-                <td>
-                    <input type="number" name="Items[${rowIndex}].Quantity" id="qty_${rowIndex}" class="form-control qty-input" value="1" min="0.0001" step="any" oninput="calculateInvoice()" required />
-                </td>
-                <td>
-                    <input type="number" name="Items[${rowIndex}].UnitPrice" id="price_${rowIndex}" class="form-control price-input" value="0" step="0.01" min="0" oninput="calculateInvoice()" required />
-                </td>
-                <td>
-                    <input type="text" class="form-control row-total fw-bold text-primary" readonly value="0.00" style="background:#f8f9fa;" />
-                </td>
-                <td class="text-center">
-                    <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(${rowIndex})">❌</button>
-                </td>
-            </tr>
-        `;
-        
-        document.getElementById('lineItemsBody').insertAdjacentHTML('beforeend', rowHtml);
-        
-        $(`#row_${rowIndex} .product-select`).select2({
-            placeholder: "-- اختر صنف --",
-            width: '100%',
-            dir: "rtl"
-        });
+        try {
+            const categoryOptions = `@if(ViewBag.Categories != null) { foreach(var cat in ViewBag.Categories) { <option value="@cat.Value">@cat.Text</option> } }`;
+            const productsOptions = `@if(ViewBag.Products != null) { foreach(var item in ViewBag.Products) { <option value="@item.Value">@item.Text</option> } }`;
+            const curIdx = rowIndex;
+            
+            const rowHtml = `
+                <tr id="row_${curIdx}">
+                    <td>
+                        <input type="hidden" name="Items.Index" value="${curIdx}" />
+                        <select class="form-control mb-1 category-select" onchange="filterProducts(this, ${curIdx})" style="font-size:0.85rem;">
+                            <option value="">-- كل المجموعات --</option>
+                            ${categoryOptions}
+                        </select>
+                        <select name="Items[${curIdx}].ProductId" class="form-control product-select" onchange="fetchPrice(this, ${curIdx})" required>
+                            <option value="">🔍 ابحث باسم الصنف...</option>
+                            ${productsOptions}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" id="unit_${curIdx}" class="form-control" readonly style="background:#e9ecef; text-align:center;" value="-" />
+                    </td>
+                    <td>
+                        <input type="number" name="Items[${curIdx}].Quantity" id="qty_${curIdx}" class="form-control qty-input" value="1" min="0.0001" step="any" oninput="calculateInvoice()" required />
+                    </td>
+                    <td>
+                        <input type="number" name="Items[${curIdx}].UnitPrice" id="price_${curIdx}" class="form-control price-input" value="0" step="0.01" min="0" oninput="calculateInvoice()" required />
+                    </td>
+                    <td>
+                        <input type="text" class="form-control row-total fw-bold text-primary" readonly value="0.00" style="background:#f8f9fa;" />
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(${curIdx})">❌</button>
+                    </td>
+                </tr>
+            `;
+            
+            var bodyEl = document.getElementById('lineItemsBody');
+            if (bodyEl) {
+                bodyEl.insertAdjacentHTML('beforeend', rowHtml);
+            }
+            
+            try {
+                if (typeof $ !== 'undefined' && $.fn && $.fn.select2) {
+                    $(`#row_${curIdx} .product-select`).select2({
+                        placeholder: "🔍 ابحث باسم الصنف...",
+                        width: '100%',
+                        dir: "rtl",
+                        allowClear: true
+                    }).on('select2:select change', function() {
+                        fetchPrice(this, curIdx);
+                    });
+                }
+            } catch(s2Err) {
+                console.warn('Select2 not available for row ' + curIdx, s2Err);
+            }
 
-        rowIndex++;
-        calculateInvoice();
+            rowIndex++;
+            calculateInvoice();
+        } catch(err) {
+            console.error('Error in addNewRow:', err);
+        }
     }
 
     function filterProducts(categorySelect, index) {
@@ -266,7 +419,7 @@
         let productSelect = $(`#row_${index} .product-select`);
         
         productSelect.empty();
-        productSelect.append(new Option("-- اختر صنف --", "", true, true));
+        productSelect.append(new Option("🔍 ابحث باسم الصنف...", "", true, true));
         
         let filteredProducts = productsData;
         if (categoryId) {
@@ -277,7 +430,7 @@
             productSelect.append(new Option(p.Name, p.Id, false, false));
         });
         
-        productSelect.trigger('change');
+        productSelect.trigger('change.select2');
     }
 
     function fetchPrice(selectElement, index) {
@@ -285,10 +438,14 @@
         if(productId) {
             let selectedProduct = productsData.find(p => p.Id == productId);
             if(selectedProduct) {
-                document.getElementById(`price_${index}`).value = selectedProduct.SalePrice || selectedProduct.SalesPrice || 0;
+                document.getElementById(`price_${index}`).value = selectedProduct.PurchasePrice || selectedProduct.SalePrice || 0;
                 document.getElementById(`unit_${index}`).value = selectedProduct.UnitOfMeasure || "-";
                 calculateInvoice();
             }
+        } else {
+            document.getElementById(`price_${index}`).value = 0;
+            document.getElementById(`unit_${index}`).value = "-";
+            calculateInvoice();
         }
     }
 
@@ -359,62 +516,126 @@
             if(res.success && res.data) {
                 showToast('تم استرداد بيانات الفاتورة بنجاح', 'success');
                 const invoice = res.data;
-                
-                if(invoice.supplierId && document.querySelector('select[name="SupplierId"]')) {
-                    document.querySelector('select[name="SupplierId"]').value = invoice.supplierId;
-                }
-                if(invoice.dueDate && document.querySelector('input[name="DueDate"]')) {
-                    document.querySelector('input[name="DueDate"]').value = invoice.dueDate.split('T')[0];
-                }
-                
-                document.getElementById('lineItemsBody').innerHTML = '';
-                rowIndex = 0;
-                
-                if(invoice.items && invoice.items.length > 0) {
-                    invoice.items.forEach(item => {
-                        const categoryOptions = `@if(ViewBag.Categories != null) { foreach(var cat in ViewBag.Categories) { <option value="@cat.Value">@cat.Text</option> } }`;
-                        const productsOptions = `@if(ViewBag.Products != null) { foreach(var p in ViewBag.Products) { <option value="@p.Value">@p.Text</option> } }`;
-                        
-                        let selectedProduct = productsData.find(p => p.Id == item.productId);
-                        let unitName = selectedProduct && selectedProduct.UnitOfMeasure ? selectedProduct.UnitOfMeasure : "-";
+                window.currentOriginalInvoice = invoice;
 
-                        const tr = document.createElement('tr');
-                        tr.id = `row_${rowIndex}`;
-                        tr.innerHTML = `
-                          <td>
-                            <select class="form-control mb-1 category-select" onchange="filterProducts(this, ${rowIndex})">
-                                <option value="">-- كل المجموعات --</option>
-                                ${categoryOptions}
-                            </select>
-                            <select class="form-control product-select" name="Items[${rowIndex}].ProductId" required onchange="fetchPrice(this, ${rowIndex})">
-                              <option value="${item.productId}" selected>${item.productName || 'منتج ' + item.productId}</option>
-                              ${productsOptions}
-                            </select>
-                          </td>
-                          <td><input type="text" id="unit_${rowIndex}" class="form-control" readonly style="background:#e9ecef; text-align:center;" value="${unitName}" /></td>
-                          <td><input type="number" id="qty_${rowIndex}" class="form-control qty-input" name="Items[${rowIndex}].Quantity" value="${item.quantity}" min="1" oninput="calculateInvoice()"></td>
-                          <td><input type="number" id="price_${rowIndex}" class="form-control price-input" name="Items[${rowIndex}].UnitPrice" value="${item.unitPrice}" step="0.01" oninput="calculateInvoice()"></td>
-                          <td><input type="text" class="form-control row-total fw-bold text-primary" readonly value="${item.total}" style="background:#f8f9fa;" /></td>
-                          <td class="text-center"><button type="button" class="btn btn-sm btn-danger" onclick="removeRow(${rowIndex})">❌</button></td>
+                document.getElementById('modalInvNumber').innerText = invoice.invoiceNumber || '-';
+                document.getElementById('modalPartyName').innerText = invoice.customerName || invoice.supplierName || '-';
+                document.getElementById('modalInvDate').innerText = invoice.date ? invoice.date.split('T')[0] : '-';
+                document.getElementById('modalInvTotal').innerText = (invoice.totalAmount || 0).toLocaleString('en-US', {minimumFractionDigits: 2}) + ' ج.م';
+                document.getElementById('modalPaidAmount').innerText = (invoice.paidAmount || 0).toLocaleString('en-US', {minimumFractionDigits: 2});
+                document.getElementById('modalRemAmount').innerText = (invoice.remainingAmount || 0).toLocaleString('en-US', {minimumFractionDigits: 2});
+                
+                let printLink = document.getElementById('modalPrintLink');
+                if (printLink) printLink.href = '/PurchaseInvoice/Print/' + invoice.id;
+
+                let tbodyHtml = '';
+                if (invoice.items && invoice.items.length > 0) {
+                    invoice.items.forEach((item, idx) => {
+                        let rem = item.remainingQuantity !== undefined ? item.remainingQuantity : item.quantity;
+                        let ret = item.returnedQuantity || 0;
+                        let badgeHtml = rem > 0 
+                            ? `<span class="badge bg-success" style="font-size:11px;">متاح للاسترجاع</span>`
+                            : `<span class="badge bg-danger" style="font-size:11px;">تم إرجاعه بالكامل</span>`;
+                        tbodyHtml += `
+                            <tr>
+                                <td>${idx + 1}</td>
+                                <td style="text-align: right; font-weight: 700;">${item.productName || 'صنف #' + item.productId}</td>
+                                <td>${item.quantity}</td>
+                                <td style="color: #d97706; font-weight: 700;">${ret}</td>
+                                <td style="color: ${rem > 0 ? '#166534' : '#dc2626'}; font-weight: 800; font-size:15px;">${rem}</td>
+                                <td>${(item.unitPrice || 0).toFixed(2)}</td>
+                                <td>${((item.unitPrice || 0) * item.quantity).toFixed(2)}</td>
+                                <td>${badgeHtml}</td>
+                            </tr>
                         `;
-                        document.getElementById('lineItemsBody').appendChild(tr);
-                        
-                        $(`#row_${rowIndex} .product-select`).select2({
-                            placeholder: "-- اختر صنف --",
-                            width: '100%',
-                            dir: "rtl"
-                        });
-
-                        rowIndex++;
                     });
-                    calculateInvoice();
+                } else {
+                    tbodyHtml = '<tr><td colspan="8">لا توجد بنود</td></tr>';
                 }
+                document.getElementById('modalItemsBody').innerHTML = tbodyHtml;
+
+                var modalEl = document.getElementById('originalInvoiceModal');
+                var modal = new bootstrap.Modal(modalEl);
+                modal.show();
+
+                populateReturnFormWithInvoice(invoice);
             } else {
                 showToast(res.message || 'لم يتم العثور على الفاتورة', 'error');
             }
         }).fail(function(err) {
             showToast('حدث خطأ أثناء استرداد الفاتورة', 'error');
         });
+    }
+
+    function importOriginalInvoiceItems() {
+        const invoice = window.currentOriginalInvoice;
+        if (!invoice) return;
+        var modalEl = document.getElementById('originalInvoiceModal');
+        var modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+
+        populateReturnFormWithInvoice(invoice);
+        showToast('تم إدراج أصناف الفاتورة الأصلية بنجاح', 'success');
+    }
+
+    function populateReturnFormWithInvoice(invoice) {
+        if(invoice.supplierId && document.querySelector('select[name="SupplierId"]')) {
+            document.querySelector('select[name="SupplierId"]').value = invoice.supplierId;
+        }
+        if(invoice.dueDate && document.querySelector('input[name="DueDate"]')) {
+            document.querySelector('input[name="DueDate"]').value = invoice.dueDate.split('T')[0];
+        }
+        
+        document.getElementById('lineItemsBody').innerHTML = '';
+        rowIndex = 0;
+        
+        if(invoice.items && invoice.items.length > 0) {
+            invoice.items.forEach(item => {
+                const categoryOptions = `@if(ViewBag.Categories != null) { foreach(var cat in ViewBag.Categories) { <option value="@cat.Value">@cat.Text</option> } }`;
+                const productsOptions = `@if(ViewBag.Products != null) { foreach(var p in ViewBag.Products) { <option value="@p.Value">@p.Text</option> } }`;
+                
+                let selectedProduct = productsData.find(p => p.Id == item.productId);
+                let unitName = selectedProduct && selectedProduct.UnitOfMeasure ? selectedProduct.UnitOfMeasure : "-";
+                let origQty = item.quantity || 0;
+                let retQty = item.returnedQuantity || 0;
+                let remQty = item.remainingQuantity !== undefined ? item.remainingQuantity : origQty;
+
+                const tr = document.createElement('tr');
+                tr.id = `row_${rowIndex}`;
+                tr.innerHTML = `
+                  <td>
+                    <select class="form-control mb-1 category-select" onchange="filterProducts(this, ${rowIndex})">
+                        <option value="">-- كل المجموعات --</option>
+                        ${categoryOptions}
+                    </select>
+                    <select class="form-control product-select" name="Items[${rowIndex}].ProductId" required onchange="fetchPrice(this, ${rowIndex})">
+                      <option value="${item.productId}" selected>${item.productName || 'منتج ' + item.productId}</option>
+                      ${productsOptions}
+                    </select>
+                    <div style="margin-top:5px;">
+                      <span class="badge" style="background:#eff6ff; color:#1e40af; border:1px solid #93c5fd; font-size:11px; font-weight:700;">
+                        📦 الأصلي: ${origQty} | سابقاً تم استرجاع: ${retQty} | <b style="color:#dc2626;">المتبقي للاسترجاع: ${remQty}</b>
+                      </span>
+                    </div>
+                  </td>
+                  <td><input type="text" id="unit_${rowIndex}" class="form-control" readonly style="background:#e9ecef; text-align:center;" value="${unitName}" /></td>
+                  <td><input type="number" id="qty_${rowIndex}" class="form-control qty-input" name="Items[${rowIndex}].Quantity" value="${remQty}" min="1" max="${remQty}" data-max-qty="${remQty}" oninput="validateReturnQty(this, ${rowIndex}); calculateInvoice();"></td>
+                  <td><input type="number" id="price_${rowIndex}" class="form-control price-input" name="Items[${rowIndex}].UnitPrice" value="${item.unitPrice}" step="0.01" oninput="calculateInvoice()"></td>
+                  <td><input type="text" class="form-control row-total fw-bold text-primary" readonly value="${(remQty * (item.unitPrice || 0)).toFixed(2)}" style="background:#f8f9fa;" /></td>
+                  <td class="text-center"><button type="button" class="btn btn-sm btn-danger" onclick="removeRow(${rowIndex})">❌</button></td>
+                `;
+                document.getElementById('lineItemsBody').appendChild(tr);
+                
+                $(`#row_${rowIndex} .product-select`).select2({
+                    placeholder: "-- اختر صنف --",
+                    width: '100%',
+                    dir: "rtl"
+                });
+
+                rowIndex++;
+            });
+            calculateInvoice();
+        }
     }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -520,6 +741,184 @@
             return `<span style="color:#2563eb;">${Math.abs(bal).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ج.م (رصيد دائن لك)</span>`;
         } else {
             return `<span style="color:#059669;">0.00 ج.م (خالص)</span>`;
+    function validateReturnQty(inputEl, idx) {
+        let maxQty = parseFloat(inputEl.getAttribute('data-max-qty'));
+        let currentQty = parseFloat(inputEl.value) || 0;
+        if (!isNaN(maxQty) && currentQty > maxQty) {
+            showToast(`⚠️ الكمية المدخلة (${currentQty}) أكبر من المتبقية للاسترجاع (${maxQty}) في الفاتورة الأصلية!`, 'error');
+            inputEl.value = maxQty;
+        }
+    }
+
+    function selectInvoiceStatus(val) {
+        let btn1 = document.getElementById('statusBtn1');
+        let btn2 = document.getElementById('statusBtn2');
+        let btn3 = document.getElementById('statusBtn3');
+        let badge = document.getElementById('statusBadgeDisplay');
+        let partBox = document.getElementById('onpagePartialPaymentBox');
+        let statusHidden = document.getElementById('hiddenInvoiceStatus');
+        let paidHidden = document.getElementById('hiddenInvoicePaidAmount');
+        let grandTotal = parseFloat((document.getElementById('invoiceGrandTotal')?.innerText || '0').replace(/,/g, '')) || 0;
+
+        // Reset button styles
+        [btn1, btn2, btn3].forEach(b => {
+            if(b) {
+                b.style.border = '2px solid #d1d5db';
+                b.style.background = '#f9fafb';
+                b.style.transform = 'scale(1)';
+                b.style.boxShadow = 'none';
+            }
+        });
+
+        if (val === '1' && btn1) {
+            btn1.style.border = '2px solid #10b981';
+            btn1.style.background = '#ecfdf5';
+            btn1.style.transform = 'scale(1.02)';
+            btn1.style.boxShadow = '0 4px 12px rgba(16,185,129,0.2)';
+            if(badge) {
+                badge.innerText = 'مدفوعة بالكامل';
+                badge.style.background = '#10b981';
+            }
+        } else if (val === '2' && btn2) {
+            btn2.style.border = '2px solid #f59e0b';
+            btn2.style.background = '#fffbeb';
+            btn2.style.transform = 'scale(1.02)';
+            btn2.style.boxShadow = '0 4px 12px rgba(245,158,11,0.2)';
+            if(badge) {
+                badge.innerText = 'غير مدفوعة (آجل)';
+                badge.style.background = '#f59e0b';
+            }
+        } else if (val === '3' && btn3) {
+            btn3.style.border = '2px solid #8b5cf6';
+            btn3.style.background = '#f5f3ff';
+            btn3.style.transform = 'scale(1.02)';
+            btn3.style.boxShadow = '0 4px 12px rgba(139,92,246,0.2)';
+            if(badge) {
+                badge.innerText = 'مدفوعة جزئياً';
+                badge.style.background = '#8b5cf6';
+            }
+        }
+
+        let errEl = document.getElementById('onpagePaidAmountError');
+        let autoEl = document.getElementById('onpageAutoPaidAlert');
+        let saveBtn = document.getElementById('saveInvoiceBtn');
+        let displayTotal = document.getElementById('onpageDisplayTotal');
+        let displayRem = document.getElementById('onpageDisplayRemaining');
+        let paidInput = document.getElementById('onpagePaidAmountInput');
+
+        if (statusHidden) statusHidden.value = val;
+
+        if (val === '3') {
+            if (partBox) partBox.style.display = 'block';
+            let paidVal = parseFloat(paidInput?.value) || 0;
+            let rem = grandTotal - paidVal;
+            if (displayTotal) displayTotal.innerText = grandTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            if (paidVal > grandTotal + 0.005 && grandTotal > 0) {
+                if (displayRem) displayRem.innerText = '0.00';
+                if (errEl) errEl.style.display = 'block';
+                if (saveBtn) saveBtn.disabled = true;
+                if (paidHidden) paidHidden.value = paidVal.toFixed(2);
+                return;
+            } else {
+                if (errEl) errEl.style.display = 'none';
+                if (saveBtn) saveBtn.disabled = false;
+                if (paidHidden) paidHidden.value = paidVal.toFixed(2);
+            }
+            if (rem < 0) rem = 0;
+            if (displayRem) displayRem.innerText = rem.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        } else {
+            if (partBox) partBox.style.display = 'none';
+            if (errEl) errEl.style.display = 'none';
+            if (autoEl) autoEl.style.display = 'none';
+            if (saveBtn) saveBtn.disabled = false;
+            if (val === '1') {
+                if (paidHidden) paidHidden.value = grandTotal.toFixed(2);
+            } else {
+                if (paidHidden) paidHidden.value = '0.00';
+            }
+        }
+    }
+
+    function onPagePaidAmountInput(val) {
+        let grandTotal = parseFloat((document.getElementById('invoiceGrandTotal')?.innerText || '0').replace(/,/g, '')) || 0;
+        let paidVal = parseFloat(val) || 0;
+        let rem = grandTotal - paidVal;
+        let displayTotal = document.getElementById('onpageDisplayTotal');
+        let displayRem = document.getElementById('onpageDisplayRemaining');
+        let errEl = document.getElementById('onpagePaidAmountError');
+        let autoEl = document.getElementById('onpageAutoPaidAlert');
+        let saveBtn = document.getElementById('saveInvoiceBtn');
+        let statusHidden = document.getElementById('hiddenInvoiceStatus');
+        let paidHidden = document.getElementById('hiddenInvoicePaidAmount');
+
+        if (displayTotal) displayTotal.innerText = grandTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+        if (paidVal > grandTotal + 0.005 && grandTotal > 0) {
+            if (displayRem) displayRem.innerText = '0.00';
+            if (errEl) errEl.style.display = 'block';
+            if (autoEl) autoEl.style.display = 'none';
+            if (saveBtn) saveBtn.disabled = true;
+            if (paidHidden) paidHidden.value = paidVal.toFixed(2);
+            return;
+        } else {
+            if (errEl) errEl.style.display = 'none';
+            if (saveBtn) saveBtn.disabled = false;
+        }
+
+        if (Math.abs(paidVal - grandTotal) <= 0.005 && grandTotal > 0) {
+            if (displayRem) displayRem.innerText = '0.00';
+            if (autoEl) autoEl.style.display = 'block';
+            selectInvoiceStatus('1');
+            if (paidHidden) paidHidden.value = grandTotal.toFixed(2);
+            return;
+        } else {
+            if (autoEl) autoEl.style.display = 'none';
+            if (statusHidden) statusHidden.value = '3';
+        }
+
+        if (rem < 0) rem = 0;
+        if (displayRem) displayRem.innerText = rem.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        if (paidHidden) paidHidden.value = paidVal.toFixed(2);
+    }
+
+    function handleSaveInvoiceClick() {
+        try {
+            let onpageSel = document.getElementById('hiddenInvoiceStatus')?.value;
+            let grandTotal = parseFloat((document.getElementById('invoiceGrandTotal')?.innerText || '0').replace(/,/g, '')) || 0;
+            let paidVal = parseFloat(document.getElementById('onpagePaidAmountInput')?.value) || 0;
+
+            if (!onpageSel) {
+                alert('⚠️ يرجى اختيار حالة سداد المرتجع أولاً (مدفوعة بالكامل / آجل / مدفوعة جزئياً) قبل الحفظ');
+                document.getElementById('statusBtn1')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            if (onpageSel === '3' && paidVal > grandTotal + 0.005) {
+                alert('⚠️ المبلغ المدفوع أكبر من إجمالي المرتجع! لا يمكن إدخال مبلغ أكبر من الإجمالي.');
+                document.getElementById('onpagePaidAmountInput')?.focus();
+                return;
+            }
+
+            if (onpageSel === '3' && Math.abs(paidVal - grandTotal) <= 0.005 && grandTotal > 0) {
+                onpageSel = '1';
+                paidVal = grandTotal;
+            }
+
+            if (onpageSel === '3' && (paidVal <= 0 || isNaN(paidVal))) {
+                alert('⚠️ يرجى إدخال المبلغ المدفوع جزئياً بحيث يكون أكبر من الصفر وأقل من إجمالي المرتجع.');
+                document.getElementById('onpagePaidAmountInput')?.focus();
+                return;
+            }
+
+            let statusHidden = document.getElementById('hiddenInvoiceStatus');
+            let paidHidden = document.getElementById('hiddenInvoicePaidAmount');
+            if (statusHidden) statusHidden.value = onpageSel;
+            if (paidHidden) paidHidden.value = (onpageSel === '1' ? grandTotal : (onpageSel === '3' ? paidVal : 0)).toFixed(2);
+
+            document.getElementById('invoiceForm').submit();
+        } catch (e) {
+            console.error(e);
+            document.getElementById('invoiceForm').submit();
         }
     }
 </script>

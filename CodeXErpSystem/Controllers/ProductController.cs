@@ -30,6 +30,7 @@ namespace CodeXErpSystem.Controllers
             ViewBag.OutOfStock = products.Count(p => p.StockQuantities.Sum(sq => sq.Quantity) == 0);
 
             ViewBag.Categories = await _unitOfWork.GetRepository<CodeXErpSystem.DAL.Entites.ProductCategory>().GetAll(false);
+            ViewBag.Warehouses = await _unitOfWork.GetRepository<CodeXErpSystem.DAL.Entites.Warehouse>().GetAll(false);
             return View(productsList);
         }
 

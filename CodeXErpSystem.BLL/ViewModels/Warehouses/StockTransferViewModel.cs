@@ -18,6 +18,10 @@ namespace CodeXErpSystem.BLL.ViewModels.Warehouses
         [Range(0.0001, double.MaxValue, ErrorMessage = "الكمية يجب أن تكون أكبر من صفر")]
         public decimal Quantity { get; set; }
         public string? Notes { get; set; }
+        public DateTime TransferDate { get; set; } = DateTime.Today;
+        public string? ReferenceNumber { get; set; }
+        public int FromWarehouseId { get => SourceWarehouseId; set => SourceWarehouseId = value; }
+        public int ToWarehouseId { get => DestWarehouseId; set => DestWarehouseId = value; }
 
         public IEnumerable<WarehouseViewModel> Warehouses { get; set; } = new List<WarehouseViewModel>();
         public IEnumerable<CodeXErpSystem.BLL.ViewModels.Products.ProductViewModel> Products { get; set; } = new List<CodeXErpSystem.BLL.ViewModels.Products.ProductViewModel>();

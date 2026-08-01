@@ -41,6 +41,20 @@ namespace CodeXErpSystem.Controllers
             ViewBag.TotalPayable = purchaseInvoices
                 .Sum(i => Math.Max(0, i.TotalAmount - i.PaidAmount));
 
+            // حساب بيانات الرسم البياني (آخر 6 أشهر)
+            string[] arabicMonths = { "", "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر" };
+            var last6Months = Enumerable.Range(0, 6)
+                .Select(i => DateTime.Today.AddMonths(-5 + i))
+                .ToList();
+
+            var labels = last6Months.Select(d => arabicMonths[d.Month]).ToList();
+            var salesData = last6Months.Select(d => salesInvoices.Where(i => i.Date.Year == d.Year && i.Date.Month == d.Month).Sum(i => i.TotalAmount)).ToList();
+            var purchaseData = last6Months.Select(d => purchaseInvoices.Where(i => i.Date.Year == d.Year && i.Date.Month == d.Month).Sum(i => i.TotalAmount)).ToList();
+
+            ViewBag.ChartLabels = System.Text.Json.JsonSerializer.Serialize(labels);
+            ViewBag.ChartSalesData = System.Text.Json.JsonSerializer.Serialize(salesData);
+            ViewBag.ChartPurchasesData = System.Text.Json.JsonSerializer.Serialize(purchaseData);
+
             // أحدث 8 عمليات
             var recent = allInvoices
                 .OrderByDescending(i => i.Id)

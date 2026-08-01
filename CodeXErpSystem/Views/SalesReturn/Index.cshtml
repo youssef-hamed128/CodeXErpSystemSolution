@@ -35,6 +35,7 @@
             <tr>
               <th class="table-checkbox"><input type="checkbox" id="selectAll" title="تحديد الكل"></th>
               <th data-sort="number">رقم الفاتورة <i class="fas fa-sort sort-icon"></i></th>
+              <th>الفاتورة الأصلية</th>
               <th data-sort="customer">العميل <i class="fas fa-sort sort-icon"></i></th>
               <th data-sort="date">التاريخ <i class="fas fa-sort sort-icon"></i></th>
               <th data-sort="dueDate">تاريخ الاستحقاق <i class="fas fa-sort sort-icon"></i></th>
@@ -52,11 +53,21 @@
                     <tr data-status="@item.Status.ToString().ToLower()">
                       <td class="table-checkbox"><input type="checkbox" value="@item.Id"></td>
                       <td><a href="/SalesReturn/Print/@item.Id" style="color:var(--primary);font-weight:600;">@item.InvoiceNumber</a></td>
+                      <td>
+                          @if (!string.IsNullOrEmpty(item.ReferenceNumber))
+                          {
+                              <span class="badge" style="background:#eff6ff; color:#1d4ed8; border:1px solid #93c5fd; font-weight:700;"><i class="fas fa-link me-1"></i> @item.ReferenceNumber</span>
+                          }
+                          else
+                          {
+                              <span class="text-muted">-</span>
+                          }
+                      </td>
                       <td><div style="font-weight:500;">@item.CustomerName</div></td>
                       <td>@item.Date.ToString("yyyy-MM-dd")</td>
                       <td>@item.DueDate.ToString("yyyy-MM-dd")</td>
                       <td class="numeric">@item.TotalAmount.ToString("N2")</td>
-                      <td class="numeric" style="color:var(--text-muted);">0.00</td>
+                      <td class="numeric">@item.PaidAmount.ToString("N2")</td>
                       <td id="statusTd_@item.Id">
                           <div style="display: flex; align-items: center; gap: 8px;">
                               @if(item.Status == CodeXErpSystem.DAL.Entites.Enums.InvoiceStatus.Paid) {
@@ -66,9 +77,6 @@
                               } else {
                                   <span class="badge badge-warning" style="background-color:#ffc107; color:black;">غير مدفوعة</span>
                               }
-                              <button type="button" class="btn btn-sm btn-ghost p-1" onclick="openStatusModal(@item.Id, @((int)item.Status))" title="تعديل الحالة">
-                                  <i class="fas fa-edit" style="color: var(--primary);"></i>
-                              </button>
                           </div>
                       </td>
                       <td class="table-actions text-center">

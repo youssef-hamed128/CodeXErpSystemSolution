@@ -1,303 +1,508 @@
 @model CodeXErpSystem.BLL.ViewModels.Invoice.InvoiceCreateViewModel
-@{ Layout = "_Layout"; }
+@{
+    Layout = "_Layout";
+}
 
-    <div class="page-header">
-      <div class="page-header-left">
+<div class="page-header">
+    <div class="page-header-left">
         <h1 class="page-title"><i class="fas fa-file-invoice-dollar" style="color:var(--primary);"></i> فاتورة مبيعات جديدة</h1>
-      </div>
     </div>
+</div>
 
-    <form id="invoiceForm" method="post" asp-controller="SalesInvoice" asp-action="Create">
-      @Html.AntiForgeryToken()
-      <div asp-validation-summary="All" class="text-danger" style="background:#ffebee; padding:15px; border-radius:8px; margin-bottom:15px; color:#c62828;"></div>
+<form id="invoiceForm" method="post" asp-controller="SalesInvoice" asp-action="Create">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="All" class="text-danger" style="background:#ffebee; padding:15px; border-radius:8px; margin-bottom:15px; color:#c62828;"></div>
 
-      <div class="invoice-layout">
+    <div class="invoice-layout">
         <!-- بيانات الفاتورة -->
         <div class="invoice-section">
-          <div class="invoice-section-header">
-            <i class="fas fa-file-alt"></i> بيانات الفاتورة
-          </div>
-          <div class="invoice-section-body">
-            <div class="invoice-header-grid" style="grid-template-columns: repeat(4, 1fr);">
-              <div class="form-group">
-                <label class="form-label">رقم الفاتورة</label>
-                <input type="text" class="form-control" asp-for="InvoiceNumber" readonly  style="background:#e9ecef; font-weight:bold; color:var(--primary);">
-              </div>
-              
-              <div class="form-group">
-                <label class="form-label required">تاريخ الفاتورة</label>
-                <input type="date" class="form-control" asp-for="Date" required>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label required">تاريخ الاستحقاق</label>
-                <input type="date" class="form-control" asp-for="DueDate" required>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label required">طريقة الدفع</label>
-                <select class="form-control" asp-for="PaymentMethod" required>
-                  <option value="1">نقدي</option>
-                  <option value="2">آجل (ذمم)</option>
-                  <option value="3">تحويل بنكي</option>
-                  <option value="4">بطاقة ائتمان</option>
-                  <option value="5">شيك</option>
-                  <option value="6">خصم من رصيد العميل</option>
-                </select>
-              </div>
-
-              <div class="form-group" style="grid-column: span 2;">
-                <label class="form-label required">العميل</label>
-                <select class="form-control" asp-for="CustomerId" asp-items="ViewBag.Customers" id="CustomerId" required>
-                    <option value="">-- اختر العميل --</option>
-                </select>
-                <div id="customerBalanceInfo" style="display:none; margin-top:10px; padding:12px 15px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; font-size:0.95rem; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
-                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-                        <div>
-                            <span style="color:#166534; font-weight:600;"><i class="fas fa-wallet me-1"></i> الرصيد المتاح للعميل: </span>
-                            <span id="customerAvailableVal" style="font-weight:700; color:#166534;"></span>
-                        </div>
-                        <div>
-                            <span style="color:#991b1b; font-weight:600;"><i class="fas fa-file-invoice-dollar me-1"></i> الديون (المطلوب سداده): </span>
-                            <span id="customerDebtsVal" style="font-weight:700; color:#991b1b;"></span>
-                        </div>
-                        <div>
-                            <span style="color:#475569; font-weight:600;"><i class="fas fa-scale-balanced me-1"></i> الرصيد الحالي: </span>
-                            <span id="customerBalanceVal" style="font-weight:700;"></span>
-                        </div>
+            <div class="invoice-section-header">
+                <i class="fas fa-file-alt"></i> بيانات الفاتورة
+            </div>
+            <div class="invoice-section-body">
+                <div class="invoice-header-grid" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="form-group">
+                        <label class="form-label">رقم الفاتورة</label>
+                        <input type="text" class="form-control" asp-for="InvoiceNumber" readonly style="background:#e9ecef; font-weight:bold; color:var(--primary);">
                     </div>
-                </div>
-                <div id="balanceDeductionPreview" style="display:none; margin-top:12px; padding:15px; background:#eff6ff; border:2px solid #3b82f6; border-radius:10px; font-size:0.95rem; box-shadow:0 4px 10px rgba(59,130,246,0.1);">
-                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #bfdbfe; padding-bottom:10px; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
-                        <div style="font-weight:800; color:#1e40af; font-size:1.05rem;">
-                            <i class="fas fa-money-check-alt me-1"></i> شاشة الدفع: خصم من رصيد العميل
-                        </div>
-                        <div>
-                            <span style="color:#166534; font-weight:700;">الرصيد المتاح للخصم: </span>
-                            <span id="previewAvailableBal" style="font-weight:800; color:#15803d; font-size:1.05rem;"></span>
-                        </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">تاريخ الفاتورة</label>
+                        <input type="date" class="form-control" asp-for="Date" required>
                     </div>
-                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:15px; align-items:center;">
-                        <div style="background:#fff; padding:10px 12px; border-radius:8px; border:1px solid #dbeafe;">
-                            <label style="display:block; font-size:12px; font-weight:700; color:#1e40af; margin-bottom:4px;">المبلغ المراد خصمه من الرصيد:</label>
-                            <div style="display:flex; align-items:center; gap:6px;">
-                                <input type="number" id="deductionAmountInput" class="form-control" style="font-weight:800; color:#2563eb; text-align:center; font-size:15px;" step="0.01" min="0" placeholder="0.00" oninput="calculateBalanceDeduction()" />
-                                <button type="button" class="btn btn-sm btn-outline-primary" style="white-space:nowrap; font-weight:700; font-size:11px;" onclick="setFullDeductionAmount()" title="خصم كامل قيمة الفاتورة">كامل الفاتورة</button>
+
+                    <div class="form-group">
+                        <label class="form-label required">تاريخ الاستحقاق</label>
+                        <input type="date" class="form-control" asp-for="DueDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">طريقة الدفع</label>
+                        <select class="form-control" asp-for="PaymentMethod" required>
+                            <option value="1">نقدي</option>
+                            <option value="2">آجل (ذمم)</option>
+                            <option value="3">تحويل بنكي</option>
+                            <option value="4">بطاقة ائتمان</option>
+                            <option value="5">شيك</option>
+                            <option value="6">خصم من رصيد العميل</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label class="form-label required">العميل</label>
+                        <select class="form-control" asp-for="CustomerId" asp-items="ViewBag.Customers" id="CustomerId" required>
+                            <option value="">-- اختر العميل --</option>
+                        </select>
+                        <div id="customerBalanceInfo" style="display:none; margin-top:10px; padding:12px 15px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; font-size:0.95rem; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                                <div>
+                                    <span style="color:#166534; font-weight:600;"><i class="fas fa-wallet me-1"></i> الرصيد المتاح للعميل: </span>
+                                    <span id="customerAvailableVal" style="font-weight:700; color:#166534;"></span>
+                                </div>
+                                <div>
+                                    <span style="color:#991b1b; font-weight:600;"><i class="fas fa-file-invoice-dollar me-1"></i>المبلغ المطلوب سداده: </span>
+                                    <span id="customerDebtsVal" style="font-weight:700; color:#991b1b;"></span>
+                                </div>
+                                <div>
+                                    <span style="color:#475569; font-weight:600;"><i class="fas fa-scale-balanced me-1"></i> الرصيد الحالي: </span>
+                                    <span id="customerBalanceVal" style="font-weight:700;"></span>
+                                </div>
                             </div>
                         </div>
-                        <div style="background:#fff; padding:10px 12px; border-radius:8px; border:1px solid #dbeafe;">
-                            <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:4px;">المتبقي من الرصيد المتاح:</label>
-                            <span id="previewRemainingBalance" style="font-weight:800; font-size:15px;"></span>
-                        </div>
-                        <div style="background:#fff; padding:10px 12px; border-radius:8px; border:1px solid #dbeafe;">
-                            <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:4px;">المتبقي من الفاتورة (غير مسدد):</label>
-                            <span id="previewRemainingInvoice" style="font-weight:800; font-size:15px;"></span>
+                        <div id="balanceDeductionPreview" style="display:none; margin-top:12px; padding:15px; background:#eff6ff; border:2px solid #3b82f6; border-radius:10px; font-size:0.95rem; box-shadow:0 4px 10px rgba(59,130,246,0.1);">
+                            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #bfdbfe; padding-bottom:10px; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+                                <div style="font-weight:800; color:#1e40af; font-size:1.05rem;">
+                                    <i class="fas fa-money-check-alt me-1"></i> شاشة الدفع: خصم من رصيد العميل
+                                </div>
+                                <div>
+                                    <span style="color:#166534; font-weight:700;">الرصيد المتاح للخصم: </span>
+                                    <span id="previewAvailableBal" style="font-weight:800; color:#15803d; font-size:1.05rem;"></span>
+                                </div>
+                            </div>
+                            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:15px; align-items:center;">
+                                <div style="background:#fff; padding:10px 12px; border-radius:8px; border:1px solid #dbeafe;">
+                                    <label style="display:block; font-size:12px; font-weight:700; color:#1e40af; margin-bottom:4px;">المبلغ المراد خصمه من الرصيد:</label>
+                                    <div style="display:flex; align-items:center; gap:6px;">
+                                        <input type="number" id="deductionAmountInput" class="form-control" style="font-weight:800; color:#2563eb; text-align:center; font-size:15px;" step="0.01" min="0" placeholder="0.00" oninput="calculateBalanceDeduction()" />
+                                        <button type="button" class="btn btn-sm btn-outline-primary" style="white-space:nowrap; font-weight:700; font-size:11px;" onclick="setFullDeductionAmount()" title="خصم كامل قيمة الفاتورة">كامل الفاتورة</button>
+                                    </div>
+                                </div>
+                                <div style="background:#fff; padding:10px 12px; border-radius:8px; border:1px solid #dbeafe;">
+                                    <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:4px;">المتبقي من الرصيد المتاح:</label>
+                                    <span id="previewRemainingBalance" style="font-weight:800; font-size:15px;"></span>
+                                </div>
+                                <div style="background:#fff; padding:10px 12px; border-radius:8px; border:1px solid #dbeafe;">
+                                    <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:4px;">المتبقي من الفاتورة (غير مسدد):</label>
+                                    <span id="previewRemainingInvoice" style="font-weight:800; font-size:15px;"></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-              </div>
 
-              <div class="form-group" style="grid-column: span 2;">
-                <label class="form-label required">المستودع</label>
-                <select class="form-control" asp-for="WarehouseId" asp-items="ViewBag.Warehouses" required>
-                  <option value="">-- اختر المستودع --</option>
-                </select>
-              </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label class="form-label required">المخزن الرئيسي</label>
+                        <select class="form-control" asp-for="WarehouseId" asp-items="ViewBag.Warehouses" id="WarehouseId" required onchange="onWarehouseChanged()">
+                            <option value="">-- اختر المخزن --</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label class="form-label">مخزن آخر (بديل / إضافي)</label>
+                        <select class="form-control" id="AltWarehouseId" name="AltWarehouseId" onchange="onWarehouseChanged()">
+                            <option value="">-- بدون مخزن بديل --</option>
+                            @if (ViewBag.Warehouses != null)
+                            {
+                                foreach (var wh in ViewBag.Warehouses)
+                                {
+                                    <option value="@wh.Value">@wh.Text</option>
+                                }
+                            }
+                        </select>
+                        <small class="text-muted" style="font-size:11px;">عرض الأصناف المتاحة في المخزن الرئيسي أو هذا المخزن</small>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
 
 
         <!-- بنود الفاتورة -->
         <div class="invoice-section">
-          <div class="invoice-section-header">
-            <i class="fas fa-list-ul"></i> بنود الفاتورة
-          </div>
-          <div class="invoice-section-body" style="padding: 0;">
-            <div class="table-responsive">
-              <table class="invoice-items-table">
-                <thead>
-                  <tr>
-                    <th style="width:25%;">المنتج / الخدمة</th>
-                    <th style="width:10%;">الوحدة</th>
-                    <th style="width:10%;">الكمية</th>
-                    <th style="width:15%;">سعر الوحدة</th>
-                    <th style="width:15%;">الإجمالي</th>
-                    <th style="width:5%;" class="center">حذف</th>
-                  </tr>
-                </thead>
-                <tbody id="lineItemsBody">
-                </tbody>
-              </table>
+            <div class="invoice-section-header">
+                <i class="fas fa-list-ul"></i> بنود الفاتورة
             </div>
-
-            <div style="padding: 15px;">
-              <button type="button" class="btn btn-outline-primary" onclick="addNewRow()">
-                <i class="fas fa-plus"></i> إضافة بند جديد
-              </button>
-            </div>
-
-            <!-- الإجماليات -->
-            <div class="invoice-summary" style="padding: 0 20px 20px; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
-              
-              <!-- إعدادات الخصم والضريبة -->
-              <div style="flex: 1; background: #f8f9fa; padding: 15px; border-radius: 8px;">
-                <h6 style="margin-bottom: 15px; color: var(--primary);"><i class="fas fa-sliders-h"></i> إعدادات الخصم والضريبة</h6>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div class="form-group">
-                        <label class="form-label">الخصم (مبلغ)</label>
-                        <input type="number" asp-for="DiscountAmount" class="form-control" id="DiscountAmount" value="0" step="0.01" min="0" oninput="calculateInvoice('amount')">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">الخصم (نسبة %)</label>
-                        <input type="number" asp-for="DiscountPercentage" class="form-control" id="DiscountPercentage" value="0" step="0.01" min="0" max="100" oninput="calculateInvoice('percentage')">
-                    </div>
-                    <div class="form-group" style="grid-column: span 2;">
-                        <label class="form-label">نسبة الضريبة القيمة المضافة (%)</label>
-                        <input type="number" asp-for="TaxPercentage" class="form-control" id="TaxPercentage" value="0" step="0.01" min="0" oninput="calculateInvoice('tax')">
-                    </div>
+            <div class="invoice-section-body" style="padding: 0;">
+                <div class="table-responsive">
+                    <table class="invoice-items-table">
+                        <thead>
+                            <tr>
+                                <th style="width:30%;">المنتج / الخدمة</th>
+                                <th style="width:10%;">الوحدة</th>
+                                <th style="width:15%;">الكمية</th>
+                                <th style="width:15%;">سعر الوحدة</th>
+                                <th style="width:20%;">الإجمالي</th>
+                                <th style="width:10%;" class="center">حذف</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lineItemsBody">
+                        </tbody>
+                    </table>
                 </div>
-              </div>
 
-              <table class="invoice-summary-table" style="flex: 1;">
-                <tr>
-                  <td>المجموع الفرعي:</td>
-                  <td class="numeric" id="invoiceSubtotal">0.00</td>
-                </tr>
-                <tr>
-                  <td>إجمالي الخصم:</td>
-                  <td class="numeric" id="invoiceTotalDiscount" style="color:var(--danger);">0.00</td>
-                </tr>
-                <tr>
-                  <td>المجموع بعد الخصم:</td>
-                  <td class="numeric" id="invoiceAfterDiscount">0.00</td>
-                </tr>
-                <tr>
-                  <td>إجمالي الضريبة:</td>
-                  <td class="numeric" id="invoiceTotalTax">0.00</td>
-                </tr>
-                <tr class="total-row">
-                  <td>الإجمالي الكلي:</td>
-                  <td class="numeric" id="invoiceGrandTotal">0.00</td>
-                </tr>
-              </table>
+                <div style="padding: 15px;">
+                    <button type="button" class="btn btn-outline-primary" onclick="addNewRow()">
+                        <i class="fas fa-plus"></i> إضافة بند جديد
+                    </button>
+                </div>
+
+                <!-- الإجماليات -->
+                <div class="invoice-summary" style="padding: 0 20px 20px; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
+
+                    <!-- إعدادات الخصم والضريبة -->
+                    <div style="flex: 1; background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                        <h6 style="margin-bottom: 15px; color: var(--primary);"><i class="fas fa-sliders-h"></i> إعدادات الخصم والضريبة</h6>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div class="form-group">
+                                <label class="form-label">الخصم (مبلغ)</label>
+                                <input type="number" asp-for="DiscountAmount" class="form-control" id="DiscountAmount" value="0" step="0.01" min="0" oninput="calculateInvoice('amount')">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">الخصم (نسبة %)</label>
+                                <input type="number" asp-for="DiscountPercentage" class="form-control" id="DiscountPercentage" value="0" step="0.01" min="0" max="100" oninput="calculateInvoice('percentage')">
+                            </div>
+                            <div class="form-group" style="grid-column: span 2;">
+                                <label class="form-label">نسبة الضريبة القيمة المضافة (%)</label>
+                                <input type="number" asp-for="TaxPercentage" class="form-control" id="TaxPercentage" value="0" step="0.01" min="0" oninput="calculateInvoice('tax')">
+                            </div>
+                        </div>
+                    </div>
+
+                    <table class="invoice-summary-table" style="flex: 1;">
+                        <tr>
+                            <td>المجموع الفرعي:</td>
+                            <td class="numeric" id="invoiceSubtotal">0.00</td>
+                        </tr>
+                        <tr>
+                            <td>إجمالي الخصم:</td>
+                            <td class="numeric" id="invoiceTotalDiscount" style="color:var(--danger);">0.00</td>
+                        </tr>
+                        <tr>
+                            <td>المجموع بعد الخصم:</td>
+                            <td class="numeric" id="invoiceAfterDiscount">0.00</td>
+                        </tr>
+                        <tr>
+                            <td>إجمالي الضريبة:</td>
+                            <td class="numeric" id="invoiceTotalTax">0.00</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td>الإجمالي الكلي:</td>
+                            <td class="numeric" id="invoiceGrandTotal">0.00</td>
+                        </tr>
+                    </table>
+                </div>
             </div>
-          </div>
         </div>
 
         <!-- الملاحظات -->
         <div class="invoice-section">
-          <div class="invoice-section-header">
-            <i class="fas fa-edit"></i> الملاحظات
-          </div>
-          <div class="invoice-section-body">
-             <div class="form-group">
-                <textarea class="form-control" asp-for="Notes" rows="3" placeholder="أضف ملاحظات الفاتورة هنا..."></textarea>
-             </div>
-          </div>
-        </div>
-        
-      </div>
-
-      <div class="invoice-action-bar no-print mt-3" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; background: #f8fafc; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; gap: 15px;">
-        <div id="invoiceStatusContainer" style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-          <label style="font-weight: 700; color: var(--primary); margin: 0; display: flex; align-items: center; gap: 6px;">
-            <i class="fas fa-money-check-alt"></i> حالة الفاتورة:
-          </label>
-          <select class="form-control" name="Status" id="invoiceStatusSelect" style="width: auto; font-weight: 700; min-width: 160px; border-color: var(--primary);" onchange="togglePartialPaymentBox(this.value)">
-            <option value="2">غير مدفوعة</option>
-            <option value="1">مدفوعة بالكامل</option>
-            <option value="3">مدفوعة جزئياً</option>
-          </select>
-          
-          <div id="partialPaymentBox" style="display: none; align-items: center; gap: 8px; background: #fff; border: 1px solid #cbd5e1; padding: 4px 12px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-            <label style="font-size: 13px; font-weight: 700; color: #d97706; margin: 0;">المبلغ المدفوع جزئياً:</label>
-            <input type="number" step="0.01" min="0.01" name="PaidAmount" id="invoicePaidAmountInput" class="form-control" style="width: 130px; font-weight: 700; color: #d97706; text-align: center;" placeholder="0.00" />
-            <span style="font-size: 12px; color: #64748b;">ج.م</span>
-          </div>
+            <div class="invoice-section-header">
+                <i class="fas fa-edit"></i> الملاحظات
+            </div>
+            <div class="invoice-section-body">
+                <div class="form-group">
+                    <textarea class="form-control" asp-for="Notes" rows="3" placeholder="أضف ملاحظات الفاتورة هنا..."></textarea>
+                </div>
+            </div>
         </div>
 
-        <div style="display: flex; gap: 10px;">
-          <button type="submit" class="btn btn-success" style="padding: 10px 24px; font-weight: 700;">
-            <i class="fas fa-check-circle"></i> حفظ وترحيل الفاتورة
-          </button>
-          <a href="/SalesInvoice/Index" class="btn btn-secondary" style="padding: 10px 18px;">إلغاء</a>
+    </div>
+
+    <!-- أزرار الحفظ مع حالة السداد -->
+    <input type="hidden" name="Status" id="hiddenInvoiceStatus" value="" />
+    <input type="hidden" name="PaidAmount" id="hiddenInvoicePaidAmount" value="0" />
+
+    <!-- شريط الإجراءات الرئيسي -->
+    <div class="no-print mt-4" style="border-radius: 16px; overflow: hidden; box-shadow: 0 8px 25px rgba(30,64,175,0.10); border: 1.5px solid #c7d7fc;">
+        <!-- رأس شريط الحالة -->
+        <div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i class="fas fa-clipboard-check" style="color:#bfdbfe; font-size:1.3rem;"></i>
+                <span style="color:#fff; font-weight:800; font-size:1.05rem;">حالة سداد الفاتورة</span>
+            </div>
+            <div id="statusBadgeDisplay" style="font-size:0.9rem; font-weight:700; padding:5px 14px; border-radius:20px; background:rgba(255,255,255,0.18); color:#fff;">لم يتم الاختيار بعد</div>
         </div>
-      </div>
-    </form>
-  
+
+        <!-- جسم الشريط -->
+        <div style="background:#fff; padding: 20px 24px;">
+            <!-- اختيار حالة الفاتورة -->
+            <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px;">
+                <button type="button" onclick="selectInvoiceStatus('1')" id="statusBtn1"
+                        style="flex:1; min-width:130px; padding:12px 8px; border-radius:12px; border:2px solid #d1d5db; background:#f9fafb; font-weight:700; font-size:0.95rem; color:#374151; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <i class="fas fa-check-circle" style="color:#10b981; font-size:1.2rem;"></i> مدفوعة بالكامل
+                </button>
+                <button type="button" onclick="selectInvoiceStatus('2')" id="statusBtn2"
+                        style="flex:1; min-width:130px; padding:12px 8px; border-radius:12px; border:2px solid #d1d5db; background:#f9fafb; font-weight:700; font-size:0.95rem; color:#374151; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <i class="fas fa-hourglass-half" style="color:#f59e0b; font-size:1.2rem;"></i> غير مدفوعة (آجل)
+                </button>
+                <button type="button" onclick="selectInvoiceStatus('3')" id="statusBtn3"
+                        style="flex:1; min-width:130px; padding:12px 8px; border-radius:12px; border:2px solid #d1d5db; background:#f9fafb; font-weight:700; font-size:0.95rem; color:#374151; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <i class="fas fa-coins" style="color:#8b5cf6; font-size:1.2rem;"></i> مدفوعة جزئياً
+                </button>
+            </div>
+
+            <!-- مربع الدفع الجزئي -->
+            <div id="onpagePartialPaymentBox" style="display:none; margin-bottom:16px;">
+                <div style="background: linear-gradient(135deg,#fffbeb,#fef3c7); border:1.5px solid #fde68a; border-radius:12px; padding:16px 18px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+                        <span style="font-weight:700; color:#92400e; font-size:0.95rem;"><i class="fas fa-file-invoice me-1"></i> إجمالي الفاتورة:</span>
+                        <span style="font-weight:900; font-size:1.1rem; color:#78350f;"><span id="onpageDisplayTotal">0.00</span> ج.م</span>
+                    </div>
+                    <label style="font-weight:700; color:#b45309; font-size:0.9rem; margin-bottom:6px; display:block;"><i class="fas fa-money-bill-wave me-1"></i> المبلغ المدفوع جزئياً (ج.م):</label>
+                    <input type="number" step="0.01" min="0" id="onpagePaidAmountInput" class="form-control"
+                           style="font-size:1.15rem; font-weight:800; text-align:center; color:#b45309; height:48px; border-radius:10px; border:2px solid #f59e0b; margin-bottom:10px;"
+                           placeholder="0.00" oninput="onPagePaidAmountInput(this.value)" />
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:#fee2e2; padding:10px 14px; border-radius:8px; border:1px solid #fecaca;">
+                        <span style="font-weight:700; color:#991b1b; font-size:0.9rem;"><i class="fas fa-hourglass-half me-1"></i> المبلغ المتبقي:</span>
+                        <span style="font-weight:900; font-size:1.05rem; color:#dc2626;"><span id="onpageDisplayRemaining">0.00</span> ج.م</span>
+                    </div>
+                    <div id="onpagePaidAmountError" style="display:none; background:#fef2f2; border:1.5px solid #ef4444; color:#b91c1c; padding:10px 14px; border-radius:8px; font-weight:700; font-size:0.88rem; margin-top:10px;">
+                        <i class="fas fa-exclamation-circle me-1"></i> المبلغ المدفوع أكبر من إجمالي الفاتورة!
+                    </div>
+                    <div id="onpageAutoPaidAlert" style="display:none; background:#ecfdf5; border:1.5px solid #10b981; color:#065f46; padding:10px 14px; border-radius:8px; font-weight:700; font-size:0.88rem; margin-top:10px;">
+                        <i class="fas fa-check-circle me-1"></i> المبلغ يساوي الإجمالي، تم التحويل لـ (مدفوعة بالكامل) تلقائياً.
+                    </div>
+                </div>
+            </div>
+
+            <!-- أزرار الحفظ / الإلغاء -->
+            <div style="display:flex; justify-content:flex-end; gap:12px; padding-top:4px; border-top:1px solid #f1f5f9; margin-top:4px;">
+                <a href="/SalesInvoice/Index" class="btn btn-secondary" style="padding:11px 22px; font-weight:700; border-radius:10px;"><i class="fas fa-times me-1"></i> إلغاء</a>
+                <button type="button" id="saveInvoiceBtn" class="btn btn-success" onclick="handleSaveInvoiceClick()"
+                        style="padding:11px 28px; font-weight:800; font-size:1.05rem; border-radius:10px; box-shadow:0 4px 14px rgba(16,185,129,0.25);">
+                    <i class="fas fa-check-circle me-1"></i> حفظ الفاتورة
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+
 
 <script>
     let rowIndex = 0;
-    const productsData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.ProductsList ?? new object[]{}, new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles }));
+    const productsData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.ProductsList ?? new object[] { }, new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles }));
 
-    document.addEventListener('DOMContentLoaded', function() {
-        addNewRow(); 
-    });
+    function initFirstRow() {
+        try {
+            var bodyEl = document.getElementById('lineItemsBody');
+            if (bodyEl && bodyEl.children.length === 0) {
+                addNewRow();
+            }
+        } catch(e) {
+            console.error('Error initializing first invoice row:', e);
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initFirstRow);
+    } else {
+        initFirstRow();
+    }
 
     function addNewRow() {
-        const categoryOptions = `@if(ViewBag.Categories != null) { foreach(var cat in ViewBag.Categories) { <option value="@cat.Value">@cat.Text</option> } }`;
-        const productsOptions = `@if(ViewBag.Products != null) { foreach(var item in ViewBag.Products) { <option value="@item.Value">@item.Text</option> } }`;
-        
-        const rowHtml = `
-            <tr id="row_${rowIndex}">
-                <td>
-                    <select class="form-control mb-1 category-select" onchange="filterProducts(this, ${rowIndex})">
-                        <option value="">-- كل المجموعات --</option>
-                        ${categoryOptions}
-                    </select>
-                    <select name="Items[${rowIndex}].ProductId" class="form-control product-select" onchange="fetchPrice(this, ${rowIndex})" required>
-                        <option value="">-- اختر صنف --</option>
-                        ${productsOptions}
-                    </select>
-                </td>
-                <td>
-                    <input type="text" id="unit_${rowIndex}" class="form-control" readonly style="background:#e9ecef; text-align:center;" value="-" />
-                </td>
-                <td>
-                    <input type="number" name="Items[${rowIndex}].Quantity" id="qty_${rowIndex}" class="form-control qty-input" value="1" min="0.0001" step="any" oninput="calculateInvoice()" required />
-                </td>
-                <td>
-                    <input type="number" name="Items[${rowIndex}].UnitPrice" id="price_${rowIndex}" class="form-control price-input" value="0" step="0.01" min="0" oninput="calculateInvoice()" required />
-                </td>
-                <td>
-                    <input type="text" class="form-control row-total fw-bold text-primary" readonly value="0.00" style="background:#f8f9fa;" />
-                </td>
-                <td class="text-center">
-                    <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(${rowIndex})">❌</button>
-                </td>
-            </tr>
-        `;
-        
-        document.getElementById('lineItemsBody').insertAdjacentHTML('beforeend', rowHtml);
-        
-        $(`#row_${rowIndex} .product-select`).select2({
-            placeholder: "-- اختر صنف --",
-            width: '100%',
-            dir: "rtl"
-        });
+        try {
+            const categoryOptions = `@if(ViewBag.Categories != null) { foreach(var cat in ViewBag.Categories) {
+            <option value="@cat.Value">@cat.Text</option>
+                        } }
+`;
+            const productsOptions = `@if(ViewBag.Products != null) { foreach(var item in ViewBag.Products) {
+            <option value="@item.Value">@item.Text</option>
+                        } }
+`;
+            const curIdx = rowIndex;
 
-        rowIndex++;
-        calculateInvoice();
+            const rowHtml = `
+                <tr id="row_${curIdx}">
+                    <td>
+                        <input type="hidden" name="Items.Index" value="${curIdx}" />
+                        <select class="form-control mb-1 category-select" onchange="filterProducts(this, ${curIdx})" style="font-size:0.85rem;">
+                            <option value="">-- كل المجموعات --</option>
+                            ${categoryOptions}
+                        </select>
+                        <select name="Items[${curIdx}].ProductId" class="form-control product-select" onchange="fetchPrice(this, ${curIdx})" required>
+                            <option value="">🔍 ابحث باسم الصنف...</option>
+                            ${productsOptions}
+                        </select>
+                        <div id="stock_badge_${curIdx}" class="stock-badge-container" style="margin-top:5px;"></div>
+                    </td>
+                    <td>
+                        <input type="text" id="unit_${curIdx}" class="form-control" readonly style="background:#e9ecef; text-align:center;" value="-" />
+                    </td>
+                    <td>
+                        <input type="number" name="Items[${curIdx}].Quantity" id="qty_${curIdx}" class="form-control qty-input" value="1" min="0.0001" step="any" oninput="checkStockQty(${curIdx}); calculateInvoice();" required style="text-align:center; font-weight:700;" />
+                        <div id="stock_msg_${curIdx}" style="font-size:11px; margin-top:4px; font-weight:700; text-align:center; line-height:1.2;"></div>
+                    </td>
+                    <td>
+                        <input type="number" name="Items[${curIdx}].UnitPrice" id="price_${curIdx}" class="form-control price-input" value="0" step="0.01" min="0" oninput="calculateInvoice()" required />
+                        <input type="hidden" name="Items[${curIdx}].SalePrice" id="saleprice_${curIdx}" value="0" />
+                    </td>
+                    <td>
+                        <input type="text" class="form-control row-total fw-bold text-primary" readonly value="0.00" style="background:#f8f9fa;" />
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(${curIdx})">❌</button>
+                    </td>
+                </tr>
+            `;
+
+            var bodyEl = document.getElementById('lineItemsBody');
+            if (bodyEl) {
+                bodyEl.insertAdjacentHTML('beforeend', rowHtml);
+            }
+
+            try {
+                if (typeof $ !== 'undefined' && $.fn && $.fn.select2) {
+                    $(`#row_${curIdx} .product-select`).select2({
+                        placeholder: "🔍 ابحث باسم الصنف...",
+                        width: '100%',
+                        dir: "rtl",
+                        allowClear: true
+                    }).on('select2:select change', function() {
+                        fetchPrice(this, curIdx);
+                    });
+                }
+            } catch(s2Err) {
+                console.warn('Select2 not available for row ' + curIdx, s2Err);
+            }
+
+            rowIndex++;
+            calculateInvoice();
+        } catch(err) {
+            console.error('Error in addNewRow:', err);
+            alert('حدث خطأ أثناء إضافة بند جديد: ' + err.message);
+        }
+    }
+
+    function onWarehouseChanged() {
+        for (let i = 0; i < rowIndex; i++) {
+            let el = document.getElementById(`row_${i}`);
+            if (el) {
+                let catSel = el.querySelector('.category-select');
+                filterProducts(catSel, i);
+                let prodSel = el.querySelector('.product-select');
+                if (prodSel && prodSel.value) {
+                    let p = productsData.find(x => x.Id == prodSel.value);
+                    updateStockDisplay(i, p);
+                }
+            }
+        }
     }
 
     function filterProducts(categorySelect, index) {
-        let categoryId = categorySelect.value;
+        let categoryId = categorySelect ? categorySelect.value : $(`#row_${index} .category-select`).val();
         let productSelect = $(`#row_${index} .product-select`);
-        
+        let currentVal = productSelect.val();
+
         productSelect.empty();
-        productSelect.append(new Option("-- اختر صنف --", "", true, true));
-        
+        productSelect.append(new Option("🔍 ابحث باسم الصنف...", "", true, true));
+
         let filteredProducts = productsData;
         if (categoryId) {
             filteredProducts = productsData.filter(p => p.CategoryId == categoryId);
         }
-        
+
+        let mainWh = document.getElementById('WarehouseId')?.value;
+        let altWh = document.getElementById('AltWarehouseId')?.value;
+        if (mainWh || altWh) {
+            filteredProducts = filteredProducts.filter(p => {
+                let qty = getProductAvailableQty(p);
+                return qty > 0;
+            });
+        }
+
         filteredProducts.forEach(p => {
-            productSelect.append(new Option(p.Name, p.Id, false, false));
+            let qty = getProductAvailableQty(p);
+            let label = `${p.Name} (متاح: ${qty})`;
+            productSelect.append(new Option(label, p.Id, false, false));
         });
-        
-        productSelect.trigger('change');
+
+        if (currentVal && filteredProducts.some(p => p.Id == currentVal)) {
+            productSelect.val(currentVal);
+        }
+        productSelect.trigger('change.select2');
+    }
+
+    function getProductAvailableQty(product) {
+        if (!product) return 0;
+        let selectedWhId = document.getElementById('WarehouseId')?.value;
+        let altWhId = document.getElementById('AltWarehouseId')?.value;
+        let totalAvail = 0;
+        if (product.StockByWarehouse && product.StockByWarehouse.length > 0) {
+            if (selectedWhId) {
+                let whStock = product.StockByWarehouse.find(s => s.WarehouseId == selectedWhId);
+                if (whStock) totalAvail += whStock.Quantity;
+            }
+            if (altWhId && altWhId !== selectedWhId) {
+                let whStockAlt = product.StockByWarehouse.find(s => s.WarehouseId == altWhId);
+                if (whStockAlt) totalAvail += whStockAlt.Quantity;
+            }
+            if (!selectedWhId && !altWhId) {
+                return product.AvailableQty || 0;
+            }
+            return totalAvail;
+        }
+        return product.AvailableQty || 0;
+    }
+
+    function updateStockDisplay(index, product) {
+        let badgeEl = document.getElementById(`stock_badge_${index}`);
+        if (!badgeEl) return;
+        if (!product) {
+            badgeEl.innerHTML = '';
+            return;
+        }
+        let availQty = getProductAvailableQty(product);
+        if (availQty <= 0) {
+            badgeEl.innerHTML = `<span class="badge bg-danger text-white" style="font-size:11px; padding:5px 8px; border-radius:6px; display:inline-block; width:100%;"><i class="fas fa-exclamation-triangle"></i> تنبيه: الصنف غير موجود في المخزون (الرصيد: 0)</span>`;
+            if (typeof showToast === 'function') {
+                showToast(`تنبيه: الصنف "${product.Name}" غير متوفر في المخزون حالياً (الرصيد: 0)`, 'warning');
+            }
+        } else {
+            badgeEl.innerHTML = `<span class="badge bg-success text-white" style="font-size:11px; padding:5px 8px; border-radius:6px; display:inline-block; width:100%;"><i class="fas fa-box-open"></i> الكمية المتاحة في المخزون: ${availQty}</span>`;
+        }
+        checkStockQty(index);
+    }
+
+    function checkStockQty(index) {
+        let selectElement = document.querySelector(`#row_${index} .product-select`) || document.querySelector(`select[name="Items[${index}].ProductId"]`);
+        let qtyInput = document.getElementById(`qty_${index}`);
+        let msgEl = document.getElementById(`stock_msg_${index}`);
+        if (!selectElement || !qtyInput || !msgEl) return;
+
+        let productId = selectElement.value;
+        if (!productId) {
+            msgEl.innerHTML = '';
+            qtyInput.style.borderColor = '';
+            qtyInput.style.backgroundColor = '';
+            return;
+        }
+        let selectedProduct = productsData.find(p => p.Id == productId);
+        if (!selectedProduct) return;
+
+        let availQty = getProductAvailableQty(selectedProduct);
+        let enteredQty = parseFloat(qtyInput.value) || 0;
+
+        if (availQty <= 0) {
+            msgEl.innerHTML = `<span style="color:#dc2626;"><i class="fas fa-times-circle"></i> غير متوفر بالمخزون</span>`;
+            qtyInput.style.borderColor = '#dc2626';
+            qtyInput.style.backgroundColor = '#fef2f2';
+        } else if (enteredQty > availQty) {
+            msgEl.innerHTML = `<span style="color:#dc2626;"><i class="fas fa-exclamation-circle"></i> الكمية المدخلة أكبر من المتوفرة (${availQty})</span>`;
+            qtyInput.style.borderColor = '#dc2626';
+            qtyInput.style.backgroundColor = '#fef2f2';
+        } else {
+            msgEl.innerHTML = `<span style="color:#16a34a;"><i class="fas fa-check-circle"></i> متوفر (${availQty})</span>`;
+            qtyInput.style.borderColor = '#16a34a';
+            qtyInput.style.backgroundColor = '#f0fdf4';
+        }
     }
 
     function fetchPrice(selectElement, index) {
@@ -305,35 +510,45 @@
         if(productId) {
             let selectedProduct = productsData.find(p => p.Id == productId);
             if(selectedProduct) {
-                document.getElementById(`price_${index}`).value = selectedProduct.SalePrice || selectedProduct.SalesPrice || 0;
+                document.getElementById(`price_${index}`).value = selectedProduct.SalePrice || 0;
+                let salePriceElem = document.getElementById(`saleprice_${index}`);
+                if (salePriceElem) salePriceElem.value = selectedProduct.SalePrice || 0;
                 document.getElementById(`unit_${index}`).value = selectedProduct.UnitOfMeasure || "-";
+                updateStockDisplay(index, selectedProduct);
                 calculateInvoice();
             }
+        } else {
+            document.getElementById(`price_${index}`).value = 0;
+            let salePriceElem = document.getElementById(`saleprice_${index}`);
+            if (salePriceElem) salePriceElem.value = 0;
+            document.getElementById(`unit_${index}`).value = "-";
+            updateStockDisplay(index, null);
+            calculateInvoice();
         }
     }
 
     function removeRow(index) {
         document.getElementById(`row_${index}`).remove();
-        calculateInvoice(); 
+        calculateInvoice();
     }
 
     function calculateInvoice(source = null) {
         let subTotal = 0;
-        
+
         const rows = document.querySelectorAll('#lineItemsBody tr');
         rows.forEach(row => {
             let qty = parseFloat(row.querySelector('.qty-input').value) || 0;
             let price = parseFloat(row.querySelector('.price-input').value) || 0;
-            
+
             let rowTotal = qty * price;
-            subTotal += rowTotal; 
-            
+            subTotal += rowTotal;
+
             row.querySelector('.row-total').value = rowTotal.toFixed(2);
         });
-        
+
         let discountAmountInput = document.getElementById('DiscountAmount');
         let discountPercentageInput = document.getElementById('DiscountPercentage');
-        
+
         let discountAmount = parseFloat(discountAmountInput.value) || 0;
         let discountPercentage = parseFloat(discountPercentageInput.value) || 0;
 
@@ -354,14 +569,14 @@
                 discountPercentageInput.value = discountPercentage.toFixed(2);
             }
         }
-        
+
         let totalAfterDiscount = subTotal - discountAmount;
         if (totalAfterDiscount < 0) totalAfterDiscount = 0;
 
         let taxRate = parseFloat(document.getElementById('TaxPercentage').value) || 0;
         let taxAmount = totalAfterDiscount * (taxRate / 100);
         let grandTotal = totalAfterDiscount + taxAmount;
-        
+
         document.getElementById('invoiceSubtotal').innerText = subTotal.toFixed(2);
         document.getElementById('invoiceTotalDiscount').innerText = discountAmount.toFixed(2);
         document.getElementById('invoiceAfterDiscount').innerText = totalAfterDiscount.toFixed(2);
@@ -403,17 +618,34 @@
                          let debts = bal > 0.01 ? bal : 0;
 
                          document.getElementById('customerAvailableVal').innerHTML = `<span style="color:#166534;">${avail.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ج.م ${avail > 0 ? '(رصيد دائن متاح)' : ''}</span>`;
-                         document.getElementById('customerDebtsVal').innerHTML = `<span style="color:#dc2626;">${debts.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ج.م ${debts > 0 ? '(مديونية عليه)' : ''}</span>`;
+                         document.getElementById('customerDebtsVal').innerHTML = `<span style="color:#dc2626;">${debts.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ج.م ${debts > 0 ? '(مستحق على العميل)' : ''}</span>`;
                          document.getElementById('customerBalanceVal').innerHTML = formatBalHtml(bal);
                          updateBalanceDeductionPreview();
                      }
                  });
              });
+             if (custSelect.value) {
+                 custSelect.dispatchEvent(new Event('change'));
+             }
          }
 
          const pmSelect = document.getElementById('PaymentMethod');
          if (pmSelect) {
              pmSelect.addEventListener('change', updateBalanceDeductionPreview);
+         }
+         const whSelect = document.getElementById('WarehouseId');
+         if (whSelect) {
+             whSelect.addEventListener('change', function() {
+                 const rows = document.querySelectorAll('#lineItemsBody tr');
+                 rows.forEach(row => {
+                     let idx = row.id.replace('row_', '');
+                     let sel = row.querySelector('.product-select');
+                     if (sel && sel.value) {
+                         let prod = productsData.find(p => p.Id == sel.value);
+                         updateStockDisplay(idx, prod);
+                     }
+                 });
+             });
          }
      });
 
@@ -482,8 +714,8 @@
          }
 
          // Sync form PaidAmount & Status
-         let formPaidInput = document.getElementById('invoicePaidAmountInput');
-         let formStatusSelect = document.getElementById('invoiceStatusSelect');
+         let formPaidInput = document.getElementById('hiddenInvoicePaidAmount');
+         let formStatusSelect = document.getElementById('hiddenInvoiceStatus');
          if (formPaidInput && formStatusSelect) {
              formPaidInput.value = deductAmt.toFixed(2);
              if (deductAmt >= grandTotal - 0.01 && grandTotal > 0) {
@@ -498,14 +730,330 @@
 
      function formatBalHtml(bal) {
          if (bal > 0.01) {
-             return `<span style="color:#dc2626;">${bal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ج.م (متبقي عليه)</span>`;
+             return `<span style="color:#dc2626;">${bal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ج.م (مستحق على العميل)</span>`;
          } else if (bal < -0.01) {
-             return `<span style="color:#2563eb;">${Math.abs(bal).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ج.م (رصيد دائن له)</span>`;
+             return `<span style="color:#2563eb;">${Math.abs(bal).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ج.م (رصيد دائن للعميل)</span>`;
          } else {
              return `<span style="color:#059669;">0.00 ج.م (خالص)</span>`;
          }
      }
+
+     function validateInvoiceForm() {
+         try {
+             let customerEl = document.getElementById('CustomerId');
+             if (!customerEl || !customerEl.value) {
+                 alert('⚠️ يرجى اختيار العميل أولاً');
+                 if (customerEl) customerEl.focus();
+                 return false;
+             }
+             let warehouseEl = document.getElementById('WarehouseId') || document.querySelector('select[name="WarehouseId"]');
+             if (!warehouseEl || !warehouseEl.value) {
+                 alert('⚠️ يرجى اختيار المخزن أولاً');
+                 if (warehouseEl) warehouseEl.focus();
+                 return false;
+             }
+             let rows = document.querySelectorAll('#lineItemsBody tr');
+             if (rows.length === 0) {
+                 alert('⚠️ يجب إضافة صنف واحد على الأقل في الفاتورة');
+                 return false;
+             }
+             for (let i = 0; i < rows.length; i++) {
+                 let productSel = rows[i].querySelector('.product-select');
+                 if (!productSel || !productSel.value) {
+                     alert('⚠️ يرجى اختيار الصنف لجميع البنود في الفاتورة');
+                     return false;
+                 }
+                 let qtyInput = rows[i].querySelector('.qty-input');
+                 if (!qtyInput || parseFloat(qtyInput.value) <= 0) {
+                     alert('⚠️ يرجى إدخال كمية صحيحة أكبر من الصفر');
+                     return false;
+                 }
+                 let selectedProduct = productsData.find(p => p.Id == productSel.value);
+                 if (selectedProduct) {
+                     let availQty = getProductAvailableQty(selectedProduct);
+                     let enteredQty = parseFloat(qtyInput.value) || 0;
+                     if (availQty <= 0) {
+                         alert(`⚠️ تنبيه: الصنف "${selectedProduct.Name}" غير موجود في المخزون حالياً (الرصيد: 0)`);
+                         return false;
+                     }
+                     if (enteredQty > availQty) {
+                         alert(`⚠️ الكمية المدخلة (${enteredQty}) للصنف "${selectedProduct.Name}" أكبر من الكمية المتوفرة في المخزون (${availQty})`);
+                         qtyInput.focus();
+                         return false;
+                     }
+                 }
+             }
+             return true;
+         } catch(e) {
+             alert('خطأ أثناء التحقق من البيانات: ' + e.message);
+             return false;
+         }
+     }
+
+     function selectInvoiceStatus(val) {
+         let btns = ['statusBtn1','statusBtn2','statusBtn3'];
+         let styles = {
+             '1': { bg:'#dcfce7', border:'#22c55e', color:'#166534' },
+             '2': { bg:'#fef9c3', border:'#facc15', color:'#854d0e' },
+             '3': { bg:'#ede9fe', border:'#8b5cf6', color:'#5b21b6' }
+         };
+         let labels = { '1':'✅ مدفوعة بالكامل', '2':'⏳ غير مدفوعة (آجل)', '3':'💵 مدفوعة جزئياً' };
+         btns.forEach(id => {
+             let el = document.getElementById(id);
+             if (el) { el.style.background='#f9fafb'; el.style.borderColor='#d1d5db'; el.style.color='#374151'; el.style.boxShadow='none'; }
+         });
+         let chosen = document.getElementById('statusBtn' + val);
+         if (chosen && styles[val]) {
+             chosen.style.background = styles[val].bg;
+             chosen.style.borderColor = styles[val].border;
+             chosen.style.color = styles[val].color;
+             chosen.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
+         }
+         let badge = document.getElementById('statusBadgeDisplay');
+         if (badge) badge.innerText = labels[val] || 'لم يتم الاختيار بعد';
+         document.getElementById('hiddenInvoiceStatus').value = val;
+         onPageStatusChange(val);
+     }
+
+     function onPageStatusChange(val) {
+         let grandTotal = parseFloat((document.getElementById('invoiceGrandTotal')?.innerText || '0').replace(/,/g, '')) || 0;
+         let statusHidden = document.getElementById('hiddenInvoiceStatus');
+         let paidHidden = document.getElementById('hiddenInvoicePaidAmount');
+         let displayTotal = document.getElementById('onpageDisplayTotal');
+         let displayRem = document.getElementById('onpageDisplayRemaining');
+         let errEl = document.getElementById('onpagePaidAmountError');
+         let autoEl = document.getElementById('onpageAutoPaidAlert');
+         let partBox = document.getElementById('onpagePartialPaymentBox');
+         let paidInput = document.getElementById('onpagePaidAmountInput');
+         let saveBtn = document.getElementById('saveInvoiceBtn');
+
+         if (statusHidden) statusHidden.value = val;
+         if (displayTotal) displayTotal.innerText = grandTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+         if (val === '3') { // 3 = مدفوعة جزئياً / دفعة مؤقتة
+             if (partBox) partBox.style.display = 'block';
+             if (paidInput) paidInput.value = '';
+             if (displayRem) displayRem.innerText = grandTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+             if (errEl) errEl.style.display = 'none';
+             if (autoEl) autoEl.style.display = 'none';
+             if (saveBtn) saveBtn.disabled = false;
+         } else {
+             if (partBox) partBox.style.display = 'none';
+             if (errEl) errEl.style.display = 'none';
+             if (autoEl) autoEl.style.display = 'none';
+             if (saveBtn) saveBtn.disabled = false;
+             if (val === '1') {
+                 if (paidHidden) paidHidden.value = grandTotal.toFixed(2);
+             } else {
+                 if (paidHidden) paidHidden.value = '0.00';
+             }
+         }
+     }
+
+     function onPagePaidAmountInput(val) {
+         let grandTotal = parseFloat((document.getElementById('invoiceGrandTotal')?.innerText || '0').replace(/,/g, '')) || 0;
+         let paidVal = parseFloat(val) || 0;
+         let rem = grandTotal - paidVal;
+         let displayTotal = document.getElementById('onpageDisplayTotal');
+         let displayRem = document.getElementById('onpageDisplayRemaining');
+         let errEl = document.getElementById('onpagePaidAmountError');
+         let autoEl = document.getElementById('onpageAutoPaidAlert');
+         let saveBtn = document.getElementById('saveInvoiceBtn');
+         let statusHidden = document.getElementById('hiddenInvoiceStatus');
+         let paidHidden = document.getElementById('hiddenInvoicePaidAmount');
+
+         if (displayTotal) displayTotal.innerText = grandTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+         // Rule 1: PaidAmount > GrandTotal -> ERROR and prevent save!
+         if (paidVal > grandTotal + 0.005 && grandTotal > 0) {
+             if (displayRem) displayRem.innerText = '0.00';
+             if (errEl) errEl.style.display = 'block';
+             if (autoEl) autoEl.style.display = 'none';
+             if (saveBtn) {
+                 saveBtn.disabled = true;
+                 saveBtn.style.opacity = '0.5';
+             }
+             if (paidHidden) paidHidden.value = paidVal.toFixed(2);
+             return;
+         } else {
+             if (errEl) errEl.style.display = 'none';
+             if (saveBtn) {
+                 saveBtn.disabled = false;
+                 saveBtn.style.opacity = '1';
+             }
+         }
+
+         // Rule 2: PaidAmount == GrandTotal -> Convert to status 1 (مدفوعة بالكامل) automatically!
+         if (Math.abs(paidVal - grandTotal) <= 0.005 && grandTotal > 0) {
+             if (displayRem) displayRem.innerText = '0.00';
+             if (autoEl) autoEl.style.display = 'block';
+             selectInvoiceStatus('1');
+             if (paidHidden) paidHidden.value = grandTotal.toFixed(2);
+             return;
+         } else {
+             if (autoEl) autoEl.style.display = 'none';
+             if (statusHidden) statusHidden.value = '3';
+         }
+
+         // Normal partial
+         if (rem < 0) rem = 0;
+         if (displayRem) displayRem.innerText = rem.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+         if (paidHidden) paidHidden.value = paidVal.toFixed(2);
+     }
+
+     function handleSaveInvoiceClick() {
+         try {
+             if (!validateInvoiceForm()) {
+                 return;
+             }
+             let onpageSel = document.getElementById('hiddenInvoiceStatus')?.value;
+             let grandTotal = parseFloat((document.getElementById('invoiceGrandTotal')?.innerText || '0').replace(/,/g, '')) || 0;
+             let paidVal = parseFloat(document.getElementById('onpagePaidAmountInput')?.value) || 0;
+
+             // 1) If user has not chosen status on page, alert them!
+             if (!onpageSel) {
+                 alert('⚠️ يرجى اختيار حالة سداد الفاتورة أولاً (مدفوعة بالكامل / آجل / مدفوعة جزئياً) من شريط الإجراءات قبل الحفظ');
+                 document.getElementById('statusBtn1')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                 return;
+             }
+
+             // 2) If status is 3 (partial) and paidVal > grandTotal: block and alert!
+             if (onpageSel === '3' && paidVal > grandTotal + 0.005) {
+                 alert('⚠️ المبلغ المدفوع أكبر من إجمالي الفاتورة! لا يمكن إدخال مبلغ أكبر من الإجمالي ولا يمكن حفظ الفاتورة.');
+                 document.getElementById('onpagePaidAmountInput')?.focus();
+                 return;
+             }
+
+             // 3) If status is 3 (partial) and paidVal == grandTotal: convert to 1 (fully paid)!
+             if (onpageSel === '3' && Math.abs(paidVal - grandTotal) <= 0.005 && grandTotal > 0) {
+                 onpageSel = '1';
+                 paidVal = grandTotal;
+                 let selEl = document.getElementById('onpageInvoiceStatus');
+                 if (selEl) selEl.value = '1';
+             }
+
+             // 4) If status is 3 (partial) and paidVal <= 0: alert!
+             if (onpageSel === '3' && (paidVal <= 0 || isNaN(paidVal))) {
+                 alert('⚠️ يرجى إدخال المبلغ المدفوع جزئياً / مؤقتاً بحيث يكون أكبر من الصفر وأقل من إجمالي الفاتورة.');
+                 document.getElementById('onpagePaidAmountInput')?.focus();
+                 return;
+             }
+
+             let statusHidden = document.getElementById('hiddenInvoiceStatus');
+             let paidHidden = document.getElementById('hiddenInvoicePaidAmount');
+             if (statusHidden) statusHidden.value = onpageSel;
+             if (paidHidden) paidHidden.value = (onpageSel === '1' ? grandTotal : (onpageSel === '3' ? paidVal : 0)).toFixed(2);
+
+             let frm = document.getElementById('invoiceForm');
+             if (frm) {
+                 frm.submit();
+             } else {
+                 alert('خطأ: نموذج الفاتورة غير موجود');
+             }
+         } catch(e) {
+             alert('حدث خطأ أثناء محاولة حفظ الفاتورة: ' + e.message);
+             console.error(e);
+         }
+     }
+
+     function onModalPaidAmountInput(val) {
+          let errEl = document.getElementById('modalStatusError');
+          let grandTotal = parseFloat((document.getElementById('invoiceGrandTotal')?.innerText || '0').replace(/,/g, '')) || 0;
+          let amt = parseFloat(val) || 0;
+          let rem = grandTotal - amt;
+          let totalEl = document.getElementById('modalDisplayTotalAmount');
+          let remEl = document.getElementById('modalDisplayRemainingAmount');
+          if (totalEl) totalEl.innerText = grandTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+          if (remEl) remEl.innerText = (rem >= 0 ? rem : 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+          if (amt > grandTotal + 0.005 && grandTotal > 0) {
+              if (errEl) {
+                  errEl.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i> المبلغ المدخل أكبر من إجمالي الفاتورة، لا يمكن حفظ الفاتورة!';
+                  errEl.style.display = 'block';
+                  errEl.style.background = '#fef2f2';
+                  errEl.style.borderColor = '#f87171';
+                  errEl.style.color = '#b91c1c';
+              }
+          } else if (Math.abs(amt - grandTotal) <= 0.005 && grandTotal > 0) {
+              let selEl = document.getElementById('modalStatusSelect');
+              if (selEl) selEl.value = '1';
+              if (errEl) {
+                  errEl.innerHTML = '<i class="fas fa-check-circle me-1"></i> المبلغ المدخل يساوي الإجمالي، تم تحويل حالة الفاتورة تلقائياً إلى (مدفوعة بالكامل)';
+                  errEl.style.display = 'block';
+                  errEl.style.background = '#ecfdf5';
+                  errEl.style.borderColor = '#10b981';
+                  errEl.style.color = '#065f46';
+              }
+          } else if (errEl && errEl.style.display === 'block') {
+              errEl.style.display = 'none';
+          }
+      }
+
+      function confirmAndSubmitInvoice() {
+          try {
+              let statusVal = document.getElementById('modalStatusSelect')?.value;
+              let errDiv = document.getElementById('modalStatusError');
+              if (!statusVal) {
+                  if (errDiv) {
+                      errDiv.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i> يرجى اختيار حالة الفاتورة أولاً ولا يمكن تخطي هذه الخطوة!';
+                      errDiv.style.display = 'block';
+                  } else {
+                      alert('يرجى اختيار حالة الفاتورة أولاً ولا يمكن تخطي هذه الخطوة!');
+                  }
+                  return;
+              }
+              let paidVal = 0;
+              let grandTotal = parseFloat((document.getElementById('invoiceGrandTotal')?.innerText || '0').replace(/,/g, '')) || 0;
+              if (statusVal === '3') {
+                  paidVal = parseFloat(document.getElementById('modalPaidAmountInput')?.value) || 0;
+                  if (paidVal <= 0) {
+                      if (errDiv) {
+                          errDiv.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i> يرجى إدخال المبلغ المدفوع جزئياً بشكل صحيح أكبر من الصفر!';
+                          errDiv.style.display = 'block';
+                      } else {
+                          alert('يرجى إدخال المبلغ المدفوع جزئياً بشكل صحيح أكبر من الصفر!');
+                      }
+                      return;
+                  }
+                  if (paidVal > grandTotal + 0.005) {
+                      if (errDiv) {
+                          errDiv.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i> المبلغ المدخل أكبر من إجمالي الفاتورة، لا يمكن حفظ الفاتورة!';
+                          errDiv.style.display = 'block';
+                      } else {
+                          alert('المبلغ المدخل أكبر من إجمالي الفاتورة، لا يمكن حفظ الفاتورة!');
+                      }
+                      return;
+                  }
+                  if (Math.abs(paidVal - grandTotal) <= 0.005) {
+                      statusVal = '1';
+                      paidVal = grandTotal;
+                      let selEl = document.getElementById('modalStatusSelect');
+                      if (selEl) selEl.value = '1';
+                  }
+              } else if (statusVal === '1') {
+                  paidVal = grandTotal;
+              } else {
+                  paidVal = 0;
+              }
+
+              let statusHidden = document.getElementById('hiddenInvoiceStatus');
+              let paidHidden = document.getElementById('hiddenInvoicePaidAmount');
+              if (statusHidden) statusHidden.value = statusVal;
+              if (paidHidden) paidHidden.value = paidVal.toFixed(2);
+
+              let frm = document.getElementById('invoiceForm');
+              if (frm) {
+                  frm.submit();
+              } else {
+                  alert('خطأ: نموذج الفاتورة غير موجود');
+              }
+          } catch(err) {
+              alert('حدث خطأ أثناء حفظ الفاتورة: ' + err.message);
+              console.error(err);
+          }
+      }
 </script>
+
 
 
 
